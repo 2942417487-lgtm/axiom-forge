@@ -1,0 +1,28 @@
+{
+  "world_id": "WLD-1f591576-f6c4-4c77-a975-08494320662d",
+  "task_id": "TSK-90b6e64c-fe5c-429e-961f-a255d86643d9",
+  "run_id": "RUN-438e830b-97d6-453c-ae5a-925c56af1a19",
+  "canon_version": "CANON-191e98e943d3ff56d7479b8ff0e41e56b729a18a70a24555365a21f0aedb5168",
+  "status": "completed",
+  "started_at": "2026-10-03T12:06:50.937415Z",
+  "finished_at": "2026-10-03T12:06:50.937415Z",
+  "agent_run_ids": [
+    "ARN-8cce4a68-5d8f-4539-a47c-a64cb5e7e10d",
+    "ARN-e1805ffd-260c-4c4f-af67-69c6f7437dac",
+    "ARN-7f066e97-b5ab-4af9-b644-9a08dea0567d",
+    "ARN-a93720be-bd58-4dcf-be2f-dfca3beb5d65",
+    "ARN-eb63aa25-f1bd-4750-92f4-e5e1090dbbe1",
+    "ARN-b9008bdf-7a41-45c1-adc5-9ddb498b0383"
+  ],
+  "artifact_ids": [
+    "ART-0a287090-4790-4396-8b26-e33a313b006b",
+    "ART-11d1d0c2-756f-41f3-a47e-9bb6c949d03a",
+    "ART-2a014ce1-7d60-43f0-84af-0361eeaaed2e",
+    "ART-c43fca3e-d87f-45fe-ad62-428d8a5cea66",
+    "ART-e521060b-68e8-4812-8610-ef960af118cf",
+    "ART-8576d641-890c-43f6-abd0-8c88e83525f2"
+  ],
+  "metadata": {
+    "test_fixture": true
+  }
+}

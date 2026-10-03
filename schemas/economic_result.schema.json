@@ -1,0 +1,187 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://axiom-forge.invalid/schemas/economic_result.schema.json",
+  "title": "economic_result",
+  "type": "object",
+  "properties": {
+    "world_id": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/world_id"
+    },
+    "task_id": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/task_id"
+    },
+    "run_id": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/run_id"
+    },
+    "agent_run_id": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/agent_run_id"
+    },
+    "artifact_id": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/artifact_id"
+    },
+    "canon_version": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/canon_version"
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1
+    },
+    "claims": {
+      "type": "array",
+      "items": {
+        "$ref": "https://axiom-forge.invalid/schemas/claim.schema.json"
+      },
+      "minItems": 0
+    },
+    "assumptions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "open_questions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "metadata": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/metadata"
+    },
+    "result_type": {
+      "const": "economic"
+    },
+    "calculations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "artifact_id": {
+            "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/artifact_id"
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1
+          },
+          "tool": {
+            "type": "string",
+            "minLength": 1
+          },
+          "inputs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "value": {
+                  "type": "number"
+                },
+                "unit": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "name",
+                "value",
+                "unit"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1
+          },
+          "outputs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "value": {
+                  "type": "number"
+                },
+                "unit": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "name",
+                "value",
+                "unit"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1
+          },
+          "assumptions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "uniqueItems": true
+          },
+          "reproducible_code": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "artifact_id",
+          "description",
+          "tool",
+          "inputs",
+          "outputs",
+          "assumptions",
+          "reproducible_code"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 0
+    },
+    "cost_drivers": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "alternatives": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    }
+  },
+  "required": [
+    "world_id",
+    "task_id",
+    "run_id",
+    "agent_run_id",
+    "artifact_id",
+    "canon_version",
+    "summary",
+    "claims",
+    "assumptions",
+    "open_questions",
+    "metadata",
+    "result_type",
+    "calculations",
+    "cost_drivers",
+    "alternatives"
+  ],
+  "additionalProperties": false
+}

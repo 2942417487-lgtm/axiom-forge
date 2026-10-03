@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0",
+  "snapshot_id": "SNP-4429804a-79f8-4909-8548-55bc477e1a46",
+  "world_id": "WLD-c1dc94b9-652c-4fb1-a6e0-f4840a7ec7b4",
+  "canon_version": "CANON-e453d41c04047d6de6c43848533267db5632218676db43c1677e7a1f9b070c2a",
+  "created_at": "2026-10-03T12:06:50.941222Z",
+  "files": [
+    {
+      "path": "world/world.json",
+      "sha256": "7dc6f19f404c8a6255066108abd5d3a321350dde734fd3c069d710a03a721fcf",
+      "data": {
+        "schema_version": "1.0",
+        "world_id": "WLD-c1dc94b9-652c-4fb1-a6e0-f4840a7ec7b4",
+        "name": "Axiom Forge",
+        "description": "Project knowledge workspace; no author-approved worldbuilding facts yet.",
+        "created_at": "2026-10-03T12:05:25.493041Z",
+        "metadata": {}
+      }
+    }
+  ]
+}

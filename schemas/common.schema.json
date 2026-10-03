@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://axiom-forge.invalid/schemas/common.schema.json",
+  "title": "common",
+  "$defs": {
+    "world_id": {
+      "type": "string",
+      "pattern": "^WLD-[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "task_id": {
+      "type": "string",
+      "pattern": "^TSK-[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "run_id": {
+      "type": "string",
+      "pattern": "^RUN-[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "agent_run_id": {
+      "type": "string",
+      "pattern": "^ARN-[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "artifact_id": {
+      "type": "string",
+      "pattern": "^ART-[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "snapshot_id": {
+      "type": "string",
+      "pattern": "^SNP-[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "proposal_id": {
+      "type": "string",
+      "pattern": "^CHG-[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "claim_id": {
+      "type": "string",
+      "pattern": "^CLM-[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "evidence_id": {
+      "type": "string",
+      "pattern": "^EVD-[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "entity_id": {
+      "type": "string",
+      "pattern": "^(PHY|AST|TECH|ENG|ECO|SOC|POL|HIS|TML|ACT|ASM|AUD|DEC)-(?:[0-9]{3,}|[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$"
+    },
+    "canon_version": {
+      "type": "string",
+      "pattern": "^CANON-[0-9a-f]{64}$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "datetime": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "metadata": {
+      "type": "object"
+    },
+    "canon_status": {
+      "enum": [
+        "Hard Canon",
+        "Soft Canon",
+        "Assumption",
+        "Derived Fact",
+        "Speculation",
+        "Open Question",
+        "Contradiction"
+      ]
+    },
+    "category": {
+      "enum": [
+        "FACT",
+        "INFERENCE",
+        "ENGINEERING ASSUMPTION",
+        "SPECULATION",
+        "CONFLICT",
+        "OPEN QUESTION"
+      ]
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "domain": {
+      "enum": [
+        "physics",
+        "astronomy",
+        "technology",
+        "engineering",
+        "economy",
+        "society",
+        "politics",
+        "history",
+        "timeline",
+        "actors",
+        "assumptions",
+        "audits",
+        "decisions"
+      ]
+    }
+  }
+}

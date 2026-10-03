@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://axiom-forge.invalid/schemas/decision.schema.json",
+  "title": "decision",
+  "allOf": [
+    {
+      "$ref": "https://axiom-forge.invalid/schemas/canon_entry.schema.json"
+    },
+    {
+      "properties": {
+        "domain": {
+          "const": "decisions"
+        }
+      }
+    }
+  ]
+}

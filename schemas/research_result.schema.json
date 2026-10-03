@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://axiom-forge.invalid/schemas/research_result.schema.json",
+  "title": "research_result",
+  "type": "object",
+  "properties": {
+    "world_id": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/world_id"
+    },
+    "task_id": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/task_id"
+    },
+    "run_id": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/run_id"
+    },
+    "agent_run_id": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/agent_run_id"
+    },
+    "artifact_id": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/artifact_id"
+    },
+    "canon_version": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/canon_version"
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1
+    },
+    "claims": {
+      "type": "array",
+      "items": {
+        "$ref": "https://axiom-forge.invalid/schemas/claim.schema.json"
+      },
+      "minItems": 0
+    },
+    "assumptions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "open_questions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "metadata": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/metadata"
+    },
+    "result_type": {
+      "const": "research"
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "$ref": "https://axiom-forge.invalid/schemas/evidence.schema.json"
+      },
+      "minItems": 0
+    },
+    "search_log": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "minLength": 1
+          },
+          "tool": {
+            "type": "string",
+            "minLength": 1
+          },
+          "searched_at": {
+            "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/datetime"
+          },
+          "source_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            }
+          }
+        },
+        "required": [
+          "query",
+          "tool",
+          "searched_at",
+          "source_urls"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 0
+    }
+  },
+  "required": [
+    "world_id",
+    "task_id",
+    "run_id",
+    "agent_run_id",
+    "artifact_id",
+    "canon_version",
+    "summary",
+    "claims",
+    "assumptions",
+    "open_questions",
+    "metadata",
+    "result_type",
+    "evidence",
+    "search_log"
+  ],
+  "additionalProperties": false
+}

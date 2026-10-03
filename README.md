@@ -6,9 +6,9 @@
 
 ## 当前进度
 
-当前仅搭建 Phase 0：项目与安全基础。世界观数据层、Evidence Ledger、Schema、Agent Runtime、模型路由和工作流尚未实现。
+已建立 Phase 0–3 的项目基础、世界观数据层、Evidence Ledger 规范和统一业务 Schema。提供离线数据校验、业务 ID 生成与 Canon Snapshot 工具。
 
-本阶段没有应用程序入口，不需要安装依赖或配置真实 API Key，也没有模型调用或费用。
+当前生产 world 为空；Agent Runtime、模型路由、完整任务工作流和 Canon 应用尚未实现。本阶段不调用模型 API，不需要真实 API Key。
 
 ## 本地使用
 
@@ -20,7 +20,28 @@ Copy-Item -LiteralPath .env.example -Destination .env
 
 真实密钥只保存在本地 `.env` 或系统 Secret Store。`.env.example` 只包含变量名与空值。不得在文件、日志、聊天或 Git 中披露凭据。
 
-Phase 0 的检查命令：
+需要 Python 3.11+ 与主解释器中的 pip 22.3+。在项目根目录搭建隔离环境（本机避免了 ensurepip 的路径兼容问题）：
+
+```powershell
+python -m venv --without-pip .venv
+python -m pip --python .venv install -r requirements-lock.txt
+```
+
+运行与验证：
+
+```powershell
+.\.venv\Scripts\python.exe -m axiom_forge check-schemas
+.\.venv\Scripts\python.exe -m axiom_forge validate-world
+.\.venv\Scripts\python.exe -m axiom_forge validate task_state examples/task_state.json
+.\.venv\Scripts\python.exe -m axiom_forge new-id task
+.\.venv\Scripts\python.exe -m axiom_forge new-id entity --domain technology
+.\.venv\Scripts\python.exe -m axiom_forge snapshot create
+.\.venv\Scripts\python.exe -m unittest discover -s tests -v
+```
+
+快照创建命令返回文件路径；用 `snapshot verify <返回的文件路径>` 独立验证。相同数据复用已验证的同一内容版本，禁止覆盖旧快照。参数 `--repo <目录>` 位于命令之前；从其他目录启动时须保证 axiom_forge 可导入。
+
+Git 基础检查：
 
 ```powershell
 git status --short --branch
@@ -29,7 +50,7 @@ git check-ignore .env .env.local .venv/ignore-check node_modules/ignore-check tm
 git ls-files .env.example
 ```
 
-尚无业务代码与测试套件；后续实现软件功能时必须添加与风险相称的验证，并记录结果。
+已实现本地基础工具与 unittest；完整研究工作流留到后续阶段。使用说明：[世界观数据](world/README.md)、[Evidence 规范](docs/evidence.md)、[业务接口](schemas/README.md)、[阶段交付记录](docs/phase-1-3.md)。
 
 ## 当前目录
 
@@ -41,13 +62,18 @@ git ls-files .env.example
 ├── AGENTS.md          # 所有 Agent 的项目总则
 ├── CLAUDE.md          # Claude Runtime 操作说明
 ├── README.md          # 项目定位、使用方式和目录说明
-└── docs/
-    └── phase-0.md     # 本阶段交付与检查记录
+├── requirements.txt / requirements-lock.txt
+├── axiom_forge/       # 本地校验、ID 与快照工具
+├── schemas/           # 22 个 JSON Schema 与接口说明
+├── world/             # 分域知识库、生产 world_id 与初始空快照
+├── examples/          # 21 个明确标注测试性质的合约样例
+├── tests/             # 完整性与失败边界测试
+└── docs/              # Evidence 规范、阶段记录与工程任务说明
 ```
 
 ## 后续目录规划
 
-以下为设计规划，按后续阶段逐步创建：`world/`、`schemas/`、`agents/`、`.claude/agents/`、`tools/`、`runtimes/`、`routing/`、`workflows/`、`evals/`、`tests/`。
+以下为设计规划，按后续阶段逐步创建：`agents/`、`.claude/agents/`、`tools/`、`runtimes/`、`routing/`、`workflows/`、`evals/`。
 
 业务角色与具体模型解耦；厂商模型名称、API 标识、价格和能力必须在接入时查证。先验证简单 Python V1，再评估引入 LangGraph。
 
@@ -58,6 +84,8 @@ GitHub 仓库使用 Private 可见性。私有仓库仍需严格排除凭据。
 仓库地址：[2942417487-lgtm/axiom-forge](https://github.com/2942417487-lgtm/axiom-forge)。`origin` 已连接该仓库，默认分支为 `main`。
 
 AI 的重要系统或世界观修改必须在功能分支上完成，经验证、人工审查后再合并至 `main`。初始 `main` 仅建立空提交作为分支基线；Phase 0 文件放在 `bootstrap/phase-0`，等待人工审查。
+
+Phase 1–3 使用 `feat/phase-1-3-foundations`，基于 Phase 0 分支提交独立 PR；按依赖顺序人工审查并合并。
 
 本机的 GitHub CLI 便携版与认证配置位于 `.cache/`，不会进入 Git。本仓库单独配置了 CLI credential helper；全局 Git 认证配置保持原状。更换电脑时需要自行配置 GitHub 认证，本地 `.cache/` 不可作为共享文件上传。
 

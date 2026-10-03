@@ -1,0 +1,42 @@
+{
+  "proposal_id": "CHG-9d258c60-ad14-4007-a25b-71d38c1159c2",
+  "world_id": "WLD-1f591576-f6c4-4c77-a975-08494320662d",
+  "task_id": "TSK-90b6e64c-fe5c-429e-961f-a255d86643d9",
+  "run_id": "RUN-438e830b-97d6-453c-ae5a-925c56af1a19",
+  "base_canon_version": "CANON-191e98e943d3ff56d7479b8ff0e41e56b729a18a70a24555365a21f0aedb5168",
+  "operation": "add",
+  "target_entity_id": "TECH-002",
+  "before": null,
+  "after": {
+    "entity_id": "TECH-002",
+    "domain": "technology",
+    "title": "TEST FIXTURE: open propulsion question",
+    "statement": "Structure demonstration only. This is not an author setting or a verified fact.",
+    "status": "Open Question",
+    "source": {
+      "kind": "open_question",
+      "description": "Synthetic contract fixture"
+    },
+    "dependencies": [],
+    "implications": [],
+    "conflicts": [],
+    "evidence_ids": [],
+    "claims": [],
+    "last_updated": "2026-10-03T12:06:50.937415Z"
+  },
+  "rationale": "Synthetic proposal only.",
+  "provenance": {
+    "evidence_ids": [],
+    "reasoning": "This example requests review of an open question.",
+    "assumptions": [],
+    "uncertainty": "No actual setting is proposed.",
+    "counterexamples": []
+  },
+  "approval": {
+    "status": "pending",
+    "reviewer": null,
+    "reviewed_at": null,
+    "decision_id": null
+  },
+  "created_at": "2026-10-03T12:06:50.937415Z"
+}

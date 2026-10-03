@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://axiom-forge.invalid/schemas/canon_entry.schema.json",
+  "title": "canon_entry",
+  "type": "object",
+  "properties": {
+    "entity_id": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/entity_id"
+    },
+    "domain": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/domain"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "statement": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/canon_status"
+    },
+    "source": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "enum": [
+            "user",
+            "evidence",
+            "derivation",
+            "open_question"
+          ]
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "kind",
+        "description"
+      ],
+      "additionalProperties": false
+    },
+    "dependencies": {
+      "type": "array",
+      "items": {
+        "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/entity_id"
+      },
+      "minItems": 0,
+      "uniqueItems": true
+    },
+    "implications": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "conflicts": {
+      "type": "array",
+      "items": {
+        "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/entity_id"
+      },
+      "minItems": 0,
+      "uniqueItems": true
+    },
+    "evidence_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/evidence_id"
+      },
+      "minItems": 0,
+      "uniqueItems": true
+    },
+    "claims": {
+      "type": "array",
+      "items": {
+        "$ref": "https://axiom-forge.invalid/schemas/claim.schema.json"
+      },
+      "minItems": 0
+    },
+    "last_updated": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/datetime"
+    }
+  },
+  "required": [
+    "entity_id",
+    "domain",
+    "title",
+    "statement",
+    "status",
+    "source",
+    "dependencies",
+    "implications",
+    "conflicts",
+    "evidence_ids",
+    "claims",
+    "last_updated"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "Derived Fact"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "claims": {
+            "minItems": 1
+          },
+          "evidence_ids": {
+            "minItems": 1
+          }
+        }
+      }
+    }
+  ]
+}

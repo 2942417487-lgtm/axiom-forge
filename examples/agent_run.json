@@ -1,0 +1,16 @@
+{
+  "world_id": "WLD-1f591576-f6c4-4c77-a975-08494320662d",
+  "task_id": "TSK-90b6e64c-fe5c-429e-961f-a255d86643d9",
+  "run_id": "RUN-438e830b-97d6-453c-ae5a-925c56af1a19",
+  "agent_run_id": "ARN-8cce4a68-5d8f-4539-a47c-a64cb5e7e10d",
+  "artifact_id": "ART-0a287090-4790-4396-8b26-e33a313b006b",
+  "canon_version": "CANON-191e98e943d3ff56d7479b8ff0e41e56b729a18a70a24555365a21f0aedb5168",
+  "role": "researcher",
+  "status": "completed",
+  "started_at": "2026-10-03T12:06:50.937415Z",
+  "finished_at": "2026-10-03T12:06:50.937415Z",
+  "metadata": {
+    "provider_session_id": "test-only-vendor-session",
+    "test_fixture": true
+  }
+}

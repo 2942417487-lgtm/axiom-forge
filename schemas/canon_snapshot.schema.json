@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://axiom-forge.invalid/schemas/canon_snapshot.schema.json",
+  "title": "canon_snapshot",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "snapshot_id": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/snapshot_id"
+    },
+    "world_id": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/world_id"
+    },
+    "canon_version": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/canon_version"
+    },
+    "created_at": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/datetime"
+    },
+    "files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "pattern": "^world/(?:world\\.json|(?:canon/(?:physics|astronomy|technology|engineering|economy|society|politics|history)|timeline|actors|assumptions|evidence|audits|decisions)/[^\\\\:]+\\.json)$"
+          },
+          "sha256": {
+            "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/sha256"
+          },
+          "data": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "path",
+          "sha256",
+          "data"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1
+    }
+  },
+  "required": [
+    "schema_version",
+    "snapshot_id",
+    "world_id",
+    "canon_version",
+    "created_at",
+    "files"
+  ],
+  "additionalProperties": false
+}

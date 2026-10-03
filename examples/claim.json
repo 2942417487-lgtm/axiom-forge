@@ -1,0 +1,13 @@
+{
+  "claim_id": "CLM-a0ffbcd3-43bc-4b16-9009-bf9f3bbbd4d7",
+  "category": "OPEN QUESTION",
+  "statement": "TEST FIXTURE: this conceptual propulsion question has not been researched.",
+  "evidence_ids": [],
+  "entity_ids": [
+    "TECH-001"
+  ],
+  "reasoning": "No research or computation was performed.",
+  "assumptions": [],
+  "uncertainty": "Synthetic example only; feasibility unknown.",
+  "counterexamples": []
+}
