@@ -1,0 +1,231 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://axiom-forge.invalid/schemas/task_state.schema.json",
+  "title": "task_state",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "world_id": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/world_id"
+    },
+    "task_id": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/task_id"
+    },
+    "user_question": {
+      "type": "string",
+      "minLength": 1
+    },
+    "task_type": {
+      "enum": [
+        "scenario_simulation",
+        "direct_challenge",
+        "roundtable",
+        "court"
+      ]
+    },
+    "lifecycle": {
+      "enum": [
+        "CREATED",
+        "PLANNING",
+        "RESEARCHING",
+        "ANALYZING",
+        "REDTEAM",
+        "SYNTHESIS",
+        "WAITING_APPROVAL",
+        "COMMITTED"
+      ]
+    },
+    "canon_version": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/canon_version"
+    },
+    "canon_snapshot": {
+      "$ref": "https://axiom-forge.invalid/schemas/canon_snapshot.schema.json"
+    },
+    "relevant_entities": {
+      "type": "array",
+      "items": {
+        "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/entity_id"
+      },
+      "minItems": 0,
+      "uniqueItems": true
+    },
+    "research_results": {
+      "type": "array",
+      "items": {
+        "$ref": "https://axiom-forge.invalid/schemas/research_result.schema.json"
+      },
+      "minItems": 0
+    },
+    "engineering_results": {
+      "type": "array",
+      "items": {
+        "$ref": "https://axiom-forge.invalid/schemas/engineering_result.schema.json"
+      },
+      "minItems": 0
+    },
+    "economic_results": {
+      "type": "array",
+      "items": {
+        "$ref": "https://axiom-forge.invalid/schemas/economic_result.schema.json"
+      },
+      "minItems": 0
+    },
+    "historical_results": {
+      "type": "array",
+      "items": {
+        "$ref": "https://axiom-forge.invalid/schemas/historical_result.schema.json"
+      },
+      "minItems": 0
+    },
+    "contradictions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "conflict_id": {
+            "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/claim_id"
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1
+          },
+          "entity_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/entity_id"
+            },
+            "minItems": 0,
+            "uniqueItems": true
+          },
+          "evidence_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/evidence_id"
+            },
+            "minItems": 0,
+            "uniqueItems": true
+          },
+          "severity": {
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "critical"
+            ]
+          },
+          "resolution": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "conflict_id",
+          "description",
+          "entity_ids",
+          "evidence_ids",
+          "severity",
+          "resolution"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 0
+    },
+    "redteam_results": {
+      "type": "array",
+      "items": {
+        "$ref": "https://axiom-forge.invalid/schemas/redteam_result.schema.json"
+      },
+      "minItems": 0
+    },
+    "synthesis": {
+      "anyOf": [
+        {
+          "$ref": "https://axiom-forge.invalid/schemas/synthesis_result.schema.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "proposed_changes": {
+      "type": "array",
+      "items": {
+        "$ref": "https://axiom-forge.invalid/schemas/canon_change.schema.json"
+      },
+      "minItems": 0
+    },
+    "approval_status": {
+      "enum": [
+        "not_requested",
+        "pending",
+        "approved",
+        "rejected"
+      ]
+    },
+    "final_result": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "runs": {
+      "type": "array",
+      "items": {
+        "$ref": "https://axiom-forge.invalid/schemas/run.schema.json"
+      },
+      "minItems": 0
+    },
+    "agent_runs": {
+      "type": "array",
+      "items": {
+        "$ref": "https://axiom-forge.invalid/schemas/agent_run.schema.json"
+      },
+      "minItems": 0
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "$ref": "https://axiom-forge.invalid/schemas/artifact.schema.json"
+      },
+      "minItems": 0
+    },
+    "metadata": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/metadata"
+    }
+  },
+  "required": [
+    "schema_version",
+    "world_id",
+    "task_id",
+    "user_question",
+    "task_type",
+    "lifecycle",
+    "canon_version",
+    "canon_snapshot",
+    "relevant_entities",
+    "research_results",
+    "engineering_results",
+    "economic_results",
+    "historical_results",
+    "contradictions",
+    "redteam_results",
+    "synthesis",
+    "proposed_changes",
+    "approval_status",
+    "final_result",
+    "runs",
+    "agent_runs",
+    "artifacts",
+    "metadata"
+  ],
+  "additionalProperties": false
+}

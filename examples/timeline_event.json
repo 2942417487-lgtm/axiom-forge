@@ -1,0 +1,17 @@
+{
+  "entity_id": "TML-001",
+  "domain": "timeline",
+  "title": "TEST FIXTURE: open propulsion question",
+  "statement": "Structure demonstration only. This is not an author setting or a verified fact.",
+  "status": "Open Question",
+  "source": {
+    "kind": "open_question",
+    "description": "Synthetic contract fixture"
+  },
+  "dependencies": [],
+  "implications": [],
+  "conflicts": [],
+  "evidence_ids": [],
+  "claims": [],
+  "last_updated": "2026-10-03T12:06:50.937415Z"
+}

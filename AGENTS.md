@@ -25,7 +25,7 @@
 - Canon 修改必须提交 ProposedCanonChange，经验证和人工批准后才允许应用与提交。
 - 同一研究任务的 Specialist 首轮使用同一固定 Canon Snapshot，不得读取其他 Specialist 的首轮答案。
 - 独立分析完成后才能交叉审查、Red Team 与综合。不得以多数投票替代证据比较。
-- Phase 0 尚无 Canon、Snapshot 或审批软件；以上规则是未来实施要求，不得声称功能已经存在。
+- Phase 1–3 已提供 Canon/Evidence Schema、数据完整性校验与 Snapshot；人工审批和 Canon 应用 Runtime 尚未实现，不得声称结构校验已完成安全审批。
 
 ## 架构与开发
 
@@ -48,4 +48,4 @@
 
 ## 当前检查
 
-Phase 0 不包含可运行应用或业务测试套件。使用 `git diff --check` 检查改动，使用 `git check-ignore` 验证敏感文件和临时目录被忽略，检查 `.env.example` 全部为空值。
+使用 `.\.venv\Scripts\python.exe -m unittest discover -s tests -v` 运行基础工具测试；使用 `python -m axiom_forge check-schemas`、`validate-world` 与 `validate task_state <文件>` 检查数据。使用 `git diff --check` 检查改动，使用 `git check-ignore` 验证敏感文件和临时目录被忽略，检查 `.env.example` 全部为空值。范例全部为测试数据，不得导入正式 world；当前尚无完整 Agent 工作流。

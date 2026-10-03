@@ -1,0 +1,31 @@
+{
+  "entity_id": "TECH-001",
+  "domain": "technology",
+  "title": "TEST FIXTURE: open propulsion question",
+  "statement": "Structure demonstration only. This is not an author setting or a verified fact.",
+  "status": "Open Question",
+  "source": {
+    "kind": "open_question",
+    "description": "Synthetic contract fixture"
+  },
+  "dependencies": [],
+  "implications": [],
+  "conflicts": [],
+  "evidence_ids": [],
+  "claims": [
+    {
+      "claim_id": "CLM-a0ffbcd3-43bc-4b16-9009-bf9f3bbbd4d7",
+      "category": "OPEN QUESTION",
+      "statement": "TEST FIXTURE: this conceptual propulsion question has not been researched.",
+      "evidence_ids": [],
+      "entity_ids": [
+        "TECH-001"
+      ],
+      "reasoning": "No research or computation was performed.",
+      "assumptions": [],
+      "uncertainty": "Synthetic example only; feasibility unknown.",
+      "counterexamples": []
+    }
+  ],
+  "last_updated": "2026-10-03T12:06:50.937415Z"
+}

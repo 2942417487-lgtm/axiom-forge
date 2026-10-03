@@ -1,0 +1,38 @@
+{
+  "evidence_id": "EVD-359a5e64-c118-494e-9fc2-598e27c40261",
+  "claim_id": "CLM-a0ffbcd3-43bc-4b16-9009-bf9f3bbbd4d7",
+  "source": {
+    "source_type": "test_fixture",
+    "title": "TEST FIXTURE: no actual source",
+    "url": "https://example.invalid/test-fixture",
+    "authors": [],
+    "journal_or_conference": null,
+    "year": null,
+    "doi": null,
+    "date": null
+  },
+  "field": "schema testing",
+  "what_was_actually_demonstrated": "No scientific result was demonstrated.",
+  "applicable_conditions": [
+    "Schema testing only"
+  ],
+  "what_it_does_not_demonstrate": [
+    "Any real-world claim"
+  ],
+  "confidence": 0,
+  "confidence_rationale": "No source has been read.",
+  "supported_claims": [
+    "CLM-a0ffbcd3-43bc-4b16-9009-bf9f3bbbd4d7"
+  ],
+  "supported_entities": [
+    "TECH-001"
+  ],
+  "verification": {
+    "status": "synthetic",
+    "accessed_at": null,
+    "method": null,
+    "locator": null,
+    "excerpt": null
+  },
+  "last_updated": "2026-10-03T12:06:50.937415Z"
+}

@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://axiom-forge.invalid/schemas/agent_run.schema.json",
+  "title": "agent_run",
+  "type": "object",
+  "properties": {
+    "world_id": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/world_id"
+    },
+    "task_id": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/task_id"
+    },
+    "run_id": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/run_id"
+    },
+    "agent_run_id": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/agent_run_id"
+    },
+    "artifact_id": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/artifact_id"
+    },
+    "canon_version": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/canon_version"
+    },
+    "role": {
+      "enum": [
+        "lead",
+        "researcher",
+        "engineering_auditor",
+        "economic_auditor",
+        "historical_analyst",
+        "redteam",
+        "integrator"
+      ]
+    },
+    "status": {
+      "enum": [
+        "created",
+        "running",
+        "completed",
+        "failed",
+        "cancelled"
+      ]
+    },
+    "started_at": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/datetime"
+    },
+    "finished_at": {
+      "anyOf": [
+        {
+          "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/datetime"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "metadata": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/metadata"
+    }
+  },
+  "required": [
+    "world_id",
+    "task_id",
+    "run_id",
+    "agent_run_id",
+    "artifact_id",
+    "canon_version",
+    "role",
+    "status",
+    "started_at",
+    "finished_at",
+    "metadata"
+  ],
+  "additionalProperties": false
+}

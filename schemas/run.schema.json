@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://axiom-forge.invalid/schemas/run.schema.json",
+  "title": "run",
+  "type": "object",
+  "properties": {
+    "world_id": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/world_id"
+    },
+    "task_id": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/task_id"
+    },
+    "run_id": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/run_id"
+    },
+    "canon_version": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/canon_version"
+    },
+    "status": {
+      "enum": [
+        "created",
+        "running",
+        "completed",
+        "failed",
+        "cancelled"
+      ]
+    },
+    "started_at": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/datetime"
+    },
+    "finished_at": {
+      "anyOf": [
+        {
+          "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/datetime"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "agent_run_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/agent_run_id"
+      },
+      "minItems": 0,
+      "uniqueItems": true
+    },
+    "artifact_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/artifact_id"
+      },
+      "minItems": 0,
+      "uniqueItems": true
+    },
+    "metadata": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/metadata"
+    }
+  },
+  "required": [
+    "world_id",
+    "task_id",
+    "run_id",
+    "canon_version",
+    "status",
+    "started_at",
+    "finished_at",
+    "agent_run_ids",
+    "artifact_ids",
+    "metadata"
+  ],
+  "additionalProperties": false
+}

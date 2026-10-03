@@ -1,0 +1,35 @@
+{
+  "world_id": "WLD-1f591576-f6c4-4c77-a975-08494320662d",
+  "task_id": "TSK-90b6e64c-fe5c-429e-961f-a255d86643d9",
+  "run_id": "RUN-438e830b-97d6-453c-ae5a-925c56af1a19",
+  "agent_run_id": "ARN-e1805ffd-260c-4c4f-af67-69c6f7437dac",
+  "artifact_id": "ART-11d1d0c2-756f-41f3-a47e-9bb6c949d03a",
+  "canon_version": "CANON-191e98e943d3ff56d7479b8ff0e41e56b729a18a70a24555365a21f0aedb5168",
+  "summary": "TEST FIXTURE: no model, research, or computation was run.",
+  "claims": [
+    {
+      "claim_id": "CLM-a0ffbcd3-43bc-4b16-9009-bf9f3bbbd4d7",
+      "category": "OPEN QUESTION",
+      "statement": "TEST FIXTURE: this conceptual propulsion question has not been researched.",
+      "evidence_ids": [],
+      "entity_ids": [
+        "TECH-001"
+      ],
+      "reasoning": "No research or computation was performed.",
+      "assumptions": [],
+      "uncertainty": "Synthetic example only; feasibility unknown.",
+      "counterexamples": []
+    }
+  ],
+  "assumptions": [],
+  "open_questions": [
+    "Await actual research."
+  ],
+  "metadata": {
+    "test_fixture": true
+  },
+  "result_type": "engineering",
+  "calculations": [],
+  "constraints": [],
+  "feasibility": "open_question"
+}
