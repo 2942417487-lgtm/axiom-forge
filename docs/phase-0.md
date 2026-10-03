@@ -1,5 +1,7 @@
 # Phase 0：项目与安全基础
 
+历史交付记录；PR #1 已于后续会话经用户审查并授权合并。当前进度见 README.md 与 docs/phase-4.md，下文描述 Phase 0 交付时的状态。
+
 本轮授权范围：仅 Phase 0。项目名：Axiom Forge；GitHub 仓库名：`axiom-forge`，要求 Private。
 
 ## 本地交付

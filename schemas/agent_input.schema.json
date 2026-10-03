@@ -1,0 +1,164 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://axiom-forge.invalid/schemas/agent_input.schema.json",
+  "title": "agent_input",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "world_id": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/world_id"
+    },
+    "task_id": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/task_id"
+    },
+    "run_id": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/run_id"
+    },
+    "agent_run_id": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/agent_run_id"
+    },
+    "artifact_id": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/artifact_id"
+    },
+    "canon_version": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/canon_version"
+    },
+    "role": {
+      "enum": [
+        "lead",
+        "researcher",
+        "engineering_auditor",
+        "economic_auditor",
+        "historical_analyst",
+        "redteam",
+        "integrator"
+      ]
+    },
+    "stage": {
+      "enum": [
+        "planning",
+        "independent",
+        "cross_review",
+        "draft_synthesis",
+        "redteam",
+        "final_synthesis"
+      ]
+    },
+    "user_question": {
+      "type": "string",
+      "minLength": 1
+    },
+    "task_type": {
+      "enum": [
+        "scenario_simulation",
+        "direct_challenge",
+        "roundtable",
+        "court"
+      ]
+    },
+    "canon_snapshot": {
+      "$ref": "https://axiom-forge.invalid/schemas/canon_snapshot.schema.json"
+    },
+    "relevant_entities": {
+      "type": "array",
+      "items": {
+        "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/entity_id"
+      },
+      "minItems": 0,
+      "uniqueItems": true
+    },
+    "selected_specialists": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "researcher",
+          "engineering_auditor",
+          "economic_auditor",
+          "historical_analyst"
+        ]
+      },
+      "minItems": 0,
+      "uniqueItems": true
+    },
+    "prior_results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "stage": {
+            "enum": [
+              "independent",
+              "cross_review",
+              "draft_synthesis",
+              "redteam"
+            ]
+          },
+          "agent_run": {
+            "$ref": "https://axiom-forge.invalid/schemas/agent_run.schema.json"
+          },
+          "artifact": {
+            "$ref": "https://axiom-forge.invalid/schemas/artifact.schema.json"
+          },
+          "result": {
+            "oneOf": [
+              {
+                "$ref": "https://axiom-forge.invalid/schemas/research_result.schema.json"
+              },
+              {
+                "$ref": "https://axiom-forge.invalid/schemas/engineering_result.schema.json"
+              },
+              {
+                "$ref": "https://axiom-forge.invalid/schemas/economic_result.schema.json"
+              },
+              {
+                "$ref": "https://axiom-forge.invalid/schemas/historical_result.schema.json"
+              },
+              {
+                "$ref": "https://axiom-forge.invalid/schemas/redteam_result.schema.json"
+              },
+              {
+                "$ref": "https://axiom-forge.invalid/schemas/synthesis_result.schema.json"
+              }
+            ]
+          }
+        },
+        "required": [
+          "stage",
+          "agent_run",
+          "artifact",
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 0
+    },
+    "supporting_artifacts": {
+      "type": "array",
+      "items": {
+        "$ref": "https://axiom-forge.invalid/schemas/artifact.schema.json"
+      },
+      "minItems": 0
+    }
+  },
+  "required": [
+    "schema_version",
+    "world_id",
+    "task_id",
+    "run_id",
+    "agent_run_id",
+    "artifact_id",
+    "canon_version",
+    "role",
+    "stage",
+    "user_question",
+    "task_type",
+    "canon_snapshot",
+    "relevant_entities",
+    "selected_specialists",
+    "prior_results",
+    "supporting_artifacts"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0",
+  "role": "historical_analyst",
+  "title": "Historical / Institutional Analyst",
+  "input_schema": "agent_input",
+  "output_schema": "historical_result",
+  "stages": [
+    "independent",
+    "cross_review"
+  ],
+  "prompt_file": "agents/historical_analyst.md",
+  "claude_file": ".claude/agents/historical-analyst.md",
+  "required_capabilities": [
+    "source_read"
+  ],
+  "forbidden_capabilities": [
+    "canon_write",
+    "canon_apply",
+    "human_approval",
+    "git_mutation"
+  ]
+}
