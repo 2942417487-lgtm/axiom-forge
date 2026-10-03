@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0",
+  "result_id": "ART-00000000-0000-4000-8000-000000000021",
+  "call_id": "ART-00000000-0000-4000-8000-000000000022",
+  "world_id": "WLD-1f591576-f6c4-4c77-a975-08494320662d",
+  "task_id": "TSK-90b6e64c-fe5c-429e-961f-a255d86643d9",
+  "run_id": "RUN-438e830b-97d6-453c-ae5a-925c56af1a19",
+  "agent_run_id": "ARN-00000000-0000-4000-8000-000000000004",
+  "canon_version": "CANON-191e98e943d3ff56d7479b8ff0e41e56b729a18a70a24555365a21f0aedb5168",
+  "tool_name": "web.search",
+  "status": "unavailable",
+  "data": null,
+  "error": {
+    "code": "unavailable",
+    "message": "TEST FIXTURE: no search service configured; no search executed"
+  },
+  "receipt": {
+    "started_at": "2026-10-04T00:00:00Z",
+    "finished_at": "2026-10-04T00:00:00Z",
+    "arguments_sha256": "e526485906b655a519e51bd64cbcb20b41e6778b500faa8b50770b71c6e725d7",
+    "payload_sha256": "64d10ecdceb0539293f3730066094b2f568dfabfb6b77e5e86cb8b470b3958b9"
+  }
+}

@@ -6,7 +6,7 @@
 
 ## 当前进度
 
-已建立 Phase 0–4 的项目基础、世界观数据层、Evidence Ledger、统一业务 Schema 与七个 Agent 角色契约。提供离线数据校验、业务 ID、Canon Snapshot、受限输入投影与角色输入/输出校验。
+已建立 Phase 0–5 的项目基础、世界观数据层、Evidence Ledger、统一业务 Schema、七个 Agent 角色契约与独立 Tool Layer。提供离线数据校验、业务 ID、Canon Snapshot、受限输入/输出校验，以及公开来源读取、论文检索、文档解析、受限暂存和已审核 Python 脚本调用接口。通用 Web 搜索服务未选定，通用计算执行器后续再建。
 
 当前生产 world 为空；Agent Runtime、模型路由、完整任务工作流和 Canon 应用尚未实现。本阶段不调用模型 API，不需要真实 API Key。
 
@@ -38,6 +38,7 @@ python -m pip --python .venv install -r requirements-lock.txt
 .\.venv\Scripts\python.exe -m axiom_forge new-id task
 .\.venv\Scripts\python.exe -m axiom_forge new-id entity --domain technology
 .\.venv\Scripts\python.exe -m axiom_forge snapshot create
+.\.venv\Scripts\python.exe -m axiom_forge tools list
 .\.venv\Scripts\python.exe -m unittest discover -s tests -v
 ```
 
@@ -52,7 +53,7 @@ git check-ignore .env .env.local .venv/ignore-check node_modules/ignore-check tm
 git ls-files .env.example
 ```
 
-已实现本地基础工具与 74 项 unittest；完整研究工作流留到后续阶段。使用说明：[世界观数据](world/README.md)、[Evidence 规范](docs/evidence.md)、[业务接口](schemas/README.md)、[Agent 契约](agents/README.md)、[可复用计算请求与接口](calculations/README.md)、[Phase 4 交付记录](docs/phase-4.md)。
+本地基础、角色契约和工具层的测试与真实接口联调记录见 [Phase 5 交付记录](docs/phase-5.md)；完整研究工作流留到后续阶段。使用说明：[世界观数据](world/README.md)、[Evidence 规范](docs/evidence.md)、[业务接口](schemas/README.md)、[Agent 契约](agents/README.md)、[可复用计算请求与接口](calculations/README.md)、[工具层](tools/README.md)。
 
 ## 当前目录
 
@@ -67,18 +68,19 @@ git ls-files .env.example
 ├── agents/            # 厂商无关岗位规则与七个 JSON Contract
 ├── README.md          # 项目定位、使用方式和目录说明
 ├── requirements.txt / requirements-lock.txt
-├── axiom_forge/       # 本地校验、ID、快照与 Agent Contract 工具
-├── schemas/           # 28 个 JSON Schema 与接口说明
+├── axiom_forge/       # 校验、ID、快照、Agent Contract 与独立 tools/ 实现
+├── schemas/           # 29 个 JSON Schema 与接口说明
+├── tools/             # 工具接口说明与空的已审核 Python 脚本登记表
 ├── calculations/      # 通用计算请求、模型与结果协议；执行器待实现
 ├── world/             # 分域知识库、生产 world_id 与初始空快照
-├── examples/          # 27 个 Schema 样例及岗位/计算交付输入包，全部为测试数据
+├── examples/          # 28 个 Schema 样例及岗位/计算/工具输入包，全部为测试数据
 ├── tests/             # 完整性与失败边界测试
 └── docs/              # Evidence 规范、阶段记录与工程任务说明
 ```
 
 ## 后续目录规划
 
-以下为设计规划，按后续阶段逐步创建：`tools/`、`runtimes/`、`routing/`、`workflows/`、`evals/`。
+以下为设计规划，按后续阶段逐步创建：`runtimes/`、`routing/`、`workflows/`、`evals/`。工具层已提供本地 Python/CLI 接口，厂商 Adapter 与 MCP 传输尚未接入。
 
 业务角色与具体模型解耦；厂商模型名称、API 标识、价格和能力必须在接入时查证。先验证简单 Python V1，再评估引入 LangGraph。
 
@@ -88,9 +90,9 @@ GitHub 仓库使用 Private 可见性。私有仓库仍需严格排除凭据。
 
 仓库地址：[2942417487-lgtm/axiom-forge](https://github.com/2942417487-lgtm/axiom-forge)。`origin` 已连接该仓库，默认分支为 `main`。
 
-AI 的重要系统或世界观修改必须在功能分支上完成，经验证、人工审查后再合并至 `main`。Phase 0 的 [PR #1](https://github.com/2942417487-lgtm/axiom-forge/pull/1) 与 Phase 1–3 的 [PR #2](https://github.com/2942417487-lgtm/axiom-forge/pull/2) 已经用户审查并授权合并；main 包含 Phase 0–3。
+AI 的重要系统或世界观修改必须在功能分支上完成，经验证、人工审查后再合并至 `main`。Phase 0 的 [PR #1](https://github.com/2942417487-lgtm/axiom-forge/pull/1)、Phase 1–3 的 [PR #2](https://github.com/2942417487-lgtm/axiom-forge/pull/2) 与 Phase 4 的 [PR #3](https://github.com/2942417487-lgtm/axiom-forge/pull/3) 已经用户审查并授权合并；main 包含 Phase 0–4。
 
-Phase 4 使用 `feat/phase-4-agent-contracts`，基于 main 提交独立 PR，等待新一轮审查。此前的合并授权不自动适用于本阶段 PR。
+Phase 5 使用 `feat/phase-5-tool-layer`，基于 main 提交独立 PR，等待新一轮审查。此前的合并授权不自动适用于本阶段 PR。
 
 本机的 GitHub CLI 便携版与认证配置位于 `.cache/`，不会进入 Git。本仓库单独配置了 CLI credential helper；全局 Git 认证配置保持原状。更换电脑时需要自行配置 GitHub 认证，本地 `.cache/` 不可作为共享文件上传。
 

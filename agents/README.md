@@ -1,6 +1,6 @@
 # Phase 4 Agent Contract
 
-角色、契约和输入包与模型厂商无关；岗位规则不等于正在运行的 Agent。当前提供本地校验与输入投影，没有 Runtime、工具接入或任务调度。
+角色、契约和输入包与模型厂商无关；岗位规则不等于正在运行的 Agent。当前提供本地校验、输入投影和独立 Tool Layer，没有 Runtime、工具向岗位的绑定或任务调度。工具接口见 [Phase 5 工具层](../tools/README.md)。
 
 | 业务角色 | 职责 | 输入 Schema / 阶段 | 输出 Schema |
 | --- | --- | --- | --- |
@@ -44,7 +44,7 @@ cross_review / draft_synthesis 只能包含已选择的 Specialists；redteam �
 
 独立分析输入禁止 Artifact，分析完成后可用 `validate_output_artifacts(input, result, schemas, supporting_artifacts)` 单独验证新计算回执；新回执必须属于当前 AgentRun，不得预先注入首轮输入。该校验验证身份与引用，尚不运行 Python 或读取 Artifact 文件证明计算正确。
 
-工程/经济岗位遇到需要实算的问题时须形成通用 CalculationRequest；有已接入且授权工具时按后续接口自主执行，否则通过可选 calculation_requests 字段交付完整请求，供作者使用 Codex、DSH 等构建或复用程序。当前仅定义协议，不执行程序、不增加 Read 以外权限。规范与样例见 [可复用计算协议](../calculations/README.md)。旧 calculations 字段只承载真实完成的计算，待执行请求不能伪装成该字段的结果。
+工程/经济岗位遇到需要实算的问题时须形成通用 CalculationRequest；有已接入且授权工具时按后续接口自主执行，否则通过可选 calculation_requests 字段交付完整请求，供作者使用 Codex、DSH 等构建或复用程序。Phase 5 增加默认关闭的已审核脚本宿主接口，尚无通用计算执行器，不增加岗位 Read 以外权限。规范与样例见 [可复用计算协议](../calculations/README.md)。旧 calculations 字段只承载真实完成的计算，待执行请求不能伪装成该字段的结果。
 
 LeadPlan 不包含事实裁决、Canon 变更或批准字段；当前作为独立 Artifact 契约，未加入 Phase 3 TaskState 的持久化字段。Runtime 阶段将实现保存和读取这些记录。
 
