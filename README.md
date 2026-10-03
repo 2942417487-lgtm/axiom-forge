@@ -55,7 +55,11 @@ git ls-files .env.example
 
 GitHub 仓库使用 Private 可见性。私有仓库仍需严格排除凭据。
 
+仓库地址：[2942417487-lgtm/axiom-forge](https://github.com/2942417487-lgtm/axiom-forge)。`origin` 已连接该仓库，默认分支为 `main`。
+
 AI 的重要系统或世界观修改必须在功能分支上完成，经验证、人工审查后再合并至 `main`。初始 `main` 仅建立空提交作为分支基线；Phase 0 文件放在 `bootstrap/phase-0`，等待人工审查。
+
+本机的 GitHub CLI 便携版与认证配置位于 `.cache/`，不会进入 Git。本仓库单独配置了 CLI credential helper；全局 Git 认证配置保持原状。更换电脑时需要自行配置 GitHub 认证，本地 `.cache/` 不可作为共享文件上传。
 
 ```powershell
 git switch -c feat/short-description

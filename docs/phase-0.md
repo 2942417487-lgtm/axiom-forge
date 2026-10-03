@@ -16,13 +16,17 @@
 
 本地 Git 已初始化，提交署名使用用户提供的 GitHub 账号名 `2942417487-lgtm`，仅设置于本仓库。`main` 的初始提交只保存空基线；Phase 0 文件在 `bootstrap/phase-0` 分支交付审查。
 
-GitHub 私有仓库尚未创建，远端尚未连接。用户已报告登录 GitHub，但浏览器工具仍返回 `nodeRepl.fetch request failed`，尚无法核验登录页面或执行仓库创建。
+已创建并核验 GitHub 私有仓库：[2942417487-lgtm/axiom-forge](https://github.com/2942417487-lgtm/axiom-forge)。远端 `origin` 为 `https://github.com/2942417487-lgtm/axiom-forge.git`，默认分支为 `main`。
+
+`main` 空基线和 `bootstrap/phase-0` 已上传，并建立本地跟踪关系。Phase 0 内容通过 Pull Request 交付人工审查；合并尚待人工决定。
+
+GitHub CLI 便携版位于已忽略的 `.cache/github-cli/`，已校验官方发布资产 SHA256；CLI 登录由用户独立授权。认证配置使用已忽略的 `.cache/gh-auth/`，本仓库的 credential helper 指向该 CLI；未更改全局 Git credential helper。
 
 ## 检查记录
 
 已核验：17 个敏感文件、缓存、环境、日志和临时路径被忽略；5 个项目文档和模板路径可被跟踪；`.env.example` 的 3 个变量全部为空值；7 个交付文件齐全。
 
-已通过 `git diff --cached --check`，待提交文件无空白格式错误。远端可见性核验等待 GitHub 仓库创建。
+已通过 Git 差异空白检查。已核验远端 `isPrivate=true`、默认分支为 `main`、两个分支上传成功。
 
 ## 后续阶段
 
