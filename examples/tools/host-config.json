@@ -1,0 +1,8 @@
+{
+  "capabilities": ["canon_read", "papers_read", "web_read", "web_search", "workspace", "draft_write", "documents_read", "git_read", "python_call"],
+  "network_hosts": ["api.crossref.org", "export.arxiv.org", "www.crossref.org"],
+  "documents": {},
+  "contact": null,
+  "enable_trusted_python": false,
+  "python_timeout": 10
+}

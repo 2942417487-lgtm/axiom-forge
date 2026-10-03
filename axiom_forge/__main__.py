@@ -1,6 +1,7 @@
 """Local validation, ID generation, and snapshot CLI; no model calls."""
 
 import argparse
+import json
 import sys
 from pathlib import Path
 
@@ -17,6 +18,14 @@ def main(argv=None) -> int:
     commands.add_parser("validate-world")
     commands.add_parser("check-schemas")
     commands.add_parser("check-contracts")
+    tools_parser = commands.add_parser("tools", help="Host-operated, scoped Tool Layer")
+    tools_actions = tools_parser.add_subparsers(dest="tool_action", required=True)
+    tools_actions.add_parser("list")
+    tool_call = tools_actions.add_parser("call")
+    tool_call.add_argument("name")
+    tool_call.add_argument("--input", type=Path, required=True, help="JSON argument object")
+    tool_call.add_argument("--context", type=Path, required=True, help="Validated AgentInput selected by host")
+    tool_call.add_argument("--config", type=Path, required=True, help="Trusted host grants; not an Agent-controlled file")
     agent_input = commands.add_parser("validate-agent-input")
     agent_input.add_argument("file", type=Path)
     agent_output = commands.add_parser("validate-agent-output")
@@ -37,7 +46,28 @@ def main(argv=None) -> int:
             print(new_id(args.kind, args.domain))
             return 0
         schemas = SchemaStore(args.repo / "schemas")
-        if args.command == "check-schemas":
+        if args.command == "tools":
+            from .tools import ToolSession, definitions
+            from .tools.network import PublicHTTPS
+            from .tools.python_backend import TrustedPython
+            if args.tool_action == "list":
+                print(json.dumps(definitions(), ensure_ascii=False, indent=2))
+                return 0
+            config = read_json(args.config)
+            allowed = {"capabilities", "network_hosts", "documents", "contact", "enable_trusted_python", "python_timeout"}
+            if (set(config) - allowed or not isinstance(config.get("capabilities", []), list)
+                    or not isinstance(config.get("network_hosts", []), list)
+                    or not isinstance(config.get("documents", {}), dict)):
+                raise DataError("Invalid host Tool Layer config")
+            network = PublicHTTPS(config["network_hosts"], contact=config.get("contact")) if config.get("network_hosts") else None
+            backend = TrustedPython(args.repo, read_json(args.repo / "tools/python-scripts/manifest.json"),
+                                    enabled=config.get("enable_trusted_python", False), timeout=config.get("python_timeout", 10))
+            session = ToolSession(args.repo, read_json(args.context), capabilities=config.get("capabilities", []),
+                                  documents=config.get("documents", {}), network=network, python_backend=backend)
+            result = session.call(args.name, read_json(args.input))
+            print(json.dumps(result, ensure_ascii=False, indent=2))
+            return 0 if result["status"] == "completed" else 1
+        elif args.command == "check-schemas":
             print(f"OK: {len(schemas.schemas)} schemas, all references resolve offline")
         elif args.command == "check-contracts":
             contracts = ContractStore(args.repo, schemas)

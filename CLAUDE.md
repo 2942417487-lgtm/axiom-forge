@@ -4,14 +4,15 @@
 
 ## 当前阶段
 
-当前已实现 Phase 0–4：Canon/Evidence Schema、离线校验、Snapshot、七个角色契约与 `.claude/agents/` 岗位文件。岗位仅配置 Read，没有真实 Claude 调用验收；Claude Agent SDK Adapter、MCP 配置、工具执行与审批工作流尚未实现。不得假装调用这些尚不存在的能力。
+当前已实现 Phase 0–5：数据与角色契约，以及独立本地 Tool Layer。岗位仅配置 Read，没有真实 Claude 调用验收；Claude Agent SDK Adapter、MCP 配置、工具向岗位的绑定与审批工作流尚未实现。工具清单和宿主调用方式见 tools/README.md，不得假装 Claude 岗位已获得这些工具。
 
 ## 开始工作
 
-1. 阅读 `README.md`、`docs/phase-4.md`、`agents/README.md` 与相关 `docs/tasks/` 任务，确认已实现内容和当前授权范围。
+1. 阅读 `README.md`、`docs/phase-5.md`、`tools/README.md`、`agents/README.md` 与相关 `docs/tasks/` 任务，确认已实现内容和当前授权范围。
 2. 执行 `git status --short --branch`，确认分支及用户未提交修改；重要变更在工作分支进行。
 3. 要求存在歧义时先询问用户；不得自行扩展到后续阶段。
 4. 涉及软件实现时，先记录范围明确的 issue 或本地任务说明，再修改代码。
+5. 接入或新增工具前，按 AGENTS.md 优先真实搜索现成 MCP Tools 或 skills，评估适用性并记录选型；满足要求时优先复用，存在明确缺口时再自研。
 
 ## 后续研究流程
 
@@ -19,7 +20,7 @@
 
 使用运行环境实际提供的搜索、来源读取和计算工具；记录来源与实算结果。工具不可用时报告缺口，不得用参数记忆冒充搜索、文献读取或计算。
 
-工程/经济岗位还应阅读 calculations/README.md，按 CalculationRequest 交付计算需求。当前 Read 岗位返回完整 JSON，由作者或未来 Runtime 保存文件；不能声称已经调用 Python/MATLAB 或已写文件。未来程序必须复用模型/版本与通用参数接口，禁止写死本次参数；本轮仅定义规范，未创建执行器。
+工程/经济岗位还应阅读 calculations/README.md，按 CalculationRequest 交付计算需求。当前 Read 岗位返回完整 JSON，由作者或未来 Runtime 保存文件；不能声称已经调用 Python/MATLAB 或已写文件。Phase 5 增加宿主审核脚本调用接口，默认关闭且登记表为空；没有通用计算执行器或 MATLAB Adapter。未来程序必须复用模型/版本与通用参数接口，禁止写死本次参数。
 
 Canon 变更应提出受影响实体、变更理由、证据、依赖、冲突和不确定性，等待验证与人工批准，再通过独立的应用步骤更新。不得静默编辑 Hard Canon。
 

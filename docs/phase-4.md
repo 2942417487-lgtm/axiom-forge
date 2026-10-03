@@ -35,4 +35,4 @@ Phase 5 的 Web/Search、论文/PDF 与计算工具接入，Phase 6 的 Runtime�
 
 stage、完成回执、来源读取记录与 Artifact 校验可拒绝不一致数据，不能认证其实际执行。将来 Runtime 必须控制可见文件/工具/上下文，冻结基线并保存可信首轮记录；Claude 的 Read 岗位规则不能替代这些强制措施。
 
-当前阶段 PR 等待人工审查。此前 PR #1、#2 的合并授权不适用于该 PR。
+本阶段 [PR #3](https://github.com/2942417487-lgtm/axiom-forge/pull/3) 已经用户审查并明确授权合并，main 的合并提交为 `2d17554c6e2bbbf63ab729153cbc577e0baa029b`。上文边界为 Phase 4 交付时状态；后续工具层进度见 [Phase 5](phase-5.md)。该合并授权不自动适用于后续 PR。
