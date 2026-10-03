@@ -1,0 +1,124 @@
+{
+  "schema_version": "1.0",
+  "world_id": "WLD-1f591576-f6c4-4c77-a975-08494320662d",
+  "task_id": "TSK-90b6e64c-fe5c-429e-961f-a255d86643d9",
+  "canon_version": "CANON-191e98e943d3ff56d7479b8ff0e41e56b729a18a70a24555365a21f0aedb5168",
+  "canon_snapshot": {
+    "schema_version": "1.0",
+    "snapshot_id": "SNP-c784e5a9-c62b-4f1c-854f-9e72cc8c5275",
+    "world_id": "WLD-1f591576-f6c4-4c77-a975-08494320662d",
+    "canon_version": "CANON-191e98e943d3ff56d7479b8ff0e41e56b729a18a70a24555365a21f0aedb5168",
+    "created_at": "2026-10-03T12:06:50.959374Z",
+    "files": [
+      {
+        "path": "world/canon/technology/TECH-001.json",
+        "sha256": "3346d6fa7c644adc82909dd619072cfa11b89f3c14fa5600e45398e4c790a790",
+        "data": {
+          "entity_id": "TECH-001",
+          "domain": "technology",
+          "title": "TEST FIXTURE: open propulsion question",
+          "statement": "Structure demonstration only. This is not an author setting or a verified fact.",
+          "status": "Open Question",
+          "source": {
+            "kind": "open_question",
+            "description": "Synthetic contract fixture"
+          },
+          "dependencies": [],
+          "implications": [],
+          "conflicts": [],
+          "evidence_ids": [],
+          "claims": [
+            {
+              "claim_id": "CLM-a0ffbcd3-43bc-4b16-9009-bf9f3bbbd4d7",
+              "category": "OPEN QUESTION",
+              "statement": "TEST FIXTURE: this conceptual propulsion question has not been researched.",
+              "evidence_ids": [],
+              "entity_ids": [
+                "TECH-001"
+              ],
+              "reasoning": "No research or computation was performed.",
+              "assumptions": [],
+              "uncertainty": "Synthetic example only; feasibility unknown.",
+              "counterexamples": []
+            }
+          ],
+          "last_updated": "2026-10-03T12:06:50.937415Z"
+        }
+      },
+      {
+        "path": "world/evidence/EVD-359a5e64-c118-494e-9fc2-598e27c40261.json",
+        "sha256": "5a3dbec5c220669b3ca5574187c0cb003e499c28d0e2485460e274f621376d9a",
+        "data": {
+          "evidence_id": "EVD-359a5e64-c118-494e-9fc2-598e27c40261",
+          "claim_id": "CLM-a0ffbcd3-43bc-4b16-9009-bf9f3bbbd4d7",
+          "source": {
+            "source_type": "test_fixture",
+            "title": "TEST FIXTURE: no actual source",
+            "url": "https://example.invalid/test-fixture",
+            "authors": [],
+            "journal_or_conference": null,
+            "year": null,
+            "doi": null,
+            "date": null
+          },
+          "field": "schema testing",
+          "what_was_actually_demonstrated": "No scientific result was demonstrated.",
+          "applicable_conditions": [
+            "Schema testing only"
+          ],
+          "what_it_does_not_demonstrate": [
+            "Any real-world claim"
+          ],
+          "confidence": 0,
+          "confidence_rationale": "No source has been read.",
+          "supported_claims": [
+            "CLM-a0ffbcd3-43bc-4b16-9009-bf9f3bbbd4d7"
+          ],
+          "supported_entities": [
+            "TECH-001"
+          ],
+          "verification": {
+            "status": "synthetic",
+            "accessed_at": null,
+            "method": null,
+            "locator": null,
+            "excerpt": null
+          },
+          "last_updated": "2026-10-03T12:06:50.937415Z"
+        }
+      },
+      {
+        "path": "world/world.json",
+        "sha256": "88921b652867f7b6221645e6d9d550a1565a9f188234799d00d89ee1797e39bf",
+        "data": {
+          "schema_version": "1.0",
+          "world_id": "WLD-1f591576-f6c4-4c77-a975-08494320662d",
+          "name": "TEST FIXTURE",
+          "description": "Synthetic contract examples. Never import as real Canon or Evidence.",
+          "created_at": "2026-10-03T12:05:25.493041Z",
+          "metadata": {
+            "test_fixture": true
+          }
+        }
+      }
+    ]
+  },
+  "user_question": "TEST FIXTURE: validate contract structure only.",
+  "task_type": "roundtable",
+  "relevant_entities": [
+    "TECH-001"
+  ],
+  "run_id": "RUN-438e830b-97d6-453c-ae5a-925c56af1a19",
+  "agent_run_id": "ARN-8cce4a68-5d8f-4539-a47c-a64cb5e7e10d",
+  "artifact_id": "ART-0a287090-4790-4396-8b26-e33a313b006b",
+  "role": "researcher",
+  "stage": "independent",
+  "selected_specialists": [
+    "researcher",
+    "engineering_auditor",
+    "economic_auditor",
+    "historical_analyst"
+  ],
+  "prior_results": [],
+  "supporting_artifacts": []
+}

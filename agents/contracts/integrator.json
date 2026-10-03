@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0",
+  "role": "integrator",
+  "title": "Integrator / Canon Manager",
+  "input_schema": "agent_input",
+  "output_schema": "synthesis_result",
+  "stages": [
+    "draft_synthesis",
+    "final_synthesis"
+  ],
+  "prompt_file": "agents/integrator.md",
+  "claude_file": ".claude/agents/integrator.md",
+  "required_capabilities": [],
+  "forbidden_capabilities": [
+    "canon_write",
+    "canon_apply",
+    "human_approval",
+    "git_mutation"
+  ]
+}

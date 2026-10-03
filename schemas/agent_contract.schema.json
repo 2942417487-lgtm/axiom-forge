@@ -1,0 +1,129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://axiom-forge.invalid/schemas/agent_contract.schema.json",
+  "title": "agent_contract",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "role": {
+      "enum": [
+        "lead",
+        "researcher",
+        "engineering_auditor",
+        "economic_auditor",
+        "historical_analyst",
+        "redteam",
+        "integrator"
+      ]
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "input_schema": {
+      "const": "agent_input"
+    },
+    "output_schema": {
+      "enum": [
+        "lead_plan",
+        "research_result",
+        "engineering_result",
+        "economic_result",
+        "historical_result",
+        "redteam_result",
+        "synthesis_result"
+      ]
+    },
+    "stages": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "planning",
+          "independent",
+          "cross_review",
+          "draft_synthesis",
+          "redteam",
+          "final_synthesis"
+        ]
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "prompt_file": {
+      "type": "string",
+      "minLength": 1
+    },
+    "claude_file": {
+      "type": "string",
+      "minLength": 1
+    },
+    "required_capabilities": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "source_search",
+          "source_read",
+          "python_calculation",
+          "programmatic_calculation"
+        ]
+      },
+      "minItems": 0,
+      "uniqueItems": true
+    },
+    "forbidden_capabilities": {
+      "const": [
+        "canon_write",
+        "canon_apply",
+        "human_approval",
+        "git_mutation"
+      ]
+    },
+    "calculation_protocol": {
+      "type": "object",
+      "properties": {
+        "request_schema": {
+          "const": "calculation_request"
+        },
+        "result_schema": {
+          "const": "calculation_result"
+        },
+        "model_schema": {
+          "const": "calculation_model"
+        },
+        "request_output_field": {
+          "const": "calculation_requests"
+        },
+        "dispatch_interface": {
+          "const": "CalculationBackend.execute(request) -> CalculationResult"
+        },
+        "handoff_required_when_unavailable": {
+          "const": true
+        }
+      },
+      "required": [
+        "request_schema",
+        "result_schema",
+        "model_schema",
+        "request_output_field",
+        "dispatch_interface",
+        "handoff_required_when_unavailable"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "schema_version",
+    "role",
+    "title",
+    "input_schema",
+    "output_schema",
+    "stages",
+    "prompt_file",
+    "claude_file",
+    "required_capabilities",
+    "forbidden_capabilities"
+  ],
+  "additionalProperties": false
+}

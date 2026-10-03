@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.0",
+  "role": "engineering_auditor",
+  "title": "Physics / Engineering Auditor",
+  "input_schema": "agent_input",
+  "output_schema": "engineering_result",
+  "stages": [
+    "independent",
+    "cross_review"
+  ],
+  "prompt_file": "agents/engineering_auditor.md",
+  "claude_file": ".claude/agents/engineering-auditor.md",
+  "required_capabilities": [
+    "programmatic_calculation"
+  ],
+  "forbidden_capabilities": [
+    "canon_write",
+    "canon_apply",
+    "human_approval",
+    "git_mutation"
+  ],
+  "calculation_protocol": {
+    "request_schema": "calculation_request",
+    "result_schema": "calculation_result",
+    "model_schema": "calculation_model",
+    "request_output_field": "calculation_requests",
+    "dispatch_interface": "CalculationBackend.execute(request) -> CalculationResult",
+    "handoff_required_when_unavailable": true
+  }
+}

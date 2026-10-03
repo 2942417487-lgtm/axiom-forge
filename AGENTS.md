@@ -18,6 +18,7 @@
 - 重大结论保留结论、Evidence、Source、Reasoning、Assumptions、Uncertainty、Counterexamples 的关联。
 - 证据不足时明确说明不知道或保留 OPEN QUESTION。发现用户设定或 Canon 中的错误、矛盾时直接指出。
 - 涉及关键能量、推进、热、质量、概率、人口、物流、产能与成本等数值时，使用 Python 等计算工具，记录单位、输入、假设与结果。
+- 工程/经济 Auditor 须主动识别计算需求，遵守 calculations/README.md 的通用请求与可复用程序协议。未来已有授权工具时程序化实算；缺工具/模型/参数时交付完整 CalculationRequest，不在 COT 中算出数字后冒充工具结果。当前执行器尚未实现。
 
 ## Canon 与独立分析
 
@@ -26,6 +27,8 @@
 - 同一研究任务的 Specialist 首轮使用同一固定 Canon Snapshot，不得读取其他 Specialist 的首轮答案。
 - 独立分析完成后才能交叉审查、Red Team 与综合。不得以多数投票替代证据比较。
 - Phase 1–3 已提供 Canon/Evidence Schema、数据完整性校验与 Snapshot；人工审批和 Canon 应用 Runtime 尚未实现，不得声称结构校验已完成安全审批。
+- Phase 4 使用受限 agent_input；首轮禁止传入完整 TaskState、他人结果与 Artifact，后续审查要求全部所选首轮完成，最终综合要求 Red Team。契约校验不替代 Runtime 的上下文、文件与工具权限隔离。
+- 七个研究角色的输出无审批或 Canon 写入权限；ProposedCanonChange 必须 pending，批准和 Apply 留给未来独立人工控制步骤。
 
 ## 架构与开发
 
@@ -48,4 +51,4 @@
 
 ## 当前检查
 
-使用 `.\.venv\Scripts\python.exe -m unittest discover -s tests -v` 运行基础工具测试；使用 `python -m axiom_forge check-schemas`、`validate-world` 与 `validate task_state <文件>` 检查数据。使用 `git diff --check` 检查改动，使用 `git check-ignore` 验证敏感文件和临时目录被忽略，检查 `.env.example` 全部为空值。范例全部为测试数据，不得导入正式 world；当前尚无完整 Agent 工作流。
+使用 `.\.venv\Scripts\python.exe -m unittest discover -s tests -v` 运行测试；使用 `python -m axiom_forge check-schemas`、`validate-world`、`validate task_state <文件>`、`check-contracts` 与 `validate-agent-output <输入> <输出>` 检查数据与契约。使用 `git diff --check` 检查改动，使用 `git check-ignore` 验证敏感文件和临时目录被忽略，检查 `.env.example` 全部为空值。范例全部为测试数据，不得导入正式 world；当前尚无完整 Agent 工作流。

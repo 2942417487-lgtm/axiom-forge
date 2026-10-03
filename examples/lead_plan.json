@@ -1,0 +1,61 @@
+{
+  "world_id": "WLD-1f591576-f6c4-4c77-a975-08494320662d",
+  "task_id": "TSK-90b6e64c-fe5c-429e-961f-a255d86643d9",
+  "run_id": "RUN-438e830b-97d6-453c-ae5a-925c56af1a19",
+  "agent_run_id": "ARN-00000000-0000-4000-8000-000000000004",
+  "artifact_id": "ART-00000000-0000-4000-8000-000000000004",
+  "canon_version": "CANON-191e98e943d3ff56d7479b8ff0e41e56b729a18a70a24555365a21f0aedb5168",
+  "result_type": "plan",
+  "summary": "TEST FIXTURE：仅演示规划结构，未执行研究。",
+  "assignments": [
+    {
+      "role": "researcher",
+      "question": "TEST FIXTURE：独立检查任务前提。",
+      "entity_ids": [
+        "TECH-001"
+      ],
+      "required_checks": [
+        "标明来源缺口和未验证假设"
+      ]
+    },
+    {
+      "role": "engineering_auditor",
+      "question": "TEST FIXTURE：独立检查任务前提。",
+      "entity_ids": [
+        "TECH-001"
+      ],
+      "required_checks": [
+        "标明来源缺口和未验证假设"
+      ]
+    },
+    {
+      "role": "economic_auditor",
+      "question": "TEST FIXTURE：独立检查任务前提。",
+      "entity_ids": [
+        "TECH-001"
+      ],
+      "required_checks": [
+        "标明来源缺口和未验证假设"
+      ]
+    },
+    {
+      "role": "historical_analyst",
+      "question": "TEST FIXTURE：独立检查任务前提。",
+      "entity_ids": [
+        "TECH-001"
+      ],
+      "required_checks": [
+        "标明来源缺口和未验证假设"
+      ]
+    }
+  ],
+  "success_criteria": [
+    "TEST FIXTURE：先完成所有独立分析，再审查和综合。"
+  ],
+  "open_questions": [
+    "TEST FIXTURE：需要实际研究工具。"
+  ],
+  "metadata": {
+    "test_fixture": true
+  }
+}

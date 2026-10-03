@@ -1,0 +1,749 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://axiom-forge.invalid/schemas/calculation_request.schema.json",
+  "title": "calculation_request",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "request_id": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/artifact_id"
+    },
+    "world_id": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/world_id"
+    },
+    "task_id": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/task_id"
+    },
+    "run_id": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/run_id"
+    },
+    "agent_run_id": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/agent_run_id"
+    },
+    "canon_version": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/canon_version"
+    },
+    "role": {
+      "enum": [
+        "engineering_auditor",
+        "economic_auditor"
+      ]
+    },
+    "problem": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "domain": {
+          "enum": [
+            "engineering",
+            "economics"
+          ]
+        }
+      },
+      "required": [
+        "title",
+        "description",
+        "domain"
+      ],
+      "additionalProperties": false
+    },
+    "model": {
+      "type": "object",
+      "properties": {
+        "model_id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_.-]*$"
+        },
+        "model_version": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        }
+      },
+      "required": [
+        "model_id",
+        "model_version"
+      ],
+      "additionalProperties": false
+    },
+    "method": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "equations": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 0
+        },
+        "references": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 0
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 0
+        }
+      },
+      "required": [
+        "description",
+        "equations",
+        "references",
+        "limitations"
+      ],
+      "additionalProperties": false
+    },
+    "parameters": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "data_type": {
+            "enum": [
+              "scalar",
+              "integer",
+              "vector",
+              "matrix",
+              "text",
+              "boolean"
+            ]
+          },
+          "unit": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 1
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  },
+                  "minItems": 1
+                },
+                "minItems": 1
+              },
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "source": {
+            "type": "object",
+            "properties": {
+              "category": {
+                "enum": [
+                  "evidence",
+                  "canon",
+                  "assumption",
+                  "user_input",
+                  "derived"
+                ]
+              },
+              "reference_ids": {
+                "type": "array",
+                "items": {
+                  "oneOf": [
+                    {
+                      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/entity_id"
+                    },
+                    {
+                      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/evidence_id"
+                    },
+                    {
+                      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/claim_id"
+                    }
+                  ]
+                },
+                "minItems": 0,
+                "uniqueItems": true
+              },
+              "description": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "category",
+              "reference_ids",
+              "description"
+            ],
+            "additionalProperties": false
+          },
+          "constraints": {
+            "type": "object",
+            "properties": {
+              "minimum": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "maximum": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "minimum",
+              "maximum"
+            ],
+            "additionalProperties": false
+          },
+          "uncertainty": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "name",
+          "data_type",
+          "unit",
+          "description",
+          "value",
+          "required",
+          "source",
+          "constraints",
+          "uncertainty"
+        ],
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "data_type": {
+                  "const": "scalar"
+                }
+              },
+              "required": [
+                "data_type"
+              ]
+            },
+            "then": {
+              "properties": {
+                "value": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "data_type": {
+                  "const": "integer"
+                }
+              },
+              "required": [
+                "data_type"
+              ]
+            },
+            "then": {
+              "properties": {
+                "value": {
+                  "anyOf": [
+                    {
+                      "type": "integer"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "data_type": {
+                  "const": "vector"
+                }
+              },
+              "required": [
+                "data_type"
+              ]
+            },
+            "then": {
+              "properties": {
+                "value": {
+                  "anyOf": [
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "number"
+                      },
+                      "minItems": 1
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "data_type": {
+                  "const": "matrix"
+                }
+              },
+              "required": [
+                "data_type"
+              ]
+            },
+            "then": {
+              "properties": {
+                "value": {
+                  "anyOf": [
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "array",
+                        "items": {
+                          "type": "number"
+                        },
+                        "minItems": 1
+                      },
+                      "minItems": 1
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "data_type": {
+                  "const": "text"
+                }
+              },
+              "required": [
+                "data_type"
+              ]
+            },
+            "then": {
+              "properties": {
+                "value": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "data_type": {
+                  "const": "boolean"
+                }
+              },
+              "required": [
+                "data_type"
+              ]
+            },
+            "then": {
+              "properties": {
+                "value": {
+                  "anyOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      },
+      "minItems": 1
+    },
+    "expected_outputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "data_type": {
+            "enum": [
+              "scalar",
+              "integer",
+              "vector",
+              "matrix",
+              "text",
+              "boolean"
+            ]
+          },
+          "unit": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "name",
+          "data_type",
+          "unit",
+          "description"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1
+    },
+    "assumptions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "minItems": 0,
+      "uniqueItems": true
+    },
+    "cost_basis": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "currency": {
+              "type": "string",
+              "pattern": "^[A-Z]{3}$"
+            },
+            "price_year": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "time_horizon": {
+              "type": "string",
+              "minLength": 1
+            },
+            "discount_convention": {
+              "type": "string",
+              "minLength": 1
+            },
+            "tax_and_residual_assumptions": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "currency",
+            "price_year",
+            "time_horizon",
+            "discount_convention",
+            "tax_and_residual_assumptions"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "scenarios": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1
+          },
+          "overrides": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "parameter_name": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_]*$"
+                },
+                "value": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "integer"
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "number"
+                      },
+                      "minItems": 1
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "array",
+                        "items": {
+                          "type": "number"
+                        },
+                        "minItems": 1
+                      },
+                      "minItems": 1
+                    },
+                    {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    {
+                      "type": "boolean"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "parameter_name",
+                "value"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1
+          }
+        },
+        "required": [
+          "name",
+          "description",
+          "overrides"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 0
+    },
+    "acceptance_checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "output_name": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1
+          },
+          "finite_required": {
+            "type": "boolean"
+          },
+          "minimum": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "maximum": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "expected_value": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "absolute_tolerance": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "relative_tolerance": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
+          }
+        },
+        "required": [
+          "output_name",
+          "description",
+          "finite_required",
+          "minimum",
+          "maximum",
+          "expected_value",
+          "absolute_tolerance",
+          "relative_tolerance"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1
+    },
+    "execution_policy": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "enum": [
+            "auto_if_available_else_handoff",
+            "handoff_only"
+          ]
+        },
+        "preferred_engine": {
+          "enum": [
+            "python",
+            "matlab",
+            "other"
+          ]
+        },
+        "acceptable_engines": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "python",
+              "matlab",
+              "other"
+            ]
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "mode",
+        "preferred_engine",
+        "acceptable_engines"
+      ],
+      "additionalProperties": false
+    },
+    "requested_deliverables": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "parameterized_source",
+          "model_manifest",
+          "dependency_manifest",
+          "tests",
+          "usage_examples",
+          "structured_result",
+          "execution_receipt"
+        ]
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "created_at": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/datetime"
+    },
+    "metadata": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/metadata"
+    }
+  },
+  "required": [
+    "schema_version",
+    "request_id",
+    "world_id",
+    "task_id",
+    "run_id",
+    "agent_run_id",
+    "canon_version",
+    "role",
+    "problem",
+    "model",
+    "method",
+    "parameters",
+    "expected_outputs",
+    "assumptions",
+    "cost_basis",
+    "scenarios",
+    "acceptance_checks",
+    "execution_policy",
+    "requested_deliverables",
+    "created_at",
+    "metadata"
+  ],
+  "additionalProperties": false
+}

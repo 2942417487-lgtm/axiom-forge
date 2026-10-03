@@ -1,5 +1,7 @@
 # Phase 1–3 交付记录
 
+历史交付记录；PR #2 已于后续会话经用户审查并授权合并。当前进度见 README.md 与 docs/phase-4.md，下文描述 Phase 1–3 交付时的状态。
+
 ## Phase 1：世界观数据层
 
 - [x] world/ 与八个 Canon 知识域目录。

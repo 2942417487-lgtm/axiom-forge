@@ -164,6 +164,24 @@
         "minLength": 1
       },
       "uniqueItems": true
+    },
+    "calculation_requests": {
+      "type": "array",
+      "items": {
+        "allOf": [
+          {
+            "$ref": "https://axiom-forge.invalid/schemas/calculation_request.schema.json"
+          },
+          {
+            "properties": {
+              "role": {
+                "const": "economic_auditor"
+              }
+            }
+          }
+        ]
+      },
+      "minItems": 0
     }
   },
   "required": [

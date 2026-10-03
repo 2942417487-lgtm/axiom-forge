@@ -1,0 +1,156 @@
+{
+  "schema_version": "1.0",
+  "request_id": "ART-00000000-0000-4000-8000-000000000013",
+  "world_id": "WLD-1f591576-f6c4-4c77-a975-08494320662d",
+  "task_id": "TSK-90b6e64c-fe5c-429e-961f-a255d86643d9",
+  "run_id": "RUN-438e830b-97d6-453c-ae5a-925c56af1a19",
+  "agent_run_id": "ARN-7f066e97-b5ab-4af9-b644-9a08dea0567d",
+  "canon_version": "CANON-191e98e943d3ff56d7479b8ff0e41e56b729a18a70a24555365a21f0aedb5168",
+  "role": "economic_auditor",
+  "problem": {
+    "title": "TEST FIXTURE：生命周期成本请求",
+    "description": "TEST FIXTURE：比较固定年 OPEX 模型，尚未计算。",
+    "domain": "economics"
+  },
+  "model": {
+    "model_id": "cost.lifecycle_present_value",
+    "model_version": "1.0.0"
+  },
+  "method": {
+    "description": "TEST FIXTURE：t=0 投入 CAPEX，t=1..N 每年末支付相同 OPEX，实质折现。",
+    "equations": [
+      "total_present_cost = capex + sum(annual_opex / (1 + real_discount_rate)^t, t=1..years)"
+    ],
+    "references": [],
+    "limitations": [
+      "TEST FIXTURE：不含税费、残值、通胀和汇率变化。"
+    ]
+  },
+  "parameters": [
+    {
+      "name": "capex",
+      "data_type": "scalar",
+      "unit": "USD_2026",
+      "value": null,
+      "description": "TEST FIXTURE：capex",
+      "required": true,
+      "source": {
+        "category": "assumption",
+        "reference_ids": [],
+        "description": "TEST FIXTURE：无现实依据"
+      },
+      "constraints": {
+        "minimum": 0,
+        "maximum": null
+      },
+      "uncertainty": "TEST FIXTURE：未知，需作者提供范围"
+    },
+    {
+      "name": "annual_opex",
+      "data_type": "scalar",
+      "unit": "USD_2026/year",
+      "value": null,
+      "description": "TEST FIXTURE：annual_opex",
+      "required": true,
+      "source": {
+        "category": "assumption",
+        "reference_ids": [],
+        "description": "TEST FIXTURE：无现实依据"
+      },
+      "constraints": {
+        "minimum": 0,
+        "maximum": null
+      },
+      "uncertainty": "TEST FIXTURE：未知，需作者提供范围"
+    },
+    {
+      "name": "years",
+      "data_type": "integer",
+      "unit": "year",
+      "value": null,
+      "description": "TEST FIXTURE：years",
+      "required": true,
+      "source": {
+        "category": "assumption",
+        "reference_ids": [],
+        "description": "TEST FIXTURE：无现实依据"
+      },
+      "constraints": {
+        "minimum": 0,
+        "maximum": null
+      },
+      "uncertainty": "TEST FIXTURE：未知，需作者提供范围"
+    },
+    {
+      "name": "real_discount_rate",
+      "data_type": "scalar",
+      "unit": "1",
+      "value": null,
+      "description": "TEST FIXTURE：real_discount_rate",
+      "required": true,
+      "source": {
+        "category": "assumption",
+        "reference_ids": [],
+        "description": "TEST FIXTURE：无现实依据"
+      },
+      "constraints": {
+        "minimum": 0,
+        "maximum": null
+      },
+      "uncertainty": "TEST FIXTURE：未知，需作者提供范围"
+    }
+  ],
+  "expected_outputs": [
+    {
+      "name": "total_present_cost",
+      "data_type": "scalar",
+      "unit": "USD_2026",
+      "description": "TEST FIXTURE：生命周期成本现值"
+    }
+  ],
+  "assumptions": [
+    "TEST FIXTURE：所有成本使用 2026 年 USD，不进行币值换算。"
+  ],
+  "cost_basis": {
+    "currency": "USD",
+    "price_year": 2026,
+    "time_horizon": "TEST FIXTURE：years 年，每年末支付",
+    "discount_convention": "TEST FIXTURE：实质年折现率；不允许与名义现金流混用",
+    "tax_and_residual_assumptions": "TEST FIXTURE：未含税费及残值"
+  },
+  "scenarios": [],
+  "acceptance_checks": [
+    {
+      "output_name": "total_present_cost",
+      "description": "TEST FIXTURE：有限且非负",
+      "finite_required": true,
+      "minimum": 0,
+      "maximum": null,
+      "expected_value": null,
+      "absolute_tolerance": null,
+      "relative_tolerance": null
+    }
+  ],
+  "execution_policy": {
+    "mode": "handoff_only",
+    "preferred_engine": "python",
+    "acceptable_engines": [
+      "python",
+      "matlab"
+    ]
+  },
+  "requested_deliverables": [
+    "parameterized_source",
+    "model_manifest",
+    "dependency_manifest",
+    "tests",
+    "usage_examples",
+    "structured_result",
+    "execution_receipt"
+  ],
+  "created_at": "2026-10-03T14:30:00Z",
+  "metadata": {
+    "test_fixture": true,
+    "not_executed": true
+  }
+}

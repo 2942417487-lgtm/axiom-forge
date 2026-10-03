@@ -1,0 +1,434 @@
+{
+  "schema_version": "1.0",
+  "world_id": "WLD-1f591576-f6c4-4c77-a975-08494320662d",
+  "task_id": "TSK-90b6e64c-fe5c-429e-961f-a255d86643d9",
+  "canon_version": "CANON-191e98e943d3ff56d7479b8ff0e41e56b729a18a70a24555365a21f0aedb5168",
+  "canon_snapshot": {
+    "schema_version": "1.0",
+    "snapshot_id": "SNP-c784e5a9-c62b-4f1c-854f-9e72cc8c5275",
+    "world_id": "WLD-1f591576-f6c4-4c77-a975-08494320662d",
+    "canon_version": "CANON-191e98e943d3ff56d7479b8ff0e41e56b729a18a70a24555365a21f0aedb5168",
+    "created_at": "2026-10-03T12:06:50.959374Z",
+    "files": [
+      {
+        "path": "world/canon/technology/TECH-001.json",
+        "sha256": "3346d6fa7c644adc82909dd619072cfa11b89f3c14fa5600e45398e4c790a790",
+        "data": {
+          "entity_id": "TECH-001",
+          "domain": "technology",
+          "title": "TEST FIXTURE: open propulsion question",
+          "statement": "Structure demonstration only. This is not an author setting or a verified fact.",
+          "status": "Open Question",
+          "source": {
+            "kind": "open_question",
+            "description": "Synthetic contract fixture"
+          },
+          "dependencies": [],
+          "implications": [],
+          "conflicts": [],
+          "evidence_ids": [],
+          "claims": [
+            {
+              "claim_id": "CLM-a0ffbcd3-43bc-4b16-9009-bf9f3bbbd4d7",
+              "category": "OPEN QUESTION",
+              "statement": "TEST FIXTURE: this conceptual propulsion question has not been researched.",
+              "evidence_ids": [],
+              "entity_ids": [
+                "TECH-001"
+              ],
+              "reasoning": "No research or computation was performed.",
+              "assumptions": [],
+              "uncertainty": "Synthetic example only; feasibility unknown.",
+              "counterexamples": []
+            }
+          ],
+          "last_updated": "2026-10-03T12:06:50.937415Z"
+        }
+      },
+      {
+        "path": "world/evidence/EVD-359a5e64-c118-494e-9fc2-598e27c40261.json",
+        "sha256": "5a3dbec5c220669b3ca5574187c0cb003e499c28d0e2485460e274f621376d9a",
+        "data": {
+          "evidence_id": "EVD-359a5e64-c118-494e-9fc2-598e27c40261",
+          "claim_id": "CLM-a0ffbcd3-43bc-4b16-9009-bf9f3bbbd4d7",
+          "source": {
+            "source_type": "test_fixture",
+            "title": "TEST FIXTURE: no actual source",
+            "url": "https://example.invalid/test-fixture",
+            "authors": [],
+            "journal_or_conference": null,
+            "year": null,
+            "doi": null,
+            "date": null
+          },
+          "field": "schema testing",
+          "what_was_actually_demonstrated": "No scientific result was demonstrated.",
+          "applicable_conditions": [
+            "Schema testing only"
+          ],
+          "what_it_does_not_demonstrate": [
+            "Any real-world claim"
+          ],
+          "confidence": 0,
+          "confidence_rationale": "No source has been read.",
+          "supported_claims": [
+            "CLM-a0ffbcd3-43bc-4b16-9009-bf9f3bbbd4d7"
+          ],
+          "supported_entities": [
+            "TECH-001"
+          ],
+          "verification": {
+            "status": "synthetic",
+            "accessed_at": null,
+            "method": null,
+            "locator": null,
+            "excerpt": null
+          },
+          "last_updated": "2026-10-03T12:06:50.937415Z"
+        }
+      },
+      {
+        "path": "world/world.json",
+        "sha256": "88921b652867f7b6221645e6d9d550a1565a9f188234799d00d89ee1797e39bf",
+        "data": {
+          "schema_version": "1.0",
+          "world_id": "WLD-1f591576-f6c4-4c77-a975-08494320662d",
+          "name": "TEST FIXTURE",
+          "description": "Synthetic contract examples. Never import as real Canon or Evidence.",
+          "created_at": "2026-10-03T12:05:25.493041Z",
+          "metadata": {
+            "test_fixture": true
+          }
+        }
+      }
+    ]
+  },
+  "user_question": "TEST FIXTURE: validate contract structure only.",
+  "task_type": "roundtable",
+  "relevant_entities": [
+    "TECH-001"
+  ],
+  "run_id": "RUN-438e830b-97d6-453c-ae5a-925c56af1a19",
+  "agent_run_id": "ARN-eb63aa25-f1bd-4750-92f4-e5e1090dbbe1",
+  "artifact_id": "ART-e521060b-68e8-4812-8610-ef960af118cf",
+  "role": "redteam",
+  "stage": "redteam",
+  "selected_specialists": [
+    "researcher",
+    "engineering_auditor",
+    "economic_auditor",
+    "historical_analyst"
+  ],
+  "prior_results": [
+    {
+      "stage": "independent",
+      "agent_run": {
+        "world_id": "WLD-1f591576-f6c4-4c77-a975-08494320662d",
+        "task_id": "TSK-90b6e64c-fe5c-429e-961f-a255d86643d9",
+        "run_id": "RUN-438e830b-97d6-453c-ae5a-925c56af1a19",
+        "agent_run_id": "ARN-8cce4a68-5d8f-4539-a47c-a64cb5e7e10d",
+        "artifact_id": "ART-0a287090-4790-4396-8b26-e33a313b006b",
+        "canon_version": "CANON-191e98e943d3ff56d7479b8ff0e41e56b729a18a70a24555365a21f0aedb5168",
+        "role": "researcher",
+        "status": "completed",
+        "started_at": "2026-10-03T12:06:50.937415Z",
+        "finished_at": "2026-10-03T12:06:50.937415Z",
+        "metadata": {
+          "provider_session_id": "test-only-vendor-session",
+          "test_fixture": true
+        }
+      },
+      "artifact": {
+        "artifact_id": "ART-0a287090-4790-4396-8b26-e33a313b006b",
+        "world_id": "WLD-1f591576-f6c4-4c77-a975-08494320662d",
+        "task_id": "TSK-90b6e64c-fe5c-429e-961f-a255d86643d9",
+        "run_id": "RUN-438e830b-97d6-453c-ae5a-925c56af1a19",
+        "agent_run_id": "ARN-8cce4a68-5d8f-4539-a47c-a64cb5e7e10d",
+        "kind": "research",
+        "path": "examples/research_result.json",
+        "sha256": "cff272ff6b8a2dc903f330432a012a472a19f0ad0716abb283f108d15dc6dd8a",
+        "created_at": "2026-10-03T12:06:50.937415Z",
+        "metadata": {
+          "test_fixture": true
+        }
+      },
+      "result": {
+        "world_id": "WLD-1f591576-f6c4-4c77-a975-08494320662d",
+        "task_id": "TSK-90b6e64c-fe5c-429e-961f-a255d86643d9",
+        "run_id": "RUN-438e830b-97d6-453c-ae5a-925c56af1a19",
+        "agent_run_id": "ARN-8cce4a68-5d8f-4539-a47c-a64cb5e7e10d",
+        "artifact_id": "ART-0a287090-4790-4396-8b26-e33a313b006b",
+        "canon_version": "CANON-191e98e943d3ff56d7479b8ff0e41e56b729a18a70a24555365a21f0aedb5168",
+        "summary": "TEST FIXTURE: no model, research, or computation was run.",
+        "claims": [
+          {
+            "claim_id": "CLM-a0ffbcd3-43bc-4b16-9009-bf9f3bbbd4d7",
+            "category": "OPEN QUESTION",
+            "statement": "TEST FIXTURE: this conceptual propulsion question has not been researched.",
+            "evidence_ids": [],
+            "entity_ids": [
+              "TECH-001"
+            ],
+            "reasoning": "No research or computation was performed.",
+            "assumptions": [],
+            "uncertainty": "Synthetic example only; feasibility unknown.",
+            "counterexamples": []
+          }
+        ],
+        "assumptions": [],
+        "open_questions": [
+          "Await actual research."
+        ],
+        "metadata": {
+          "test_fixture": true
+        },
+        "result_type": "research",
+        "evidence": [
+          {
+            "evidence_id": "EVD-359a5e64-c118-494e-9fc2-598e27c40261",
+            "claim_id": "CLM-a0ffbcd3-43bc-4b16-9009-bf9f3bbbd4d7",
+            "source": {
+              "source_type": "test_fixture",
+              "title": "TEST FIXTURE: no actual source",
+              "url": "https://example.invalid/test-fixture",
+              "authors": [],
+              "journal_or_conference": null,
+              "year": null,
+              "doi": null,
+              "date": null
+            },
+            "field": "schema testing",
+            "what_was_actually_demonstrated": "No scientific result was demonstrated.",
+            "applicable_conditions": [
+              "Schema testing only"
+            ],
+            "what_it_does_not_demonstrate": [
+              "Any real-world claim"
+            ],
+            "confidence": 0,
+            "confidence_rationale": "No source has been read.",
+            "supported_claims": [
+              "CLM-a0ffbcd3-43bc-4b16-9009-bf9f3bbbd4d7"
+            ],
+            "supported_entities": [
+              "TECH-001"
+            ],
+            "verification": {
+              "status": "synthetic",
+              "accessed_at": null,
+              "method": null,
+              "locator": null,
+              "excerpt": null
+            },
+            "last_updated": "2026-10-03T12:06:50.937415Z"
+          }
+        ],
+        "search_log": []
+      }
+    },
+    {
+      "stage": "independent",
+      "agent_run": {
+        "world_id": "WLD-1f591576-f6c4-4c77-a975-08494320662d",
+        "task_id": "TSK-90b6e64c-fe5c-429e-961f-a255d86643d9",
+        "run_id": "RUN-438e830b-97d6-453c-ae5a-925c56af1a19",
+        "agent_run_id": "ARN-e1805ffd-260c-4c4f-af67-69c6f7437dac",
+        "artifact_id": "ART-11d1d0c2-756f-41f3-a47e-9bb6c949d03a",
+        "canon_version": "CANON-191e98e943d3ff56d7479b8ff0e41e56b729a18a70a24555365a21f0aedb5168",
+        "role": "engineering_auditor",
+        "status": "completed",
+        "started_at": "2026-10-03T12:06:50.937415Z",
+        "finished_at": "2026-10-03T12:06:50.937415Z",
+        "metadata": {
+          "provider_session_id": "test-only-vendor-session",
+          "test_fixture": true
+        }
+      },
+      "artifact": {
+        "artifact_id": "ART-11d1d0c2-756f-41f3-a47e-9bb6c949d03a",
+        "world_id": "WLD-1f591576-f6c4-4c77-a975-08494320662d",
+        "task_id": "TSK-90b6e64c-fe5c-429e-961f-a255d86643d9",
+        "run_id": "RUN-438e830b-97d6-453c-ae5a-925c56af1a19",
+        "agent_run_id": "ARN-e1805ffd-260c-4c4f-af67-69c6f7437dac",
+        "kind": "engineering",
+        "path": "examples/engineering_result.json",
+        "sha256": "1069dee6fd89ce54b7f833a942d8c46b8cf8663e682d3f35f83d25a4b454e6f6",
+        "created_at": "2026-10-03T12:06:50.937415Z",
+        "metadata": {
+          "test_fixture": true
+        }
+      },
+      "result": {
+        "world_id": "WLD-1f591576-f6c4-4c77-a975-08494320662d",
+        "task_id": "TSK-90b6e64c-fe5c-429e-961f-a255d86643d9",
+        "run_id": "RUN-438e830b-97d6-453c-ae5a-925c56af1a19",
+        "agent_run_id": "ARN-e1805ffd-260c-4c4f-af67-69c6f7437dac",
+        "artifact_id": "ART-11d1d0c2-756f-41f3-a47e-9bb6c949d03a",
+        "canon_version": "CANON-191e98e943d3ff56d7479b8ff0e41e56b729a18a70a24555365a21f0aedb5168",
+        "summary": "TEST FIXTURE: no model, research, or computation was run.",
+        "claims": [
+          {
+            "claim_id": "CLM-a0ffbcd3-43bc-4b16-9009-bf9f3bbbd4d7",
+            "category": "OPEN QUESTION",
+            "statement": "TEST FIXTURE: this conceptual propulsion question has not been researched.",
+            "evidence_ids": [],
+            "entity_ids": [
+              "TECH-001"
+            ],
+            "reasoning": "No research or computation was performed.",
+            "assumptions": [],
+            "uncertainty": "Synthetic example only; feasibility unknown.",
+            "counterexamples": []
+          }
+        ],
+        "assumptions": [],
+        "open_questions": [
+          "Await actual research."
+        ],
+        "metadata": {
+          "test_fixture": true
+        },
+        "result_type": "engineering",
+        "calculations": [],
+        "constraints": [],
+        "feasibility": "open_question"
+      }
+    },
+    {
+      "stage": "independent",
+      "agent_run": {
+        "world_id": "WLD-1f591576-f6c4-4c77-a975-08494320662d",
+        "task_id": "TSK-90b6e64c-fe5c-429e-961f-a255d86643d9",
+        "run_id": "RUN-438e830b-97d6-453c-ae5a-925c56af1a19",
+        "agent_run_id": "ARN-7f066e97-b5ab-4af9-b644-9a08dea0567d",
+        "artifact_id": "ART-2a014ce1-7d60-43f0-84af-0361eeaaed2e",
+        "canon_version": "CANON-191e98e943d3ff56d7479b8ff0e41e56b729a18a70a24555365a21f0aedb5168",
+        "role": "economic_auditor",
+        "status": "completed",
+        "started_at": "2026-10-03T12:06:50.937415Z",
+        "finished_at": "2026-10-03T12:06:50.937415Z",
+        "metadata": {
+          "provider_session_id": "test-only-vendor-session",
+          "test_fixture": true
+        }
+      },
+      "artifact": {
+        "artifact_id": "ART-2a014ce1-7d60-43f0-84af-0361eeaaed2e",
+        "world_id": "WLD-1f591576-f6c4-4c77-a975-08494320662d",
+        "task_id": "TSK-90b6e64c-fe5c-429e-961f-a255d86643d9",
+        "run_id": "RUN-438e830b-97d6-453c-ae5a-925c56af1a19",
+        "agent_run_id": "ARN-7f066e97-b5ab-4af9-b644-9a08dea0567d",
+        "kind": "economic",
+        "path": "examples/economic_result.json",
+        "sha256": "1fe92d358da93346a5e2643a75e816e13dd649dd69f24002c024cedb1abef0f7",
+        "created_at": "2026-10-03T12:06:50.937415Z",
+        "metadata": {
+          "test_fixture": true
+        }
+      },
+      "result": {
+        "world_id": "WLD-1f591576-f6c4-4c77-a975-08494320662d",
+        "task_id": "TSK-90b6e64c-fe5c-429e-961f-a255d86643d9",
+        "run_id": "RUN-438e830b-97d6-453c-ae5a-925c56af1a19",
+        "agent_run_id": "ARN-7f066e97-b5ab-4af9-b644-9a08dea0567d",
+        "artifact_id": "ART-2a014ce1-7d60-43f0-84af-0361eeaaed2e",
+        "canon_version": "CANON-191e98e943d3ff56d7479b8ff0e41e56b729a18a70a24555365a21f0aedb5168",
+        "summary": "TEST FIXTURE: no model, research, or computation was run.",
+        "claims": [
+          {
+            "claim_id": "CLM-a0ffbcd3-43bc-4b16-9009-bf9f3bbbd4d7",
+            "category": "OPEN QUESTION",
+            "statement": "TEST FIXTURE: this conceptual propulsion question has not been researched.",
+            "evidence_ids": [],
+            "entity_ids": [
+              "TECH-001"
+            ],
+            "reasoning": "No research or computation was performed.",
+            "assumptions": [],
+            "uncertainty": "Synthetic example only; feasibility unknown.",
+            "counterexamples": []
+          }
+        ],
+        "assumptions": [],
+        "open_questions": [
+          "Await actual research."
+        ],
+        "metadata": {
+          "test_fixture": true
+        },
+        "result_type": "economic",
+        "calculations": [],
+        "cost_drivers": [],
+        "alternatives": []
+      }
+    },
+    {
+      "stage": "independent",
+      "agent_run": {
+        "world_id": "WLD-1f591576-f6c4-4c77-a975-08494320662d",
+        "task_id": "TSK-90b6e64c-fe5c-429e-961f-a255d86643d9",
+        "run_id": "RUN-438e830b-97d6-453c-ae5a-925c56af1a19",
+        "agent_run_id": "ARN-a93720be-bd58-4dcf-be2f-dfca3beb5d65",
+        "artifact_id": "ART-c43fca3e-d87f-45fe-ad62-428d8a5cea66",
+        "canon_version": "CANON-191e98e943d3ff56d7479b8ff0e41e56b729a18a70a24555365a21f0aedb5168",
+        "role": "historical_analyst",
+        "status": "completed",
+        "started_at": "2026-10-03T12:06:50.937415Z",
+        "finished_at": "2026-10-03T12:06:50.937415Z",
+        "metadata": {
+          "provider_session_id": "test-only-vendor-session",
+          "test_fixture": true
+        }
+      },
+      "artifact": {
+        "artifact_id": "ART-c43fca3e-d87f-45fe-ad62-428d8a5cea66",
+        "world_id": "WLD-1f591576-f6c4-4c77-a975-08494320662d",
+        "task_id": "TSK-90b6e64c-fe5c-429e-961f-a255d86643d9",
+        "run_id": "RUN-438e830b-97d6-453c-ae5a-925c56af1a19",
+        "agent_run_id": "ARN-a93720be-bd58-4dcf-be2f-dfca3beb5d65",
+        "kind": "historical",
+        "path": "examples/historical_result.json",
+        "sha256": "47772b2c233164aab729e81f408e3d386f975cd916e32289993e2881a7c2a147",
+        "created_at": "2026-10-03T12:06:50.937415Z",
+        "metadata": {
+          "test_fixture": true
+        }
+      },
+      "result": {
+        "world_id": "WLD-1f591576-f6c4-4c77-a975-08494320662d",
+        "task_id": "TSK-90b6e64c-fe5c-429e-961f-a255d86643d9",
+        "run_id": "RUN-438e830b-97d6-453c-ae5a-925c56af1a19",
+        "agent_run_id": "ARN-a93720be-bd58-4dcf-be2f-dfca3beb5d65",
+        "artifact_id": "ART-c43fca3e-d87f-45fe-ad62-428d8a5cea66",
+        "canon_version": "CANON-191e98e943d3ff56d7479b8ff0e41e56b729a18a70a24555365a21f0aedb5168",
+        "summary": "TEST FIXTURE: no model, research, or computation was run.",
+        "claims": [
+          {
+            "claim_id": "CLM-a0ffbcd3-43bc-4b16-9009-bf9f3bbbd4d7",
+            "category": "OPEN QUESTION",
+            "statement": "TEST FIXTURE: this conceptual propulsion question has not been researched.",
+            "evidence_ids": [],
+            "entity_ids": [
+              "TECH-001"
+            ],
+            "reasoning": "No research or computation was performed.",
+            "assumptions": [],
+            "uncertainty": "Synthetic example only; feasibility unknown.",
+            "counterexamples": []
+          }
+        ],
+        "assumptions": [],
+        "open_questions": [
+          "Await actual research."
+        ],
+        "metadata": {
+          "test_fixture": true
+        },
+        "result_type": "historical",
+        "causal_chains": [],
+        "institutional_constraints": []
+      }
+    }
+  ],
+  "supporting_artifacts": []
+}

@@ -1,0 +1,796 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://axiom-forge.invalid/schemas/calculation_result.schema.json",
+  "title": "calculation_result",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "result_id": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/artifact_id"
+    },
+    "request_id": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/artifact_id"
+    },
+    "request_sha256": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/sha256"
+    },
+    "world_id": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/world_id"
+    },
+    "task_id": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/task_id"
+    },
+    "run_id": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/run_id"
+    },
+    "agent_run_id": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/agent_run_id"
+    },
+    "canon_version": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/canon_version"
+    },
+    "status": {
+      "enum": [
+        "completed",
+        "failed",
+        "needs_input",
+        "needs_implementation",
+        "unsupported_engine"
+      ]
+    },
+    "cases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "scenario_name": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "outputs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_]*$"
+                },
+                "data_type": {
+                  "enum": [
+                    "scalar",
+                    "integer",
+                    "vector",
+                    "matrix",
+                    "text",
+                    "boolean"
+                  ]
+                },
+                "unit": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "description": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "value": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "integer"
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "number"
+                      },
+                      "minItems": 1
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "array",
+                        "items": {
+                          "type": "number"
+                        },
+                        "minItems": 1
+                      },
+                      "minItems": 1
+                    },
+                    {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    {
+                      "type": "boolean"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "name",
+                "data_type",
+                "unit",
+                "description",
+                "value"
+              ],
+              "additionalProperties": false,
+              "allOf": [
+                {
+                  "if": {
+                    "properties": {
+                      "data_type": {
+                        "const": "scalar"
+                      }
+                    },
+                    "required": [
+                      "data_type"
+                    ]
+                  },
+                  "then": {
+                    "properties": {
+                      "value": {
+                        "type": "number"
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "properties": {
+                      "data_type": {
+                        "const": "integer"
+                      }
+                    },
+                    "required": [
+                      "data_type"
+                    ]
+                  },
+                  "then": {
+                    "properties": {
+                      "value": {
+                        "type": "integer"
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "properties": {
+                      "data_type": {
+                        "const": "vector"
+                      }
+                    },
+                    "required": [
+                      "data_type"
+                    ]
+                  },
+                  "then": {
+                    "properties": {
+                      "value": {
+                        "type": "array",
+                        "items": {
+                          "type": "number"
+                        },
+                        "minItems": 1
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "properties": {
+                      "data_type": {
+                        "const": "matrix"
+                      }
+                    },
+                    "required": [
+                      "data_type"
+                    ]
+                  },
+                  "then": {
+                    "properties": {
+                      "value": {
+                        "type": "array",
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "type": "number"
+                          },
+                          "minItems": 1
+                        },
+                        "minItems": 1
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "properties": {
+                      "data_type": {
+                        "const": "text"
+                      }
+                    },
+                    "required": [
+                      "data_type"
+                    ]
+                  },
+                  "then": {
+                    "properties": {
+                      "value": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "properties": {
+                      "data_type": {
+                        "const": "boolean"
+                      }
+                    },
+                    "required": [
+                      "data_type"
+                    ]
+                  },
+                  "then": {
+                    "properties": {
+                      "value": {
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "minItems": 1
+          },
+          "checks": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "output_name": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_]*$"
+                },
+                "passed": {
+                  "type": "boolean"
+                },
+                "description": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "output_name",
+                "passed",
+                "description"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1
+          }
+        },
+        "required": [
+          "scenario_name",
+          "outputs",
+          "checks"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 0
+    },
+    "receipt": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "engine": {
+              "enum": [
+                "python",
+                "matlab",
+                "other"
+              ]
+            },
+            "executor": {
+              "type": "string",
+              "minLength": 1
+            },
+            "model_id": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_.-]*$"
+            },
+            "model_version": {
+              "type": "string",
+              "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+            },
+            "program_artifact_id": {
+              "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/artifact_id"
+            },
+            "program_sha256": {
+              "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/sha256"
+            },
+            "environment_artifact_id": {
+              "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/artifact_id"
+            },
+            "started_at": {
+              "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/datetime"
+            },
+            "finished_at": {
+              "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/datetime"
+            }
+          },
+          "required": [
+            "engine",
+            "executor",
+            "model_id",
+            "model_version",
+            "program_artifact_id",
+            "program_sha256",
+            "environment_artifact_id",
+            "started_at",
+            "finished_at"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "issues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1
+          },
+          "parameter_names": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]*$"
+            },
+            "minItems": 0,
+            "uniqueItems": true
+          }
+        },
+        "required": [
+          "code",
+          "description",
+          "parameter_names"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 0
+    },
+    "created_at": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/datetime"
+    },
+    "metadata": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/metadata"
+    }
+  },
+  "required": [
+    "schema_version",
+    "result_id",
+    "request_id",
+    "request_sha256",
+    "world_id",
+    "task_id",
+    "run_id",
+    "agent_run_id",
+    "canon_version",
+    "status",
+    "cases",
+    "receipt",
+    "issues",
+    "created_at",
+    "metadata"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "completed"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "cases": {
+            "allOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "scenario_name": {
+                      "type": "string",
+                      "pattern": "^[a-z][a-z0-9_]*$"
+                    },
+                    "outputs": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "pattern": "^[a-z][a-z0-9_]*$"
+                          },
+                          "data_type": {
+                            "enum": [
+                              "scalar",
+                              "integer",
+                              "vector",
+                              "matrix",
+                              "text",
+                              "boolean"
+                            ]
+                          },
+                          "unit": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "description": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "value": {
+                            "anyOf": [
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "integer"
+                              },
+                              {
+                                "type": "array",
+                                "items": {
+                                  "type": "number"
+                                },
+                                "minItems": 1
+                              },
+                              {
+                                "type": "array",
+                                "items": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "number"
+                                  },
+                                  "minItems": 1
+                                },
+                                "minItems": 1
+                              },
+                              {
+                                "type": "string",
+                                "minLength": 1
+                              },
+                              {
+                                "type": "boolean"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "name",
+                          "data_type",
+                          "unit",
+                          "description",
+                          "value"
+                        ],
+                        "additionalProperties": false,
+                        "allOf": [
+                          {
+                            "if": {
+                              "properties": {
+                                "data_type": {
+                                  "const": "scalar"
+                                }
+                              },
+                              "required": [
+                                "data_type"
+                              ]
+                            },
+                            "then": {
+                              "properties": {
+                                "value": {
+                                  "type": "number"
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "if": {
+                              "properties": {
+                                "data_type": {
+                                  "const": "integer"
+                                }
+                              },
+                              "required": [
+                                "data_type"
+                              ]
+                            },
+                            "then": {
+                              "properties": {
+                                "value": {
+                                  "type": "integer"
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "if": {
+                              "properties": {
+                                "data_type": {
+                                  "const": "vector"
+                                }
+                              },
+                              "required": [
+                                "data_type"
+                              ]
+                            },
+                            "then": {
+                              "properties": {
+                                "value": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "number"
+                                  },
+                                  "minItems": 1
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "if": {
+                              "properties": {
+                                "data_type": {
+                                  "const": "matrix"
+                                }
+                              },
+                              "required": [
+                                "data_type"
+                              ]
+                            },
+                            "then": {
+                              "properties": {
+                                "value": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "number"
+                                    },
+                                    "minItems": 1
+                                  },
+                                  "minItems": 1
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "if": {
+                              "properties": {
+                                "data_type": {
+                                  "const": "text"
+                                }
+                              },
+                              "required": [
+                                "data_type"
+                              ]
+                            },
+                            "then": {
+                              "properties": {
+                                "value": {
+                                  "type": "string",
+                                  "minLength": 1
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "if": {
+                              "properties": {
+                                "data_type": {
+                                  "const": "boolean"
+                                }
+                              },
+                              "required": [
+                                "data_type"
+                              ]
+                            },
+                            "then": {
+                              "properties": {
+                                "value": {
+                                  "type": "boolean"
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      "minItems": 1
+                    },
+                    "checks": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "output_name": {
+                            "type": "string",
+                            "pattern": "^[a-z][a-z0-9_]*$"
+                          },
+                          "passed": {
+                            "type": "boolean"
+                          },
+                          "description": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        },
+                        "required": [
+                          "output_name",
+                          "passed",
+                          "description"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "minItems": 1
+                    }
+                  },
+                  "required": [
+                    "scenario_name",
+                    "outputs",
+                    "checks"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 1
+              },
+              {
+                "items": {
+                  "properties": {
+                    "checks": {
+                      "items": {
+                        "properties": {
+                          "passed": {
+                            "const": true
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "receipt": {
+            "type": "object",
+            "properties": {
+              "engine": {
+                "enum": [
+                  "python",
+                  "matlab",
+                  "other"
+                ]
+              },
+              "executor": {
+                "type": "string",
+                "minLength": 1
+              },
+              "model_id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_.-]*$"
+              },
+              "model_version": {
+                "type": "string",
+                "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+              },
+              "program_artifact_id": {
+                "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/artifact_id"
+              },
+              "program_sha256": {
+                "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/sha256"
+              },
+              "environment_artifact_id": {
+                "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/artifact_id"
+              },
+              "started_at": {
+                "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/datetime"
+              },
+              "finished_at": {
+                "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/datetime"
+              }
+            },
+            "required": [
+              "engine",
+              "executor",
+              "model_id",
+              "model_version",
+              "program_artifact_id",
+              "program_sha256",
+              "environment_artifact_id",
+              "started_at",
+              "finished_at"
+            ],
+            "additionalProperties": false
+          },
+          "issues": {
+            "maxItems": 0
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "enum": [
+              "needs_input",
+              "needs_implementation",
+              "unsupported_engine"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "cases": {
+            "maxItems": 0
+          },
+          "receipt": {
+            "type": "null"
+          },
+          "issues": {
+            "minItems": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "failed"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "cases": {
+            "maxItems": 0
+          },
+          "issues": {
+            "minItems": 1
+          }
+        }
+      }
+    }
+  ]
+}
