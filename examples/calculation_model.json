@@ -1,0 +1,78 @@
+{
+  "schema_version": "1.0",
+  "model_id": "cost.manufacturing",
+  "model_version": "1.0.0",
+  "description": "TEST FIXTURE：待实现的制造成本模型契约，不是可执行注册记录。",
+  "request_schema_versions": [
+    "1.0"
+  ],
+  "parameter_contract": [
+    {
+      "name": "mass_per_unit",
+      "data_type": "scalar",
+      "unit": "kg",
+      "description": "TEST FIXTURE：mass_per_unit",
+      "required": true
+    },
+    {
+      "name": "count",
+      "data_type": "integer",
+      "unit": "1",
+      "description": "TEST FIXTURE：count",
+      "required": true
+    },
+    {
+      "name": "material_unit_cost",
+      "data_type": "scalar",
+      "unit": "USD_2026/kg",
+      "description": "TEST FIXTURE：material_unit_cost",
+      "required": true
+    },
+    {
+      "name": "fixed_cost",
+      "data_type": "scalar",
+      "unit": "USD_2026",
+      "description": "TEST FIXTURE：fixed_cost",
+      "required": true
+    }
+  ],
+  "output_contract": [
+    {
+      "name": "material_cost",
+      "data_type": "scalar",
+      "unit": "USD_2026",
+      "description": "TEST FIXTURE：material_cost"
+    },
+    {
+      "name": "total_cost",
+      "data_type": "scalar",
+      "unit": "USD_2026",
+      "description": "TEST FIXTURE：total_cost"
+    }
+  ],
+  "implementations": [
+    {
+      "engine": "python",
+      "status": "planned",
+      "entrypoint": null,
+      "source_artifact_id": null,
+      "source_sha256": null
+    },
+    {
+      "engine": "matlab",
+      "status": "planned",
+      "entrypoint": null,
+      "source_artifact_id": null,
+      "source_sha256": null
+    }
+  ],
+  "assumptions": [
+    "TEST FIXTURE：所有成本使用 2026 年 USD，不进行币值换算。"
+  ],
+  "limitations": [
+    "TEST FIXTURE：未计制造良率、人工、能源、税费等，不构成真实成本结论。"
+  ],
+  "metadata": {
+    "test_fixture": true
+  }
+}

@@ -1,6 +1,8 @@
 # 合约测试样例
 
-根目录 24 个 JSON 文件为各非公共 Schema 的演示数据，`agents/` 另有 6 个岗位输入样例。全部是人工生成的测试数据，没有实际调用 Agent、搜索来源或进行科学计算。
+根目录 27 个 JSON 文件为各非公共 Schema 的演示数据，`agents/` 另有 6 个岗位输入样例，`calculations/` 有经济成本请求和两个携带待执行请求的岗位结果。全部是人工生成的测试数据，没有实际调用 Agent、搜索来源或进行科学计算。
+
+新增 calculation_request、calculation_model、calculation_result 展示未执行请求、planned 模型和 needs_implementation 返回结构；不能用这些文件声称已有计算程序或真实成本结果。
 
 唯一 Evidence 明确为 `test_fixture` / `synthetic`，Claim 为 OPEN QUESTION。内嵌的世界只用于测试，不是 `world/` 的生产知识库；不得把样例作为真实证据或作者设定。
 

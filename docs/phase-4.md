@@ -21,13 +21,15 @@
 
 ## 已执行验证
 
-68 项 unittest 全部通过，其中新增 29 项契约测试。覆盖七角色输入/输出、同快照深拷贝、首轮答案和 Artifact 泄露拒绝、动态角色选择、首轮完成门槛、Red Team 门槛、角色/身份/阶段/时间/哈希、伪来源、未知引用、Lead 权限、pending 提案、初稿提案修订/撤回、后置计算回执与无 world 写入。
+74 项 unittest 全部通过：原有 39、角色契约 29、后续计算协议补充 6。覆盖七角色输入/输出、同快照深拷贝、首轮答案和 Artifact 泄露拒绝、动态角色选择、首轮完成门槛、Red Team 门槛、角色/身份/阶段/时间/哈希、伪来源、未知引用、Lead 权限、pending 提案、初稿提案修订/撤回、后置计算回执与无 world 写入；补充覆盖待执行请求、类型/角色错配、未执行回执和未实现模型伪装。
 
-25 个 Schema 与本地引用自检通过；七个角色登记及规则文件检查通过；生产 world 校验仍仅含 world.json；完整综合输入/输出样例通过。原有 39 项数据、快照和 CLI 测试继续通过。
+28 个 Schema 与本地引用自检通过；七个角色登记及规则文件检查通过；生产 world 校验仍仅含 world.json；完整综合输入/输出样例通过。原有 39 项数据、快照和 CLI 测试继续通过。
 
 Claude 岗位的 frontmatter 按官方格式核对，测试检查七个唯一岗位名、必需字段、Read 与 default 权限；尚未安装或执行 Claude Code / SDK 加载验收。单纯文本、结构与契约测试不等于模型调用成功。
 
 ## 当前边界
+
+用户追加了工程/经济角色的程序化 cost 计算与请求交付要求，明确本轮只补指导规则、通用格式与接口规范。已补四份指导文件、CalculationRequest/Model/Result、两岗位 calculation_protocol 及可选 calculation_requests 输出字段；Python/MATLAB 执行程序留待后续。详见 [计算协议](../calculations/README.md) 与 [补充任务](tasks/reusable-calculations.md)。
 
 Phase 5 的 Web/Search、论文/PDF 与计算工具接入，Phase 6 的 Runtime，后续 Router、调度、阶段持久化、真实多 Agent 上下文隔离、人工审批认证、Canon Apply 与 LangGraph 均未实施。当前没有模型 API 调用或真实研究结论；正式 world 保持为空。
 

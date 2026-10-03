@@ -65,7 +65,8 @@
         "enum": [
           "source_search",
           "source_read",
-          "python_calculation"
+          "python_calculation",
+          "programmatic_calculation"
         ]
       },
       "minItems": 0,
@@ -78,6 +79,38 @@
         "human_approval",
         "git_mutation"
       ]
+    },
+    "calculation_protocol": {
+      "type": "object",
+      "properties": {
+        "request_schema": {
+          "const": "calculation_request"
+        },
+        "result_schema": {
+          "const": "calculation_result"
+        },
+        "model_schema": {
+          "const": "calculation_model"
+        },
+        "request_output_field": {
+          "const": "calculation_requests"
+        },
+        "dispatch_interface": {
+          "const": "CalculationBackend.execute(request) -> CalculationResult"
+        },
+        "handoff_required_when_unavailable": {
+          "const": true
+        }
+      },
+      "required": [
+        "request_schema",
+        "result_schema",
+        "model_schema",
+        "request_output_field",
+        "dispatch_interface",
+        "handoff_required_when_unavailable"
+      ],
+      "additionalProperties": false
     }
   },
   "required": [

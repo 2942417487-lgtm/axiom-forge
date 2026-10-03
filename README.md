@@ -52,7 +52,7 @@ git check-ignore .env .env.local .venv/ignore-check node_modules/ignore-check tm
 git ls-files .env.example
 ```
 
-已实现本地基础工具与 68 项 unittest；完整研究工作流留到后续阶段。使用说明：[世界观数据](world/README.md)、[Evidence 规范](docs/evidence.md)、[业务接口](schemas/README.md)、[Agent 契约](agents/README.md)、[Phase 4 交付记录](docs/phase-4.md)。
+已实现本地基础工具与 74 项 unittest；完整研究工作流留到后续阶段。使用说明：[世界观数据](world/README.md)、[Evidence 规范](docs/evidence.md)、[业务接口](schemas/README.md)、[Agent 契约](agents/README.md)、[可复用计算请求与接口](calculations/README.md)、[Phase 4 交付记录](docs/phase-4.md)。
 
 ## 当前目录
 
@@ -68,9 +68,10 @@ git ls-files .env.example
 ├── README.md          # 项目定位、使用方式和目录说明
 ├── requirements.txt / requirements-lock.txt
 ├── axiom_forge/       # 本地校验、ID、快照与 Agent Contract 工具
-├── schemas/           # 25 个 JSON Schema 与接口说明
+├── schemas/           # 28 个 JSON Schema 与接口说明
+├── calculations/      # 通用计算请求、模型与结果协议；执行器待实现
 ├── world/             # 分域知识库、生产 world_id 与初始空快照
-├── examples/          # 24 个 Schema 样例及 6 个角色输入包，全部为测试数据
+├── examples/          # 27 个 Schema 样例及岗位/计算交付输入包，全部为测试数据
 ├── tests/             # 完整性与失败边界测试
 └── docs/              # Evidence 规范、阶段记录与工程任务说明
 ```

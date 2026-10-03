@@ -165,6 +165,24 @@
         "infeasible",
         "open_question"
       ]
+    },
+    "calculation_requests": {
+      "type": "array",
+      "items": {
+        "allOf": [
+          {
+            "$ref": "https://axiom-forge.invalid/schemas/calculation_request.schema.json"
+          },
+          {
+            "properties": {
+              "role": {
+                "const": "engineering_auditor"
+              }
+            }
+          }
+        ]
+      },
+      "minItems": 0
     }
   },
   "required": [

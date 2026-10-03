@@ -1,0 +1,163 @@
+{
+  "schema_version": "1.0",
+  "request_id": "ART-00000000-0000-4000-8000-000000000011",
+  "world_id": "WLD-1f591576-f6c4-4c77-a975-08494320662d",
+  "task_id": "TSK-90b6e64c-fe5c-429e-961f-a255d86643d9",
+  "run_id": "RUN-438e830b-97d6-453c-ae5a-925c56af1a19",
+  "agent_run_id": "ARN-e1805ffd-260c-4c4f-af67-69c6f7437dac",
+  "canon_version": "CANON-191e98e943d3ff56d7479b8ff0e41e56b729a18a70a24555365a21f0aedb5168",
+  "role": "engineering_auditor",
+  "problem": {
+    "title": "TEST FIXTURE：制造成本请求",
+    "description": "TEST FIXTURE：计算批量产品材料与固定工程成本，尚未执行。",
+    "domain": "engineering"
+  },
+  "model": {
+    "model_id": "cost.manufacturing",
+    "model_version": "1.0.0"
+  },
+  "method": {
+    "description": "TEST FIXTURE：材料成本加固定工程成本。",
+    "equations": [
+      "material_cost = mass_per_unit * count * material_unit_cost",
+      "total_cost = material_cost + fixed_cost"
+    ],
+    "references": [],
+    "limitations": [
+      "TEST FIXTURE：未计制造良率、人工、能源、税费等，不构成真实成本结论。"
+    ]
+  },
+  "parameters": [
+    {
+      "name": "mass_per_unit",
+      "data_type": "scalar",
+      "unit": "kg",
+      "value": 2,
+      "description": "TEST FIXTURE：mass_per_unit",
+      "required": true,
+      "source": {
+        "category": "assumption",
+        "reference_ids": [],
+        "description": "TEST FIXTURE：无现实依据"
+      },
+      "constraints": {
+        "minimum": 0,
+        "maximum": null
+      },
+      "uncertainty": "TEST FIXTURE：未知，需作者提供范围"
+    },
+    {
+      "name": "count",
+      "data_type": "integer",
+      "unit": "1",
+      "value": 10,
+      "description": "TEST FIXTURE：count",
+      "required": true,
+      "source": {
+        "category": "assumption",
+        "reference_ids": [],
+        "description": "TEST FIXTURE：无现实依据"
+      },
+      "constraints": {
+        "minimum": 0,
+        "maximum": null
+      },
+      "uncertainty": "TEST FIXTURE：未知，需作者提供范围"
+    },
+    {
+      "name": "material_unit_cost",
+      "data_type": "scalar",
+      "unit": "USD_2026/kg",
+      "value": 5,
+      "description": "TEST FIXTURE：material_unit_cost",
+      "required": true,
+      "source": {
+        "category": "assumption",
+        "reference_ids": [],
+        "description": "TEST FIXTURE：无现实依据"
+      },
+      "constraints": {
+        "minimum": 0,
+        "maximum": null
+      },
+      "uncertainty": "TEST FIXTURE：未知，需作者提供范围"
+    },
+    {
+      "name": "fixed_cost",
+      "data_type": "scalar",
+      "unit": "USD_2026",
+      "value": null,
+      "description": "TEST FIXTURE：fixed_cost",
+      "required": true,
+      "source": {
+        "category": "assumption",
+        "reference_ids": [],
+        "description": "TEST FIXTURE：无现实依据"
+      },
+      "constraints": {
+        "minimum": 0,
+        "maximum": null
+      },
+      "uncertainty": "TEST FIXTURE：未知，需作者提供范围"
+    }
+  ],
+  "expected_outputs": [
+    {
+      "name": "material_cost",
+      "data_type": "scalar",
+      "unit": "USD_2026",
+      "description": "TEST FIXTURE：material_cost"
+    },
+    {
+      "name": "total_cost",
+      "data_type": "scalar",
+      "unit": "USD_2026",
+      "description": "TEST FIXTURE：total_cost"
+    }
+  ],
+  "assumptions": [
+    "TEST FIXTURE：所有成本使用 2026 年 USD，不进行币值换算。"
+  ],
+  "cost_basis": {
+    "currency": "USD",
+    "price_year": 2026,
+    "time_horizon": "TEST FIXTURE：一次制造批次",
+    "discount_convention": "TEST FIXTURE：单期，不折现",
+    "tax_and_residual_assumptions": "TEST FIXTURE：未含税费及残值"
+  },
+  "scenarios": [],
+  "acceptance_checks": [
+    {
+      "output_name": "total_cost",
+      "description": "TEST FIXTURE：有限且非负",
+      "finite_required": true,
+      "minimum": 0,
+      "maximum": null,
+      "expected_value": null,
+      "absolute_tolerance": null,
+      "relative_tolerance": null
+    }
+  ],
+  "execution_policy": {
+    "mode": "handoff_only",
+    "preferred_engine": "python",
+    "acceptable_engines": [
+      "python",
+      "matlab"
+    ]
+  },
+  "requested_deliverables": [
+    "parameterized_source",
+    "model_manifest",
+    "dependency_manifest",
+    "tests",
+    "usage_examples",
+    "structured_result",
+    "execution_receipt"
+  ],
+  "created_at": "2026-10-03T14:30:00Z",
+  "metadata": {
+    "test_fixture": true,
+    "not_executed": true
+  }
+}

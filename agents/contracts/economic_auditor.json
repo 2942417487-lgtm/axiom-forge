@@ -11,12 +11,20 @@
   "prompt_file": "agents/economic_auditor.md",
   "claude_file": ".claude/agents/economic-auditor.md",
   "required_capabilities": [
-    "python_calculation"
+    "programmatic_calculation"
   ],
   "forbidden_capabilities": [
     "canon_write",
     "canon_apply",
     "human_approval",
     "git_mutation"
-  ]
+  ],
+  "calculation_protocol": {
+    "request_schema": "calculation_request",
+    "result_schema": "calculation_result",
+    "model_schema": "calculation_model",
+    "request_output_field": "calculation_requests",
+    "dispatch_interface": "CalculationBackend.execute(request) -> CalculationResult",
+    "handoff_required_when_unavailable": true
+  }
 }

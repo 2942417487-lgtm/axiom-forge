@@ -2,7 +2,9 @@
 
 所有 Schema 使用 [JSON Schema Draft 2020-12](https://json-schema.org/draft/2020-12)。`$id` 使用 `https://axiom-forge.invalid/schemas/` 作为命名空间，不是远端下载地址。Python 校验器仅使用本地 Registry，拒绝未登记的引用；实现依据 [jsonschema 官方引用说明](https://python-jsonschema.readthedocs.io/en/stable/referencing/)。
 
-共 25 个 Schema：Phase 3 的 22 个基础结构，加 Phase 4 的 AgentContract、AgentInput、LeadPlan。角色使用相同严格输入包，根据 role/stage 做本地语义限制；详见 [Agent Contract](../agents/README.md)。
+共 28 个 Schema：Phase 3 的 22 个基础结构，Phase 4 的 AgentContract、AgentInput、LeadPlan，以及用户追加的 CalculationRequest、CalculationModel、CalculationResult。角色使用相同严格输入包，根据 role/stage 做本地语义限制；详见 [Agent Contract](../agents/README.md)。
+
+工程/经济结果新增可选的 calculation_requests 字段，单独承载尚未执行的请求，保持既有 Phase 3 数据兼容。计算协议由 [可复用计算接口](../calculations/README.md) 定义，目前只有结构与基本状态校验，没有执行器或跨请求/结果语义关联验证；不得把新 Schema 当作已接入 Python/MATLAB。
 
 ## 业务 ID 与执行边界
 

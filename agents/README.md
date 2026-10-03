@@ -12,7 +12,7 @@
 | redteam | 最强反驳、失败场景、隐藏前提与矛盾 | agent_input / redteam | redteam_result |
 | integrator | 比较论证、综合与 Canon 变更提案 | agent_input / draft_synthesis、final_synthesis | synthesis_result |
 
-`contracts/*.json` 是可校验的角色登记；同名 Markdown 是厂商无关岗位规则。`required_capabilities` 表示岗位需要的抽象能力，不表示当前工具可用。角色不固定模型或预算；后续 Router 负责选择。
+`contracts/*.json` 是可校验的角色登记；同名 Markdown 是厂商无关岗位规则。`required_capabilities` 表示岗位需要的抽象能力，不表示当前工具可用。两 Auditor 声明 programmatic_calculation，不锁定 Python 或 MATLAB；calculation_protocol 记录请求、模型、结果和交付接口。角色不固定模型或预算；后续 Router 负责选择。
 
 ## 输入包与独立性
 
@@ -43,6 +43,8 @@ cross_review / draft_synthesis 只能包含已选择的 Specialists；redteam �
 最终 Integrator 可以修订或撤回初稿提案；其输出的 proposed_changes 是本轮最终提案集合。输入中的历史初稿仍保留且单独校验，不与最终提案合并成多份 Apply 请求。最终输出不得再引用已经撤回的新增实体。
 
 独立分析输入禁止 Artifact，分析完成后可用 `validate_output_artifacts(input, result, schemas, supporting_artifacts)` 单独验证新计算回执；新回执必须属于当前 AgentRun，不得预先注入首轮输入。该校验验证身份与引用，尚不运行 Python 或读取 Artifact 文件证明计算正确。
+
+工程/经济岗位遇到需要实算的问题时须形成通用 CalculationRequest；有已接入且授权工具时按后续接口自主执行，否则通过可选 calculation_requests 字段交付完整请求，供作者使用 Codex、DSH 等构建或复用程序。当前仅定义协议，不执行程序、不增加 Read 以外权限。规范与样例见 [可复用计算协议](../calculations/README.md)。旧 calculations 字段只承载真实完成的计算，待执行请求不能伪装成该字段的结果。
 
 LeadPlan 不包含事实裁决、Canon 变更或批准字段；当前作为独立 Artifact 契约，未加入 Phase 3 TaskState 的持久化字段。Runtime 阶段将实现保存和读取这些记录。
 

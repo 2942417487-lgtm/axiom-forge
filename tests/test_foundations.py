@@ -53,8 +53,8 @@ class FoundationTests(unittest.TestCase):
 
     def test_all_schemas_and_contract_examples(self):
         examples = list((ROOT / "examples").glob("*.json"))
-        self.assertEqual(len(self.schemas.schemas), 25)
-        self.assertEqual(len(examples), 24)
+        self.assertEqual(len(self.schemas.schemas), 28)
+        self.assertEqual(len(examples), 27)
         for path in examples:
             with self.subTest(schema=path.stem):
                 self.schemas.validate(path.stem, read_json(path))
