@@ -1,0 +1,51 @@
+# Secrets: keep examples tracked, never commit real values.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials.json
+secrets/
+
+# Python environments, bytecode, and caches.
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.cache/
+cache/
+*.egg-info/
+build/
+dist/
+.coverage
+.coverage.*
+htmlcov/
+
+# JavaScript dependencies and output.
+node_modules/
+.npm/
+.next/
+coverage/
+
+# Logs, temporary files, and local runtime state.
+*.log
+logs/
+tmp/
+temp/
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+
+# Raw research materials belong in external storage.
+*.pdf
