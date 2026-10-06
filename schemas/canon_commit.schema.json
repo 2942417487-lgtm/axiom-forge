@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://axiom-forge.invalid/schemas/canon_commit.schema.json",
+  "title": "canon_commit",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "task_sha256": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/sha256"
+    },
+    "approval": {
+      "$ref": "https://axiom-forge.invalid/schemas/canon_approval.schema.json"
+    },
+    "branch": {
+      "type": "string",
+      "pattern": "^canon/RUN-[0-9a-f-]{36}$"
+    },
+    "base_git_sha": {
+      "type": "string",
+      "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$"
+    },
+    "commit_sha": {
+      "type": "string",
+      "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$"
+    },
+    "new_canon_version": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/canon_version"
+    }
+  },
+  "required": [
+    "schema_version",
+    "task_sha256",
+    "approval",
+    "branch",
+    "base_git_sha",
+    "commit_sha",
+    "new_canon_version"
+  ],
+  "additionalProperties": false
+}

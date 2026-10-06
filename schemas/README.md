@@ -31,13 +31,13 @@ ToolResult 记录工具调用身份、状态、输出或错误、开始/结束�
 
 所有输出包含 world_id、task_id、run_id、agent_run_id、artifact_id、canon_version。每个结果必须属于该 Task 的某个 Agent Run，角色与结果类型一致；结果规范化 JSON 的 SHA256 必须等于对应 Artifact 的 sha256。Run 的 Agent Run/Artifact 列表与实际记录一致。
 
-时间、实体引用、结果来源链、计算 Artifact、历史因果链 Evidence、冲突和提案基线会做语义校验。研究结果可以引用固定快照中的实体或完整提案集里的新实体。提案的预期数据状态会在内存中整体校验，检查悬空引用与相互依赖；不会执行写入。同一实体的多个不同提案被拒绝，需先人工消除歧义。生命周期为 WAITING_APPROVAL 时审批状态必须 pending；COMMITTED 要求 approved、final_result 与已批准提案。当前只校验这些条件，尚无生命周期执行器或状态迁移管理。
+时间、实体引用、结果来源链、计算 Artifact、历史因果链 Evidence、冲突和提案基线会做语义校验。研究结果可以引用固定快照中的实体或完整提案集里的新实体。预期数据状态在内存整体校验，拒绝悬空引用和同一实体多个不同提案。WAITING_APPROVAL 要求 pending。Phase 10 COMMITTED 状态的可选 canon_commit 绑定原 waiting TaskState 哈希、人工回执、提案哈希与提交 SHA，保留模型输出中的 pending 提案；旧格式仍兼容要求已批准提案的结构检查。通用验证器只验证结构/内容绑定，不验 Key、不证明 Git 发布。生命周期执行由宿主 TaskManager/CanonHost 控制，尚无 Phase 11 恢复。
 
 ## CanonChange
 
 类型涵盖 add、update、delete：add 要求 before=null；update 要求 before/after 都存在；delete 要求 after=null。target_entity_id 必须与记录一致，before 必须等于任务快照中的原条目，base_canon_version 必须匹配。
 
-approval 默认为显式 pending，不能携带伪装的批准回执。approved/rejected 要求 reviewer、reviewed_at 与 DEC 决策标识。该结构不是安全审批实现；当前工具不认证 reviewer、不执行 Canon 更新。Human Approval 与 Apply Runtime 留到 Phase 10。
+approval 默认为显式 pending，不能携带伪装的批准回执。approved/rejected 要求 reviewer、reviewed_at 与 DEC 决策标识，但形状正确不等于已获批准。研究 Agent 只能产生 pending；Phase 10 CanonHost 只接受完整待审任务、单独的 canon_review、经交互确认的 canon_approval 与 HMAC 验证。canon_commit 记录批准后的独立分支提交，见 [人工控制入口](../docs/phase-10.md)。
 
 ## 验证层级
 

@@ -31,9 +31,10 @@
 - Canon 修改必须提交 ProposedCanonChange，经验证和人工批准后才允许应用与提交。
 - 同一研究任务的 Specialist 首轮使用同一固定 Canon Snapshot，不得读取其他 Specialist 的首轮答案。
 - 独立分析完成后才能交叉审查、Red Team 与综合。不得以多数投票替代证据比较。
-- Phase 1–3 已提供 Canon/Evidence Schema、数据完整性校验与 Snapshot；人工审批和 Canon 应用 Runtime 尚未实现，不得声称结构校验已完成安全审批。
+- Phase 1–3 提供 Schema、完整性校验与 Snapshot；Phase 10 增加独立宿主 CLI 审批与 Canon 分支提交。结构校验不验审批 Key、不证明 Git 已提交；真正 Apply 须验证宿主批准回执、内容绑定和 Git/Canon 基线。
 - Phase 4 使用受限 agent_input；首轮禁止传入完整 TaskState、他人结果与 Artifact，后续审查要求全部所选首轮完成，最终综合要求 Red Team。契约校验不替代 Runtime 的上下文、文件与工具权限隔离。
-- 七个研究角色的输出无审批或 Canon 写入权限；ProposedCanonChange 必须 pending，批准和 Apply 留给未来独立人工控制步骤。
+- 七个研究角色的输出无审批或 Canon 写入权限；ProposedCanonChange 必须 pending，批准与 Apply 仅通过独立人工宿主步骤。不得访问 `.env.approval`、伪造确认或用工具写入批准文件。原始模型输出和 Artifact 不随批准改写。
+- Phase 10 TaskManager 使用 Lead 的受限岗位分工与固定快照检索，收集结果并交付内容绑定的审查包。CLI 人工批准要求交互确认整份包；Apply 只创建新 Canon 分支，不 checkout、push 或 merge。HMAC 依赖本地 OS/Key 权限，不代表远程身份认证。没有 Phase 11 的全量事件日志、checkpoint 恢复或自动重试；中断后须检查 commit-prepared 回执和分支，禁止盲目重跑覆盖。
 
 ## 架构与开发
 
@@ -58,4 +59,4 @@
 
 ## 当前检查
 
-使用 `.\.venv\Scripts\python.exe -m unittest discover -s tests -v` 运行测试；使用 `python -m axiom_forge check-schemas`、`validate-world`、`validate task_state <文件>`、`check-contracts`、`routing check` 与 `validate-agent-output <输入> <输出>` 检查数据与契约。使用 `git diff --check` 检查改动，使用 `git check-ignore` 验证敏感文件和临时目录被忽略，检查 `.env.example` 全部为空值。范例全部为测试数据，不得导入正式 world；模式入口为有界会话，当前尚无完整 TaskManager。
+使用 `.\.venv\Scripts\python.exe -m unittest discover -s tests -v` 运行测试；使用 `python -m axiom_forge check-schemas`、`validate-world`、`validate task_state <文件>`、`check-contracts`、`routing check` 与 `validate-agent-output <输入> <输出>` 检查数据与契约。使用 `git diff --check` 检查改动，使用 `git check-ignore` 验证 `.env.approval`、敏感文件和临时目录被忽略，检查 `.env.example` 全部为空值。范例全部为测试数据，不得导入正式 world；`examples/offline_task_manager.py` 仅在临时仓库演示完整任务、审批与分支提交。

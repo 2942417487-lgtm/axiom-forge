@@ -200,6 +200,9 @@
     },
     "metadata": {
       "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/metadata"
+    },
+    "canon_commit": {
+      "$ref": "https://axiom-forge.invalid/schemas/canon_commit.schema.json"
     }
   },
   "required": [

@@ -37,7 +37,7 @@ class ModeRunner:
             canonical_bytes(profile)
         self.config_sha256 = digest(config)
 
-    async def run(self, task):
+    async def run(self, task, *, observer=None, use_plan=False):
         task = copy.deepcopy(task)
         validate_task(task, self.store.schemas)
         if task["task_type"] not in MODES:
@@ -54,17 +54,28 @@ class ModeRunner:
         packets, routes, reserved = [], [], Decimal(0)
         lead_family = None
         status, reason, result = "completed", None, None
+        assignments = {}
+
+        def observe(event, payload):
+            if observer is not None:
+                observer(event, copy.deepcopy(payload))
+
+        observe("started", {"run_id": run_id})
 
         def invocation(role, stage, prior, artifacts):
             data = project_input(task, {"run_id": run_id, "agent_run_id": new_id("agent_run"),
                 "artifact_id": new_id("artifact")}, role, stage, selected, self.store.schemas,
                 prior_results=prior, supporting_artifacts=artifacts)
             data["mode_protocol"] = "1.0"
+            if role in assignments:
+                data["planning_assignment"] = copy.deepcopy(assignments[role])
+                data["relevant_entities"] = sorted(set(task["relevant_entities"]) | set(assignments[role]["entity_ids"]))
             self.store.validate_input(data)
             return data
 
         async def call(data):
             nonlocal reserved, lead_family
+            observe("invocation", data)
             request = {**self.config["routing"], "role": data["role"],
                 "task_kind": "scenario" if task["task_type"] == "scenario_simulation" else "research",
                 # Host counts UTF-8 bytes conservatively, plus instructions/schema overhead.
@@ -96,6 +107,7 @@ class ModeRunner:
                 raise DataError("Host factory returned a different Runtime/model")
             packet = await runtime.run_input(copy.deepcopy(data))
             packets.append(packet)
+            observe("packet", packet)
             return packet
 
         def require(packet):
@@ -106,7 +118,12 @@ class ModeRunner:
             return packet
 
         try:
-            require(await call(invocation("lead", "planning", [], [])))
+            lead = require(await call(invocation("lead", "planning", [], [])))
+            if use_plan:
+                assignments = {item["role"]: item for item in lead["result"]["assignments"]}
+                if set(assignments) != set(selected):
+                    raise ModeStop("OPEN_QUESTION", "Task planning must assign all four audit domains")
+                observe("retrieval", {"run_id": run_id, "assignments": assignments})
             # Prepare all first inputs before any first answer exists; no packet side channel.
             first_inputs = [invocation(role, "independent", [], []) for role in selected]
             first = [require(await call(data)) for data in first_inputs]
@@ -143,6 +160,7 @@ class ModeRunner:
             "routes": routes, "agent_run_ids": [p["agent_run"]["agent_run_id"] for p in packets],
             "result": result, "approval_status": "not_requested"}
         workspace.write_json("completion.json", completion)
+        observe("completion", completion)
         return completion
 
 
