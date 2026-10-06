@@ -4,7 +4,7 @@
 
 ## 当前阶段
 
-Phase 0–5 已合并。Phase 6 功能分支提供官方 Claude Agent SDK Adapter、单次 Runtime 与宿主授权 ToolSession 的 SDK 内进程 MCP 绑定。受控 Adapter 关闭原生工具、共享会话、项目/用户设置与外部 MCP；`.claude/agents/` 的手工岗位入口仍仅 Read，不能等同于受控 Runtime。使用和真实验收状态见 runtimes/README.md、docs/phase-6.md；完整工作流和审批尚未实现。
+Phase 0–6 已合并。Phase 7–9 功能分支增加可信宿主路由、模型分工与四种有界模式入口；使用见 routing/README.md、modes/README.md、docs/phase-7-9.md。Claude Adapter 复用官方 SDK，关闭原生工具、共享会话、项目/用户设置与外部 MCP；`.claude/agents/` 手工岗位入口仍仅 Read。模式整轮通过离线验收，四款模型的真实合成接入校验单独记录；完整 TaskManager、审批和 Canon 更新尚未实现。
 
 ## 开始工作
 

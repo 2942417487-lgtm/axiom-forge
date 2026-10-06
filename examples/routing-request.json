@@ -1,0 +1,16 @@
+{
+  "role": "researcher",
+  "task_kind": "research",
+  "difficulty": 1,
+  "importance": 1,
+  "context_size": 24000,
+  "output_tokens": 2048,
+  "tool_complexity": 1,
+  "latency_tolerance": 3,
+  "budget_usd": 0.3,
+  "need_independent_review": true,
+  "major_canon_change": false,
+  "required_tools": [
+    "canon_read"
+  ]
+}

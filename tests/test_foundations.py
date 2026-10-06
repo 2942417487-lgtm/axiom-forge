@@ -53,11 +53,19 @@ class FoundationTests(unittest.TestCase):
 
     def test_all_schemas_and_contract_examples(self):
         examples = list((ROOT / "examples").glob("*.json"))
-        self.assertEqual(len(self.schemas.schemas), 29)
-        self.assertEqual(len(examples), 28)
+        policy_names = {"model_registry", "routing_policy", "escalation_policy", "role_assignments"}
+        from axiom_forge.routing import read_policy
+        from examples.offline_modes import fixture_analysis
+        for name in policy_names:
+            self.schemas.validate(name, read_policy(ROOT / "routing" / (name + ".yaml")))
+        for mode in ("scenario_simulation", "direct_challenge", "roundtable", "court"):
+            self.schemas.validate("mode_analysis", fixture_analysis(mode))
+        aliases = {"mode-host": "mode_host", "routing-request": "routing_request"}
+        covered = {aliases.get(path.stem, path.stem) for path in examples} | policy_names | {"mode_analysis", "agent_contract"}
+        self.assertEqual(covered, set(self.schemas.schemas) - {"common"})
         for path in examples:
             with self.subTest(schema=path.stem):
-                self.schemas.validate(path.stem, read_json(path))
+                self.schemas.validate(aliases.get(path.stem, path.stem), read_json(path))
         validate_task(example("task_state"), self.schemas)
 
     def test_examples_never_claim_verified_science(self):

@@ -225,6 +225,8 @@ def validate_agent_input(data: dict, schemas: SchemaStore):
 def validate_agent_output(data: dict, result: dict, schemas: SchemaStore):
     validate_agent_input(data, schemas)
     schemas.validate(OUTPUTS[data["role"]], result)
+    from .mode_validation import validate_mode_analysis
+    validate_mode_analysis(data, result, schemas)
     if any(result[key] != data[key] for key in IDENTITY):
         raise DataError("Output identity/version differs from its invocation")
     if data["role"] == "lead":
@@ -248,6 +250,8 @@ def validate_output_artifacts(data: dict, result: dict, schemas: SchemaStore,
     """Validate post-execution calculation receipts without leaking them into first input."""
     validate_agent_input(data, schemas)
     schemas.validate(OUTPUTS[data["role"]], result)
+    from .mode_validation import validate_mode_analysis
+    validate_mode_analysis(data, result, schemas)
     if any(result[key] != data[key] for key in IDENTITY):
         raise DataError("Output identity/version differs from its invocation")
     if data["role"] == "lead":

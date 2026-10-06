@@ -23,6 +23,7 @@
 - Python 接口仅供宿主明确启用的已审核完整脚本，默认关闭、登记表为空；源码哈希检查和进程时限不是 OS 沙箱。不能把 Agent 新生成代码自动登记执行。Phase 6 研究 Adapter 只绑定宿主授权的 ToolSession，手工启动 Read 岗位文件不等于已获得这些工具。
 - Phase 6 单次 Runtime 复用官方 SDK，先投影/验证输入，再校验并保存结果；失败不产出完成 Artifact。模型/额度/凭据只由宿主配置，厂商 ID 仅 metadata，不共享/恢复其他岗位会话。真实调用须明确启用；离线测试不得冒充模型验收。新 source_read Evidence 需本次真实来源暂存回执；待计算请求保存独立文件，不能冒充实算。
 - CodexRuntime 只接受 software_engineer 工程任务，不接收研究/审计岗位；默认 read_only、拒绝审批，工程 job 与仓库修改须经人工 review。SDK/进程权限不是对所有宿主文件的隔离；不得声称软件工程 Runtime 具有研究 ToolSession 的文件访问边界。
+- Phase 7–9 路由只读取可信宿主策略，候选模型须启用且已联调；不可用的档次、跨家族审查组合或预算约束保留 OPEN QUESTION。四种模式固定四岗位首轮独立，再交叉审查、草案、Red Team 和最终综合；模式协议要求结构化 ModeAnalysis，科学内容仍须证据支持。单次模式不审批、不写 Canon、不执行完整 TaskManager 的派发/重试/恢复。真实模型接入测试与模式离线验收分别记录。
 
 ## Canon 与独立分析
 
@@ -57,4 +58,4 @@
 
 ## 当前检查
 
-使用 `.\.venv\Scripts\python.exe -m unittest discover -s tests -v` 运行测试；使用 `python -m axiom_forge check-schemas`、`validate-world`、`validate task_state <文件>`、`check-contracts` 与 `validate-agent-output <输入> <输出>` 检查数据与契约。使用 `git diff --check` 检查改动，使用 `git check-ignore` 验证敏感文件和临时目录被忽略，检查 `.env.example` 全部为空值。范例全部为测试数据，不得导入正式 world；当前尚无完整 Agent 工作流。
+使用 `.\.venv\Scripts\python.exe -m unittest discover -s tests -v` 运行测试；使用 `python -m axiom_forge check-schemas`、`validate-world`、`validate task_state <文件>`、`check-contracts`、`routing check` 与 `validate-agent-output <输入> <输出>` 检查数据与契约。使用 `git diff --check` 检查改动，使用 `git check-ignore` 验证敏感文件和临时目录被忽略，检查 `.env.example` 全部为空值。范例全部为测试数据，不得导入正式 world；模式入口为有界会话，当前尚无完整 TaskManager。

@@ -1,0 +1,11 @@
+schema_version: '1.0'
+extreme_difficulty: 3
+high_importance: 2
+complex_tools: 2
+task_minimum_tiers:
+  metadata: 0
+  coding: 0
+  research: 1
+  scenario: 1
+  synthesis: 1
+  review: 1

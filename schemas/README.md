@@ -2,7 +2,7 @@
 
 所有 Schema 使用 [JSON Schema Draft 2020-12](https://json-schema.org/draft/2020-12)。`$id` 使用 `https://axiom-forge.invalid/schemas/` 作为命名空间，不是远端下载地址。Python 校验器仅使用本地 Registry，拒绝未登记的引用；实现依据 [jsonschema 官方引用说明](https://python-jsonschema.readthedocs.io/en/stable/referencing/)。
 
-共 29 个 Schema：Phase 3 的 22 个基础结构，Phase 4 的 AgentContract、AgentInput、LeadPlan，以及用户追加的 CalculationRequest、CalculationModel、CalculationResult，Phase 5 的 ToolResult。角色使用相同严格输入包，根据 role/stage 做本地语义限制；详见 [Agent Contract](../agents/README.md)。
+共 36 个 Schema：原有 29 个结构，新增 ModelRegistry、RoutingPolicy、EscalationPolicy、RoleAssignments、RoutingRequest、ModeHost、ModeAnalysis。角色使用相同严格输入包，根据 role/stage 做语义限制；AgentInput 可选 mode_protocol=1.0，SynthesisResult 可选 mode_analysis，模式协议的最终综合强制后者存在。详见 [Agent Contract](../agents/README.md)、[Routing](../routing/README.md)、[模式](../modes/README.md)。
 
 ToolResult 记录工具调用身份、状态、输出或错误、开始/结束时间与参数/payload 哈希。完成状态必须有 data 且无 error；失败、不可用或拒绝状态不得携带成功输出。静态样例不是实际调用；来源记录与权限边界见 [Tool Layer](../tools/README.md)。
 
@@ -45,4 +45,4 @@ approval 默认为显式 pending，不能携带伪装的批准回执。approved/
 
 日期时间限定大写 T/Z、秒字段与显式时区；不支持闰秒 60。URI 限定 HTTP(S)。额外字段被拒绝；扩展信息应放进明确的 metadata，不绕过必填业务字段。
 
-每个非公共 Schema 都有 `examples/` 样例。样例只演示结构，不是研究结论，也不属于生产 world。
+原有非公共业务 Schema 使用 examples/ 样例；新路由规范以 routing/ 的实际配置及请求样例验证，ModeHost 使用 examples/mode-host.json，ModeAnalysis 由显式离线演示生成四种合成样例。样例不是研究结论，也不属于生产 world。

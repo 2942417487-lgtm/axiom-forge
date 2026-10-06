@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://axiom-forge.invalid/schemas/escalation_policy.schema.json",
+  "title": "escalation_policy",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "max_attempts": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 4
+    },
+    "next_tier": {
+      "type": "object",
+      "properties": {
+        "0": {
+          "const": 1
+        },
+        "1": {
+          "const": 2
+        },
+        "2": {
+          "const": 3
+        }
+      },
+      "required": [
+        "0",
+        "1",
+        "2"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "schema_version",
+    "max_attempts",
+    "next_tier"
+  ],
+  "additionalProperties": false
+}

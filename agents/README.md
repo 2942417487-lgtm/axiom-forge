@@ -1,6 +1,6 @@
 # Phase 4 Agent Contract
 
-角色、契约和输入包与模型厂商无关；岗位规则不等于正在运行的 Agent。Phase 6 增加基于这些契约的单次 Runtime、官方 SDK Adapter 与宿主授权工具绑定，使用和隔离限制见 [Runtime](../runtimes/README.md)。没有完整任务调度或 Canon 应用。工具接口见 [Phase 5 工具层](../tools/README.md)。
+角色、契约和输入包与模型厂商无关；岗位规则不等于正在运行的 Agent。Phase 6 增加单次 Runtime、官方 SDK Adapter 与宿主授权工具绑定；Phase 7–9 增加可编辑 Router 与 [四种有界模式](../modes/README.md)。没有完整 TaskManager 或 Canon 应用。工具与隔离限制见 [Runtime](../runtimes/README.md)、[工具层](../tools/README.md)。
 
 | 业务角色 | 职责 | 输入 Schema / 阶段 | 输出 Schema |
 | --- | --- | --- | --- |
@@ -12,7 +12,7 @@
 | redteam | 最强反驳、失败场景、隐藏前提与矛盾 | agent_input / redteam | redteam_result |
 | integrator | 比较论证、综合与 Canon 变更提案 | agent_input / draft_synthesis、final_synthesis | synthesis_result |
 
-`contracts/*.json` 是可校验的角色登记；同名 Markdown 是厂商无关岗位规则。`required_capabilities` 表示岗位需要的抽象能力，不表示当前工具可用。两 Auditor 声明 programmatic_calculation，不锁定 Python 或 MATLAB；calculation_protocol 记录请求、模型、结果和交付接口。角色不固定模型或预算；后续 Router 负责选择。
+`contracts/*.json` 是可校验的角色登记；同名 Markdown 是厂商无关岗位规则。`required_capabilities` 表示岗位需要的抽象能力，不表示当前工具可用。两 Auditor 声明 programmatic_calculation，不锁定 Python 或 MATLAB；calculation_protocol 记录请求、模型、结果和交付接口。角色不固定模型或预算；可信宿主 [Router](../routing/README.md) 负责选择。
 
 ## 输入包与独立性
 
@@ -26,7 +26,7 @@ planning 与 independent 禁止 prior_results 和 supporting_artifacts。非 pla
 
 ## 审查与综合次序
 
-业务顺序：planning → selected Specialists independent → 可选 cross_review → 可选 draft_synthesis → redteam → final_synthesis。它是契约规则，尚无阶段执行器。
+业务顺序：planning → selected Specialists independent → 可选 cross_review → 可选 draft_synthesis → redteam → final_synthesis。单岗契约保持动态 Specialist 选择；Phase 9 模式入口固定四个领域并执行全部阶段，LeadPlan 保存为建议。本阶段没有自动计划派发或人工审批执行器。
 
 每个 prior_results 包含声明的 stage、AgentRun、Artifact 与六类既有结果之一。校验角色阶段、业务身份、相同 Run 和 Canon 版本、completed/finished_at 回执、角色输出结构、规范化内容 SHA256、唯一执行和 Artifact ID。每个已选择 Specialist 必须保留 independent 结果包，cross_review 结果不能替代首轮回执。回执是数据，不证明真实模型执行；后续 Runtime 必须创建可信记录并保存首轮输入和结果。
 

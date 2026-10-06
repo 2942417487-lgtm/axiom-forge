@@ -8,7 +8,7 @@
 
 已建立 Phase 0–5 的项目基础、世界观数据层、Evidence Ledger、统一业务 Schema、七个 Agent 角色契约与独立 Tool Layer。提供离线数据校验、业务 ID、Canon Snapshot、受限输入/输出校验，以及公开来源读取、论文检索、文档解析、受限暂存和已审核 Python 脚本调用接口。通用 Web 搜索服务未选定，通用计算执行器后续再建。
 
-Phase 6 在功能分支实现统一 Runtime、官方 Claude/OpenAI/Codex SDK Adapter、受限工具绑定和单次调用记录；Codex 只用于软件工程。生产 world 仍为空；模型路由、完整任务工作流和 Canon 应用尚未实现。离线校验不需要密钥，真实调用须由操作者明确启用并提供凭据。使用方式与边界见 [Runtime](runtimes/README.md)。
+Phase 6 已合并统一 Runtime、官方 Claude/OpenAI/Codex SDK Adapter、受限工具绑定和单次调用记录；Codex 只用于软件工程。Phase 7–9 功能分支增加可配置模型登记、路由与升级接口，以及情景模拟、直接质疑、圆桌、法庭的有界模式入口。四款模型已完成真实合成接入测试，四种模式整轮通过离线流程验收。生产 world 仍为空，完整 TaskManager、审批和 Canon Apply 留给 Phase 10。使用方式见 [Runtime](runtimes/README.md)、[Routing](routing/README.md)、[工作模式](modes/README.md) 与 [交付记录](docs/phase-7-9.md)。
 
 ## 本地使用
 
@@ -39,6 +39,9 @@ python -m pip --python .venv install -r requirements-lock.txt
 .\.venv\Scripts\python.exe -m axiom_forge new-id entity --domain technology
 .\.venv\Scripts\python.exe -m axiom_forge snapshot create
 .\.venv\Scripts\python.exe -m axiom_forge tools list
+.\.venv\Scripts\python.exe -m axiom_forge routing check
+.\.venv\Scripts\python.exe -m axiom_forge routing select --request examples/routing-request.json
+.\.venv\Scripts\python.exe examples/offline_modes.py
 .\.venv\Scripts\python.exe -m unittest discover -s tests -v
 ```
 
@@ -69,19 +72,21 @@ git ls-files .env.example
 ├── README.md          # 项目定位、使用方式和目录说明
 ├── requirements.txt / requirements-lock.txt
 ├── axiom_forge/       # 校验、ID、快照、Contract、tools/ 与 runtimes/ 实现
-├── schemas/           # 29 个 JSON Schema 与接口说明
+├── schemas/           # 36 个 JSON Schema 与接口说明
 ├── tools/             # 工具接口说明与空的已审核 Python 脚本登记表
 ├── runtimes/          # 官方 SDK Adapter 说明与独立锁定依赖
+├── routing/           # 模型登记、岗位分配、路由与有界升级策略
+├── modes/             # 四种模式的指导规则与运行说明
 ├── calculations/      # 通用计算请求、模型与结果协议；执行器待实现
 ├── world/             # 分域知识库、生产 world_id 与初始空快照
-├── examples/          # 28 个 Schema 样例及岗位/计算/工具输入包，全部为测试数据
+├── examples/          # Schema/岗位/计算/工具样例、路由配置与离线模式演示
 ├── tests/             # 完整性与失败边界测试
 └── docs/              # Evidence 规范、阶段记录与工程任务说明
 ```
 
 ## 后续目录规划
 
-以下为设计规划，按后续阶段逐步创建：`routing/`、`workflows/`、`evals/`。Runtime 提供单次调用；Claude 使用 SDK 内进程 MCP 绑定，尚未部署对外通用 MCP 服务。
+以下为设计规划，按后续阶段逐步创建：`workflows/`、`evals/`。Runtime 提供单次调用，模式入口组合有界研究会话；Claude 使用 SDK 内进程 MCP 绑定，尚未部署对外通用 MCP 服务。
 
 业务角色与具体模型解耦；厂商模型名称、API 标识、价格和能力必须在接入时查证。先验证简单 Python V1，再评估引入 LangGraph。
 
@@ -93,7 +98,7 @@ GitHub 仓库使用 Private 可见性。私有仓库仍需严格排除凭据。
 
 AI 的重要系统或世界观修改必须在功能分支上完成，经验证、人工审查后再合并至 `main`。Phase 0 的 [PR #1](https://github.com/2942417487-lgtm/axiom-forge/pull/1)、Phase 1–3 的 [PR #2](https://github.com/2942417487-lgtm/axiom-forge/pull/2)、Phase 4 的 [PR #3](https://github.com/2942417487-lgtm/axiom-forge/pull/3) 与 Phase 5 的 [PR #4](https://github.com/2942417487-lgtm/axiom-forge/pull/4) 已经用户审查并授权合并；main 包含 Phase 0–5。
 
-Phase 6 使用 `feat/phase-6-runtime-adapters`，基于 main 提交独立待审查 PR。此前的合并授权不自动适用于本阶段 PR。
+PR #5 已按用户授权合并，main 包含 Phase 0–6。本轮 Phase 7–9 在 `feat/phase-7-9-routing-modes` 交付待审查 PR，不自动合并。
 
 本机的 GitHub CLI 便携版与认证配置位于 `.cache/`，不会进入 Git。本仓库单独配置了 CLI credential helper；全局 Git 认证配置保持原状。更换电脑时需要自行配置 GitHub 认证，本地 `.cache/` 不可作为共享文件上传。
 

@@ -1,0 +1,47 @@
+schema_version: '1.0'
+status: provisional_until_project_eval
+roles:
+  lead:
+  - claude-sonnet-5.5
+  - gpt-6.1-sol
+  - claude-opus-5.5
+  - claude-fable-5.1
+  - gpt-6-astra
+  researcher:
+  - gpt-6-luna
+  - deepseek-4.1-flash
+  - gpt-6.1-sol
+  - claude-sonnet-5.5
+  - claude-opus-5.5
+  - gpt-6-astra
+  - claude-fable-5.1
+  engineering_auditor:
+  - gpt-6.1-sol
+  - claude-sonnet-5.5
+  - claude-opus-5.5
+  - gpt-6-astra
+  - claude-fable-5.1
+  economic_auditor:
+  - gpt-6.1-sol
+  - claude-sonnet-5.5
+  - claude-opus-5.5
+  - gpt-6-astra
+  - claude-fable-5.1
+  historical_analyst:
+  - claude-sonnet-5.5
+  - gpt-6.1-sol
+  - claude-opus-5.5
+  - claude-fable-5.1
+  - gpt-6-astra
+  redteam:
+  - gpt-6.1-sol
+  - claude-sonnet-5.5
+  - claude-opus-5.5
+  - gpt-6-astra
+  - claude-fable-5.1
+  integrator:
+  - claude-sonnet-5.5
+  - gpt-6.1-sol
+  - claude-opus-5.5
+  - claude-fable-5.1
+  - gpt-6-astra
