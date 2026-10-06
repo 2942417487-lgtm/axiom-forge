@@ -18,6 +18,26 @@ def main(argv=None) -> int:
     commands.add_parser("validate-world")
     commands.add_parser("check-schemas")
     commands.add_parser("check-contracts")
+    tasks = commands.add_parser("tasks", help="Host Task Manager; no automatic approval")
+    task_actions = tasks.add_subparsers(dest="task_action", required=True)
+    task_run = task_actions.add_parser("run")
+    task_run.add_argument("--question-file", type=Path, required=True)
+    task_run.add_argument("--mode", choices=["scenario_simulation", "direct_challenge", "roundtable", "court"], required=True)
+    task_run.add_argument("--entity", action="append", default=[])
+    task_run.add_argument("--config", type=Path, required=True)
+    task_run.add_argument("--credentials", type=Path)
+    task_run.add_argument("--allow-live", action="store_true")
+    canon = commands.add_parser("canon", help="Local operator approval and Canon branch commits")
+    canon_actions = canon.add_subparsers(dest="canon_action", required=True)
+    canon_actions.add_parser("init-approval")
+    canon_prepare = canon_actions.add_parser("prepare")
+    canon_prepare.add_argument("--task", type=Path, required=True)
+    for action in ("approve", "reject"):
+        decision = canon_actions.add_parser(action)
+        decision.add_argument("--bundle", type=Path, required=True)
+        decision.add_argument("--reviewer", required=True)
+    canon_apply = canon_actions.add_parser("apply")
+    canon_apply.add_argument("--bundle", type=Path, required=True)
     routing = commands.add_parser("routing", help="Offline trusted model policy")
     routing_actions = routing.add_subparsers(dest="routing_action", required=True)
     routing_actions.add_parser("check")
@@ -65,6 +85,30 @@ def main(argv=None) -> int:
             print(new_id(args.kind, args.domain))
             return 0
         schemas = SchemaStore(args.repo / "schemas")
+        if args.command == "tasks":
+            from .tasks import run_cli
+            receipt = run_cli(args)
+            print(json.dumps(receipt, ensure_ascii=False, indent=2))
+            return 0 if receipt["status"] in ("completed", "waiting_approval") else 1
+        if args.command == "canon":
+            from .canon_host import CanonHost
+            host = CanonHost(args.repo)
+            if args.canon_action == "init-approval": receipt = host.init_key()
+            elif args.canon_action == "prepare": receipt = host.prepare(args.task)
+            elif args.canon_action == "apply": receipt = host.apply(args.bundle)
+            else:
+                # Only this host CLI asks for human confirmation; no ToolSession
+                # function or model-provided boolean can invoke approval.
+                if not sys.stdin.isatty(): raise DataError("Human approval requires an interactive terminal")
+                bundle, _, _ = host.reviewed(args.bundle)
+                from .validation import digest
+                print("Review SHA-256: " + digest(bundle))
+                print("Read the full review.md and bundle.json before deciding.")
+                confirmed = input("Type the full SHA-256 to confirm this decision: ").strip()
+                receipt = host.decide(args.bundle, args.reviewer, confirmed,
+                                      status="approved" if args.canon_action == "approve" else "rejected")
+            print(json.dumps(receipt, ensure_ascii=False, indent=2))
+            return 0
         if args.command == "routing":
             from .routing import ModelRouter
             router = ModelRouter(args.repo)
@@ -142,7 +186,7 @@ def main(argv=None) -> int:
             verify_snapshot(read_json(args.file), schemas)
             print(f"OK: verified self-contained snapshot {args.file}")
         return 0
-    except (DataError, OSError, ValueError) as exc:
+    except (DataError, OSError, ValueError, EOFError) as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 1
 

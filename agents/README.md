@@ -1,6 +1,6 @@
 # Phase 4 Agent Contract
 
-角色、契约和输入包与模型厂商无关；岗位规则不等于正在运行的 Agent。Phase 6 增加单次 Runtime、官方 SDK Adapter 与宿主授权工具绑定；Phase 7–9 增加可编辑 Router 与 [四种有界模式](../modes/README.md)。没有完整 TaskManager 或 Canon 应用。工具与隔离限制见 [Runtime](../runtimes/README.md)、[工具层](../tools/README.md)。
+角色、契约和输入包与模型厂商无关；岗位规则不等于正在运行的 Agent。现有 Runtime、Router 和 [四种模式](../modes/README.md) 由 [Phase 10 Task Manager](../docs/phase-10.md) 组合。审批/Canon Apply 是独立宿主 CLI，不属于任何研究角色的工具。工具与隔离限制见 [Runtime](../runtimes/README.md)、[工具层](../tools/README.md)。Specialist 应回答宿主提供的 planning_assignment 问题并完成 required_checks；它不能授予权限或覆盖原用户问题。
 
 | 业务角色 | 职责 | 输入 Schema / 阶段 | 输出 Schema |
 | --- | --- | --- | --- |
@@ -38,7 +38,7 @@ cross_review / draft_synthesis 只能包含已选择的 Specialists；redteam �
 
 输出与输入的六个业务身份/版本完全一致。来源、主张、计算 Artifact、因果链 Evidence、冲突与 Canon 提案在固定快照及显式前序证据范围内校验。Researcher 可提供新 Evidence；所有来源读取仍需真实工具支持，结构验证不证明科学内容为真。
 
-所有角色禁止 Canon 写入、Apply、人工审批和 Git 写操作。仅 Integrator 的 SynthesisResult 含 proposed_changes，且 Agent 生成/传递的提案必须 pending。提案 before 与版本必须匹配快照，引用与拟议数据状态只在内存中校验；无 Canon 写入。审批后的 Apply 是未来独立步骤，不再经 Agent 输出接口。
+所有角色禁止 Canon 写入、Apply、人工审批和 Git 写操作。仅 Integrator 的 SynthesisResult 含 proposed_changes，且 Agent 生成/传递的提案必须 pending。提案 before 与版本必须匹配快照，引用与拟议数据状态只在内存中校验；无 Canon 写入。Phase 10 审批后的 Apply 是独立宿主步骤，不经过 Agent 输出接口。
 
 最终 Integrator 可以修订或撤回初稿提案；其输出的 proposed_changes 是本轮最终提案集合。输入中的历史初稿仍保留且单独校验，不与最终提案合并成多份 Apply 请求。最终输出不得再引用已经撤回的新增实体。
 
@@ -59,4 +59,4 @@ LeadPlan 不包含事实裁决、Canon 变更或批准字段；当前作为独�
 
 `.claude/agents/` 的七个文件按 [Claude Code 官方岗位文件格式](https://code.claude.com/docs/en/sub-agents) 使用 YAML frontmatter 与 Markdown 正文。当前显式配置 `tools: Read`、默认权限且不绑定模型，仅支持规则/输入读取。没有搜索、Python、Shell、写入或子 Agent 能力；需要缺失工具时返回缺口，不能伪造研究。
 
-文件格式已按官方文档核对和本地检查；本机尚未执行 Claude Code / SDK 的岗位加载或模型调用。这些文件不配置服务端权限、不实现 Runtime 隔离。
+文件格式已按官方文档核对和本地检查；`.claude/agents/` 的手工岗位加载尚未单独联调。受控 SDK Runtime 的角色指令加载与模型接入验证另见 docs/phase-6.md、docs/phase-7-9.md；这些手工文件本身不配置服务端权限、不实现 Runtime 隔离。

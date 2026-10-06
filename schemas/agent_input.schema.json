@@ -143,6 +143,9 @@
     },
     "mode_protocol": {
       "const": "1.0"
+    },
+    "planning_assignment": {
+      "$ref": "https://axiom-forge.invalid/schemas/lead_plan.schema.json#/properties/assignments/items"
     }
   },
   "required": [

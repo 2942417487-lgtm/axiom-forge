@@ -6,6 +6,8 @@
 
 AgentInput 可选 `mode_protocol: "1.0"` 表示宿主启动了模式协议；此时 Runtime 加载同名模式规则，最终综合必须含 mode_analysis。旧单岗调用与既有输出保持兼容。模式检查因果节点/阶次与父节点、四个不同岗位或四个审计领域、Evidence 引用；结构校验不能证明因果、反例或科学结论本身为真。
 
+上述独立 `modes run` 保留建议型 LeadPlan。Phase 10 的 [tasks run](../docs/phase-10.md) 使用同一 ModeRunner 的可信宿主观察接口，要求计划覆盖四岗位，传入受限 planning_assignment，保存检索 Artifact 和 TaskState，并交付人工审查包；不会自动批准或 Apply。
+
 ## 离线演示
 
 ```powershell

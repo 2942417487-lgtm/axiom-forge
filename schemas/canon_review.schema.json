@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://axiom-forge.invalid/schemas/canon_review.schema.json",
+  "title": "canon_review",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "world_id": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/world_id"
+    },
+    "task_id": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/task_id"
+    },
+    "run_id": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/run_id"
+    },
+    "canon_version": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/canon_version"
+    },
+    "task_path": {
+      "type": "string",
+      "minLength": 1
+    },
+    "task_sha256": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/sha256"
+    },
+    "base_git_sha": {
+      "type": "string",
+      "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$"
+    },
+    "base_ref": {
+      "type": "string",
+      "pattern": "^refs/heads/[A-Za-z0-9_./-]+$"
+    },
+    "branch": {
+      "type": "string",
+      "pattern": "^canon/RUN-[0-9a-f-]{36}$"
+    },
+    "decision_id": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/entity_id"
+    },
+    "proposal_hashes": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": {
+        "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/proposal_id"
+      },
+      "additionalProperties": {
+        "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/sha256"
+      }
+    },
+    "created_at": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/datetime"
+    },
+    "files": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "before": {
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "after": {
+            "type": [
+              "object",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "path",
+          "before",
+          "after"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "schema_version",
+    "world_id",
+    "task_id",
+    "run_id",
+    "canon_version",
+    "task_path",
+    "task_sha256",
+    "base_git_sha",
+    "base_ref",
+    "branch",
+    "decision_id",
+    "proposal_hashes",
+    "created_at",
+    "files"
+  ],
+  "additionalProperties": false
+}

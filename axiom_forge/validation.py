@@ -246,6 +246,7 @@ def validate_change(change: dict):
 
 
 def validate_task(task: dict, schemas: SchemaStore):
+    import copy
     from .snapshots import verify_snapshot
 
     schemas.validate("task_state", task)
@@ -394,5 +395,24 @@ def validate_task(task: dict, schemas: SchemaStore):
     if task["lifecycle"] == "COMMITTED":
         if task["approval_status"] != "approved" or task["final_result"] is None:
             raise DataError("COMMITTED requires approval and a final result")
-        if any(change["approval"]["status"] != "approved" for change in by_id.values()):
+        control = task.get("canon_commit")
+        if control is not None:
+            # Structural/content binding only; MAC verification and Git publication
+            # are exclusive to CanonHost. Never change hashed model outputs.
+            waiting = copy.deepcopy(task)
+            del waiting["canon_commit"]
+            waiting.update(lifecycle="WAITING_APPROVAL", approval_status="pending", final_result=None)
+            approval = control["approval"]
+            if (approval["status"] != "approved" or task["final_result"] != control["commit_sha"]
+                    or control["task_sha256"] != digest(waiting)
+                    or control["base_git_sha"] != task["metadata"].get("base_git_sha")
+                    or len(task["runs"]) != 1 or task["runs"][0]["status"] != "completed"
+                    or control["branch"] != "canon/" + task["runs"][0]["run_id"]
+                    or approval["task_sha256"] != control["task_sha256"]
+                    or approval["proposal_hashes"] != {key: digest(value) for key, value in by_id.items()}
+                    or not by_id or any(c["approval"]["status"] != "pending" for c in by_id.values())):
+                raise DataError("Canon commit receipt differs from immutable pending proposals/task")
+        elif any(change["approval"]["status"] != "approved" for change in by_id.values()):
             raise DataError("COMMITTED cannot contain unapproved CanonChanges")
+    elif "canon_commit" in task:
+        raise DataError("Canon commit receipt is only valid in COMMITTED state")

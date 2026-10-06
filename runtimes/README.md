@@ -1,6 +1,6 @@
 # Phase 6 Runtime
 
-Phase 6 已合并。Phase 7–9 的 [Router](../routing/README.md) 与 [模式入口](../modes/README.md) 复用以下 SDK/单次 Runtime；四款模型接入与模式离线验收见 [交付记录](../docs/phase-7-9.md)。完整 TaskManager、审批与 Canon Apply 仍留给后续。
+现有 [Router](../routing/README.md)、[模式入口](../modes/README.md) 和 [Phase 10 Task Manager](../docs/phase-10.md) 复用以下 SDK/单次 Runtime；四款模型接入与模式离线验收见 [记录](../docs/phase-7-9.md)。人工审批与 Canon Apply 位于独立宿主 CLI，未增加 Runtime/ToolSession 权限。
 
 这是单次岗位调用接口；模型路由、Roundtable/LangGraph 调度、审批与 Canon Apply 留给后续阶段。实现位于 `axiom_forge/runtimes/`，业务角色和 Schema 不导入厂商 SDK。
 

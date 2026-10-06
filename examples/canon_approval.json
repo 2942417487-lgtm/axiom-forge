@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0",
+  "status": "approved",
+  "reviewer": "SYNTHETIC fixture, not a real human approval",
+  "reviewed_at": "2026-10-03T12:06:50.937415Z",
+  "decision_id": "DEC-001",
+  "bundle_sha256": "384ac25cc52204108a6ba187ff96fdd25ba4667e23fcad569e815c9a22c50c7f",
+  "task_sha256": "951109ac734c7cc5be6677a8953cf719b51ca666bd6e1f400d7df06a1d6d272a",
+  "proposal_hashes": {
+    "CHG-9d258c60-ad14-4007-a25b-71d38c1159c2": "83f4a4860fe85a260cff7dd27b4072c96c3709a96ed9614161ac7700e9ac0d0b"
+  },
+  "mac_sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+}

@@ -200,6 +200,11 @@ def validate_agent_input(data: dict, schemas: SchemaStore):
         raise DataError("Input and fixed snapshot world/version differ")
     if not set(data["relevant_entities"]).issubset(dataset["entities"]):
         raise DataError("Relevant entity is outside the fixed snapshot")
+    if "planning_assignment" in data:
+        assignment = data["planning_assignment"]
+        if (role not in SPECIALISTS or assignment["role"] != role
+                or not set(assignment["entity_ids"]).issubset(data["relevant_entities"])):
+            raise DataError("Planning assignment differs from Specialist/snapshot scope")
     selected = set(data["selected_specialists"])
     if stage != "planning" and not selected:
         raise DataError("At least one selected Specialist is required")
