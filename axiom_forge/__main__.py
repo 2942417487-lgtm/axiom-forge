@@ -1,4 +1,4 @@
-"""Local validation, ID generation, and snapshot CLI; no model calls."""
+"""Local validation, tools, and explicitly enabled Runtime CLI."""
 
 import argparse
 import json
@@ -18,6 +18,13 @@ def main(argv=None) -> int:
     commands.add_parser("validate-world")
     commands.add_parser("check-schemas")
     commands.add_parser("check-contracts")
+    runtime_parser = commands.add_parser("runtime", help="Host-operated research Runtime")
+    runtime_actions = runtime_parser.add_subparsers(dest="runtime_action", required=True)
+    runtime_call = runtime_actions.add_parser("run")
+    runtime_call.add_argument("--context", type=Path, required=True)
+    runtime_call.add_argument("--config", type=Path, required=True, help="Trusted provider, model, limits and tool grants")
+    runtime_call.add_argument("--credentials", type=Path, help="Explicit local .env path; never printed")
+    runtime_call.add_argument("--allow-live", action="store_true", help="Operator authorizes potentially paid SDK execution")
     tools_parser = commands.add_parser("tools", help="Host-operated, scoped Tool Layer")
     tools_actions = tools_parser.add_subparsers(dest="tool_action", required=True)
     tools_actions.add_parser("list")
@@ -67,6 +74,14 @@ def main(argv=None) -> int:
             result = session.call(args.name, read_json(args.input))
             print(json.dumps(result, ensure_ascii=False, indent=2))
             return 0 if result["status"] == "completed" else 1
+        elif args.command == "runtime":
+            from .runtimes.cli import run
+            packet = run(args)
+            # Provider/model content remains in private storage, not console logs.
+            print(json.dumps({"status": packet["agent_run"]["status"],
+                              "agent_run_id": packet["agent_run"]["agent_run_id"],
+                              "artifact": packet["artifact"], "error": packet["error"]}, ensure_ascii=False, indent=2))
+            return 0 if packet["agent_run"]["status"] == "completed" else 1
         elif args.command == "check-schemas":
             print(f"OK: {len(schemas.schemas)} schemas, all references resolve offline")
         elif args.command == "check-contracts":

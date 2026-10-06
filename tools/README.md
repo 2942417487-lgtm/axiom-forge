@@ -101,4 +101,4 @@ result = session.call("papers.crossref.search", {"query": "electric propulsion",
 - [arXiv 官方 API 手册](https://info.arxiv.org/help/api/user-manual.html)：Atom 返回、查询参数与请求间隔。
 - [pypdf 官方文本提取说明](https://pypdf.readthedocs.io/en/stable/user/extract-text.html)：PdfReader / extract_text 与 OCR/布局限制。
 
-真实联调与离线测试的记录分别见 `docs/phase-5.md`；工具存在不表示 Phase 6 Runtime 已接入。
+Phase 5 的真实联调与离线测试记录见 `docs/phase-5.md`。Phase 6 通过受控 SDK Adapter 绑定宿主明确授权的 ToolSession，说明见 [Runtime](../runtimes/README.md)；工具存在仍不表示未配置的搜索服务或脚本已经可用。

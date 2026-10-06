@@ -8,7 +8,7 @@
 
 已建立 Phase 0–5 的项目基础、世界观数据层、Evidence Ledger、统一业务 Schema、七个 Agent 角色契约与独立 Tool Layer。提供离线数据校验、业务 ID、Canon Snapshot、受限输入/输出校验，以及公开来源读取、论文检索、文档解析、受限暂存和已审核 Python 脚本调用接口。通用 Web 搜索服务未选定，通用计算执行器后续再建。
 
-当前生产 world 为空；Agent Runtime、模型路由、完整任务工作流和 Canon 应用尚未实现。本阶段不调用模型 API，不需要真实 API Key。
+Phase 6 在功能分支实现统一 Runtime、官方 Claude/OpenAI/Codex SDK Adapter、受限工具绑定和单次调用记录；Codex 只用于软件工程。生产 world 仍为空；模型路由、完整任务工作流和 Canon 应用尚未实现。离线校验不需要密钥，真实调用须由操作者明确启用并提供凭据。使用方式与边界见 [Runtime](runtimes/README.md)。
 
 ## 本地使用
 
@@ -68,9 +68,10 @@ git ls-files .env.example
 ├── agents/            # 厂商无关岗位规则与七个 JSON Contract
 ├── README.md          # 项目定位、使用方式和目录说明
 ├── requirements.txt / requirements-lock.txt
-├── axiom_forge/       # 校验、ID、快照、Agent Contract 与独立 tools/ 实现
+├── axiom_forge/       # 校验、ID、快照、Contract、tools/ 与 runtimes/ 实现
 ├── schemas/           # 29 个 JSON Schema 与接口说明
 ├── tools/             # 工具接口说明与空的已审核 Python 脚本登记表
+├── runtimes/          # 官方 SDK Adapter 说明与独立锁定依赖
 ├── calculations/      # 通用计算请求、模型与结果协议；执行器待实现
 ├── world/             # 分域知识库、生产 world_id 与初始空快照
 ├── examples/          # 28 个 Schema 样例及岗位/计算/工具输入包，全部为测试数据
@@ -80,7 +81,7 @@ git ls-files .env.example
 
 ## 后续目录规划
 
-以下为设计规划，按后续阶段逐步创建：`runtimes/`、`routing/`、`workflows/`、`evals/`。工具层已提供本地 Python/CLI 接口，厂商 Adapter 与 MCP 传输尚未接入。
+以下为设计规划，按后续阶段逐步创建：`routing/`、`workflows/`、`evals/`。Runtime 提供单次调用；Claude 使用 SDK 内进程 MCP 绑定，尚未部署对外通用 MCP 服务。
 
 业务角色与具体模型解耦；厂商模型名称、API 标识、价格和能力必须在接入时查证。先验证简单 Python V1，再评估引入 LangGraph。
 
@@ -90,9 +91,9 @@ GitHub 仓库使用 Private 可见性。私有仓库仍需严格排除凭据。
 
 仓库地址：[2942417487-lgtm/axiom-forge](https://github.com/2942417487-lgtm/axiom-forge)。`origin` 已连接该仓库，默认分支为 `main`。
 
-AI 的重要系统或世界观修改必须在功能分支上完成，经验证、人工审查后再合并至 `main`。Phase 0 的 [PR #1](https://github.com/2942417487-lgtm/axiom-forge/pull/1)、Phase 1–3 的 [PR #2](https://github.com/2942417487-lgtm/axiom-forge/pull/2) 与 Phase 4 的 [PR #3](https://github.com/2942417487-lgtm/axiom-forge/pull/3) 已经用户审查并授权合并；main 包含 Phase 0–4。
+AI 的重要系统或世界观修改必须在功能分支上完成，经验证、人工审查后再合并至 `main`。Phase 0 的 [PR #1](https://github.com/2942417487-lgtm/axiom-forge/pull/1)、Phase 1–3 的 [PR #2](https://github.com/2942417487-lgtm/axiom-forge/pull/2)、Phase 4 的 [PR #3](https://github.com/2942417487-lgtm/axiom-forge/pull/3) 与 Phase 5 的 [PR #4](https://github.com/2942417487-lgtm/axiom-forge/pull/4) 已经用户审查并授权合并；main 包含 Phase 0–5。
 
-Phase 5 使用 `feat/phase-5-tool-layer`，基于 main 提交独立 PR，等待新一轮审查。此前的合并授权不自动适用于本阶段 PR。
+Phase 6 使用 `feat/phase-6-runtime-adapters`，基于 main 提交独立待审查 PR。此前的合并授权不自动适用于本阶段 PR。
 
 本机的 GitHub CLI 便携版与认证配置位于 `.cache/`，不会进入 Git。本仓库单独配置了 CLI credential helper；全局 Git 认证配置保持原状。更换电脑时需要自行配置 GitHub 认证，本地 `.cache/` 不可作为共享文件上传。
 
