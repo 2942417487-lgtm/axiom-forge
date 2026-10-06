@@ -1,5 +1,7 @@
 # Phase 5 交付记录
 
+本阶段的 [PR #4](https://github.com/2942417487-lgtm/axiom-forge/pull/4) 已经用户授权合并，main 合并提交为 `d7e8e29571c7500b269b59cd2d7369ba4e4735f8`。以下验收和“尚未实现”描述为 Phase 5 交付时状态；Phase 6 新进展见 [Runtime](../runtimes/README.md)。
+
 用户授权继续 Phase 5，并明确选择：只接入已审核 Python 脚本调用接口，通用计算执行器后续再建；通用 Web 搜索先建立可配置接口，服务选定后再启用。本阶段基于已合并的 PR #3，在 `feat/phase-5-tool-layer` 上实现并交付独立待审查 PR。
 
 ## 清单与范围

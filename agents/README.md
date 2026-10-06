@@ -1,6 +1,6 @@
 # Phase 4 Agent Contract
 
-角色、契约和输入包与模型厂商无关；岗位规则不等于正在运行的 Agent。当前提供本地校验、输入投影和独立 Tool Layer，没有 Runtime、工具向岗位的绑定或任务调度。工具接口见 [Phase 5 工具层](../tools/README.md)。
+角色、契约和输入包与模型厂商无关；岗位规则不等于正在运行的 Agent。Phase 6 增加基于这些契约的单次 Runtime、官方 SDK Adapter 与宿主授权工具绑定，使用和隔离限制见 [Runtime](../runtimes/README.md)。没有完整任务调度或 Canon 应用。工具接口见 [Phase 5 工具层](../tools/README.md)。
 
 | 业务角色 | 职责 | 输入 Schema / 阶段 | 输出 Schema |
 | --- | --- | --- | --- |

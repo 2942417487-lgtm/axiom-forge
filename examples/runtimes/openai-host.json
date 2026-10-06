@@ -1,0 +1,9 @@
+{
+  "provider": "openai",
+  "model": "gpt-6.1-sol",
+  "max_cost_usd": 0.5,
+  "input_usd_per_million": 2,
+  "output_usd_per_million": 10,
+  "limits": {"max_turns": 2, "timeout_seconds": 120, "max_output_tokens": 4096, "max_tool_calls": 1, "max_tool_result_bytes": 6400},
+  "tools": {"capabilities": ["canon_read"], "enable_trusted_python": false}
+}

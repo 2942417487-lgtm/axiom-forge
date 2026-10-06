@@ -1,0 +1,8 @@
+{
+  "provider": "claude",
+  "model": "claude-sonnet-5-5",
+  "max_cost_usd": 0.4,
+  "claude_cli_path": ".cache/claude-runtime/claude.exe",
+  "limits": {"max_turns": 2, "timeout_seconds": 120, "max_output_tokens": 4096, "max_tool_calls": 1, "max_tool_result_bytes": 6400},
+  "tools": {"capabilities": ["canon_read"], "enable_trusted_python": false}
+}

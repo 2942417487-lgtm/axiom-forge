@@ -4,7 +4,7 @@
 
 ## 当前阶段
 
-当前已实现 Phase 0–5：数据与角色契约，以及独立本地 Tool Layer。岗位仅配置 Read，没有真实 Claude 调用验收；Claude Agent SDK Adapter、MCP 配置、工具向岗位的绑定与审批工作流尚未实现。工具清单和宿主调用方式见 tools/README.md，不得假装 Claude 岗位已获得这些工具。
+Phase 0–5 已合并。Phase 6 功能分支提供官方 Claude Agent SDK Adapter、单次 Runtime 与宿主授权 ToolSession 的 SDK 内进程 MCP 绑定。受控 Adapter 关闭原生工具、共享会话、项目/用户设置与外部 MCP；`.claude/agents/` 的手工岗位入口仍仅 Read，不能等同于受控 Runtime。使用和真实验收状态见 runtimes/README.md、docs/phase-6.md；完整工作流和审批尚未实现。
 
 ## 开始工作
 
@@ -20,7 +20,7 @@
 
 使用运行环境实际提供的搜索、来源读取和计算工具；记录来源与实算结果。工具不可用时报告缺口，不得用参数记忆冒充搜索、文献读取或计算。
 
-工程/经济岗位还应阅读 calculations/README.md，按 CalculationRequest 交付计算需求。当前 Read 岗位返回完整 JSON，由作者或未来 Runtime 保存文件；不能声称已经调用 Python/MATLAB 或已写文件。Phase 5 增加宿主审核脚本调用接口，默认关闭且登记表为空；没有通用计算执行器或 MATLAB Adapter。未来程序必须复用模型/版本与通用参数接口，禁止写死本次参数。
+工程/经济岗位还应阅读 calculations/README.md，按 CalculationRequest 交付计算需求。Read 手工岗位返回完整 JSON；受控 Runtime 自动保存通过身份/结构检查的独立请求文件。只有宿主授权并登记脚本时才可使用 Python 工具，默认关闭且登记表为空；没有通用计算执行器或 MATLAB Adapter。不得声称未执行的 Python/MATLAB 或文件写入；未来程序必须复用模型/版本与通用参数接口，禁止写死本次参数。
 
 Canon 变更应提出受影响实体、变更理由、证据、依赖、冲突和不确定性，等待验证与人工批准，再通过独立的应用步骤更新。不得静默编辑 Hard Canon。
 
