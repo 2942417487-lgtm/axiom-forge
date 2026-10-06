@@ -13,9 +13,11 @@ import re
 import secrets
 import subprocess
 import tempfile
+from contextlib import contextmanager
 from pathlib import Path
 
 from .snapshots import build_snapshot, utc_now
+from .journal import TaskJournal, publish
 from .tools.storage import Workspace, check_links, read_bounded, safe_relative, strict_json
 from .validation import (DataError, KNOWLEDGE_DIRECTORIES, SchemaStore, canonical_bytes,
                          collect_world, digest, record_schema, validate_dataset, validate_task)
@@ -46,6 +48,7 @@ class CanonHost:
         check_links(self.repo)
         self.schemas = SchemaStore(self.repo / "schemas")
         self.key_path = self.repo / ".env.approval"
+        self._journals = {}
 
     def git(self, *args, raw=None, index=None):
         # No shell, external diff, prompts, inherited GIT_* redirects, API secrets,
@@ -135,7 +138,7 @@ class CanonHost:
         validate_task(task, self.schemas)
         if (task["lifecycle"] != "WAITING_APPROVAL" or task["approval_status"] != "pending"
                 or not task["proposed_changes"] or task["synthesis"] is None
-                or task["metadata"].get("task_manager") != "1.0"
+                or task["metadata"].get("task_manager") not in ("1.0", "1.1")
                 or len(task["runs"]) != 1 or task["runs"][0]["status"] != "completed"):
             raise DataError("Only a completed research task with pending final proposals can be reviewed")
         if task["proposed_changes"] != task["synthesis"]["proposed_changes"]:
@@ -165,10 +168,10 @@ class CanonHost:
         validate_dataset(after, self.schemas)
         return before, after
 
-    def prepare(self, task_path):
+    def prepare(self, task_path, *, verify_base=True, base_ref=None):
         task = self.task(task_path)
         base = task["metadata"]["base_git_sha"]
-        self.check_base(base, task["canon_snapshot"])
+        if verify_base: self.check_base(base, task["canon_snapshot"])
         before, after = self.projected(task)
         # This decision template is itself part of the reviewed content. It is only
         # published after approval; reviewer/time/MAC are stored in Git message.
@@ -184,7 +187,7 @@ class CanonHost:
         validate_dataset(after, self.schemas)
         bundle = {"schema_version": "1.0", **{k: task[k] for k in ("world_id", "task_id", "canon_version")},
             "run_id": task["runs"][0]["run_id"], "task_path": Path(task_path).absolute().relative_to(self.repo).as_posix(),
-            "task_sha256": digest(task), "base_git_sha": base, "base_ref": self.base_ref(),
+            "task_sha256": digest(task), "base_git_sha": base, "base_ref": base_ref or self.base_ref(),
             "branch": "canon/" + task["runs"][0]["run_id"], "decision_id": decision_id,
             "proposal_hashes": {c["proposal_id"]: digest(c) for c in task["proposed_changes"]},
             "files": [{"path": p, "before": before.get(p), "after": after.get(p)}
@@ -203,17 +206,22 @@ class CanonHost:
         else: workspace.write("review.md", markdown)
         return {"bundle": str(workspace.path("bundle.json")), "review": str(workspace.path("review.md")), "sha256": bundle_hash}
 
-    def reviewed(self, bundle_path):
+    def reviewed(self, bundle_path, *, verify_base=True):
         bundle = document(bundle_path)
         self.schemas.validate("canon_review", bundle)
         task = self.task(self.repo / safe_relative(bundle["task_path"]))
         if digest(task) != bundle["task_sha256"]: raise DataError("Reviewed task content changed")
-        expected = self.prepare(self.repo / safe_relative(bundle["task_path"]))
+        expected = self.prepare(self.repo / safe_relative(bundle["task_path"]),
+                                verify_base=verify_base, base_ref=bundle['base_ref'])
         if expected["sha256"] != digest(bundle): raise DataError("Review differs from the task's projected Canon")
         if Path(bundle_path).absolute() != Path(expected["bundle"]): raise DataError("Review must use the host content-addressed package")
         return bundle, task, Workspace(Path(bundle_path).absolute().parent)
 
     def decide(self, bundle_path, reviewer, confirmed_hash, *, status="approved"):
+        with self.operator(bundle_path) as journal:
+            return self._decide(bundle_path, reviewer, confirmed_hash, status=status, journal=journal)
+
+    def _decide(self, bundle_path, reviewer, confirmed_hash, *, status, journal):
         bundle, task, workspace = self.reviewed(bundle_path)
         if not isinstance(reviewer, str) or not reviewer.strip() or len(reviewer) > 120 or any(ord(c) < 32 for c in reviewer):
             raise DataError("A short operator name is required")
@@ -225,23 +233,62 @@ class CanonHost:
         receipt["mac_sha256"] = hmac.new(self.key(), canonical_bytes(receipt), hashlib.sha256).hexdigest()
         self.schemas.validate("canon_approval", receipt)
         workspace.write_json("approval.json", receipt)
+        self.record_decision(journal, task, workspace, receipt)
+        return {"status": status, "approval": str(workspace.path("approval.json")), "bundle_sha256": digest(bundle)}
+
+    @contextmanager
+    def operator(self, bundle_path):
+        bundle = document(bundle_path)
+        self.schemas.validate('canon_review', bundle)
+        journal = self._journals.setdefault(bundle['task_id'], TaskJournal(self.repo, bundle['task_id']))
+        with journal.lock():
+            # Legacy Phase 10 packages stay usable, without fabricated past events.
+            records = journal.read()
+            if not records:
+                task = self.task(self.repo / safe_relative(bundle['task_path']))
+                if task['metadata'].get('task_manager') == '1.1': raise DataError('Phase 11 task journal is missing')
+            yield journal if records else None
+
+    def record_decision(self, journal, task, workspace, receipt):
+        status = receipt['status']
         if status == "rejected":
             rejected = copy.deepcopy(task)
             rejected.update(lifecycle="SYNTHESIS", approval_status="rejected", final_result=task["synthesis"]["summary"])
             validate_task(rejected, self.schemas)
-            Workspace(self.repo / ".cache/tasks" / task["task_id"]).write_json("rejected.json", rejected)
-        return {"status": status, "approval": str(workspace.path("approval.json")), "bundle_sha256": digest(bundle)}
+            publish(Workspace(self.repo / '.cache/tasks' / task['task_id']), 'rejected.json', rejected)
+        if journal:
+            kind = 'HumanApproved' if status == 'approved' else 'HumanRejected'
+            data = {'approval_path': workspace.path('approval.json').relative_to(self.repo).as_posix(),
+                    'approval_sha256': digest(receipt), 'bundle_sha256': receipt['bundle_sha256']}
+            existing = [e for e in journal.events() if e['event_type'] == kind]
+            if existing:
+                if len(existing) != 1 or existing[0]['data'] != data: raise DataError('Approval audit differs')
+                return
+            latest = journal.latest()
+            if latest['status'] != 'waiting_approval' or digest(latest['task_state']) != digest(task):
+                raise DataError('Approval must bind the waiting checkpoint')
+            journal.append(rejected if status == 'rejected' else task, latest['control'],
+                           'rejected' if status == 'rejected' else 'approved', [(kind, data)])
+
+    def verified_approval(self, bundle, task, workspace):
+        approval = document(workspace.path('approval.json'))
+        self.schemas.validate('canon_approval', approval)
+        signed = {k: v for k, v in approval.items() if k != 'mac_sha256'}
+        if (approval['bundle_sha256'] != digest(bundle) or approval['task_sha256'] != digest(task)
+                or approval['proposal_hashes'] != bundle['proposal_hashes'] or approval['decision_id'] != bundle['decision_id']
+                or not hmac.compare_digest(approval['mac_sha256'], hmac.new(self.key(), canonical_bytes(signed), hashlib.sha256).hexdigest())):
+            raise DataError('Tampered or mismatched host approval')
+        return approval
 
     def apply(self, bundle_path):
+        with self.operator(bundle_path) as journal:
+            return self._apply(bundle_path, journal)
+
+    def _apply(self, bundle_path, journal):
         bundle, task, workspace = self.reviewed(bundle_path)
-        approval = document(workspace.path("approval.json"))
-        self.schemas.validate("canon_approval", approval)
-        signed = {k: v for k, v in approval.items() if k != "mac_sha256"}
-        if (approval["status"] != "approved" or approval["bundle_sha256"] != digest(bundle)
-                or approval["task_sha256"] != digest(task) or approval["proposal_hashes"] != bundle["proposal_hashes"]
-                or approval["decision_id"] != bundle["decision_id"]
-                or not hmac.compare_digest(approval["mac_sha256"], hmac.new(self.key(), canonical_bytes(signed), hashlib.sha256).hexdigest())):
-            raise DataError("Missing, rejected, tampered or mismatched host approval")
+        approval = self.verified_approval(bundle, task, workspace)
+        if approval['status'] != 'approved': raise DataError('Rejected approval cannot apply Canon')
+        self.record_decision(journal, task, workspace, approval)
         if workspace.path("commit-prepared.json").exists():
             raise DataError("Apply already attempted; inspect the prepared receipt/branch, no automatic retry")
         before, after = self.projected(task)
@@ -275,6 +322,7 @@ class CanonHost:
         committed.update(lifecycle="COMMITTED", approval_status="approved", final_result=commit, canon_commit=control)
         validate_task(committed, self.schemas)
         workspace.write_json("commit-prepared.json", committed)
+        self.audit_prepared(journal, task, committed, workspace)
         # Validate again immediately before publishing. CAS verifies the named base
         # branch and atomically creates a previously nonexistent Canon branch.
         self.check_base(bundle["base_git_sha"], task["canon_snapshot"])
@@ -282,5 +330,82 @@ class CanonHost:
         transaction = f"start\nverify {bundle['base_ref']} {bundle['base_git_sha']}\ncreate refs/heads/{bundle['branch']} {commit}\nprepare\ncommit\n"
         self.git("update-ref", "--stdin", raw=transaction.encode("ascii"))
         path = Workspace(self.repo / ".cache/tasks" / task["task_id"]).write_json("committed.json", committed)
+        self.audit_committed(journal, committed)
         return {"status": "committed", "branch": bundle["branch"], "commit_sha": commit,
                 "state_path": str(path), "new_canon_version": new_snapshot["canon_version"]}
+
+    def audit_prepared(self, journal, task, committed, workspace):
+        if journal is None: return
+        data = {'prepared_path': workspace.path('commit-prepared.json').relative_to(self.repo).as_posix(),
+                'prepared_sha256': digest(committed), 'commit_sha': committed['canon_commit']['commit_sha']}
+        events = [e for e in journal.events() if e['event_type'] == 'CanonPrepared']
+        if events:
+            if len(events) != 1 or events[0]['data'] != data: raise DataError('Prepared commit audit differs')
+            return
+        latest = journal.latest()
+        if latest['status'] != 'approved': raise DataError('Commit preparation requires recorded approval')
+        journal.append(task, latest['control'], 'applying', [('CanonPrepared', data)])
+
+    def audit_committed(self, journal, committed):
+        if journal is None: return
+        latest = journal.latest()
+        if latest['status'] == 'committed':
+            if latest['task_state'] != committed: raise DataError('Committed checkpoint differs')
+            return
+        if latest['status'] != 'applying': raise DataError('Commit requires prepared checkpoint')
+        journal.append(committed, latest['control'], 'committed', [
+            ('CanonCommitted', {'commit_sha': committed['canon_commit']['commit_sha'],
+                                'branch': committed['canon_commit']['branch']}),
+            ('LifecycleChanged', {'lifecycle': 'COMMITTED'})])
+
+    def recover(self, bundle_path):
+        """Reconcile signed approval/prepared Git commit, without research or reapproval."""
+        with self.operator(bundle_path) as journal:
+            bundle, task, workspace = self.reviewed(bundle_path, verify_base=False)
+            approval = self.verified_approval(bundle, task, workspace)
+            self.record_decision(journal, task, workspace, approval)
+            if approval['status'] == 'rejected': return {'status': 'rejected', 'task_id': task['task_id']}
+            if not workspace.path('commit-prepared.json').exists():
+                return {'status': 'approved', 'task_id': task['task_id'], 'next_action': 'canon apply --bundle <same bundle>'}
+            committed = document(workspace.path('commit-prepared.json'))
+            validate_task(committed, self.schemas)
+            control = committed.get('canon_commit', {})
+            commit = control.get('commit_sha')
+            expected = copy.deepcopy(task)
+            expected.update(lifecycle='COMMITTED', approval_status='approved', final_result=commit, canon_commit=control)
+            if (committed != expected or control.get('approval') != approval or control.get('branch') != bundle['branch']
+                    or control.get('base_git_sha') != bundle['base_git_sha'] or control.get('task_sha256') != digest(task)):
+                raise DataError('Prepared commit differs from the signed review')
+            parents = self.git('rev-list', '--parents', '-n', '1', commit).decode().strip().split()
+            if parents != [commit, bundle['base_git_sha']]: raise DataError('Prepared commit has different parents')
+            message = 'Apply human-approved Canon ' + task['task_id'] + '\n\n' + canonical_bytes(approval).decode('utf-8') + '\n'
+            if self.git('show', '-s', '--format=%B', commit).decode().rstrip('\n') != message.rstrip('\n'):
+                raise DataError('Prepared Git message lacks the exact signed approval')
+            def tree(sha):
+                return {item.split(b'\t', 1)[1].decode('utf-8'): item.split(b'\t', 1)[0]
+                        for item in self.git('ls-tree', '-r', '-z', sha).split(b'\0') if item}
+            expected_tree = tree(bundle['base_git_sha'])
+            for change in bundle['files']:
+                if change['after'] is None: expected_tree.pop(change['path'], None)
+                else:
+                    oid = self.git('hash-object', '--stdin', raw=canonical_bytes(change['after']) + b'\n').strip()
+                    expected_tree[change['path']] = b'100644 blob ' + oid
+            if tree(commit) != expected_tree: raise DataError('Prepared Git tree differs from reviewed files/base')
+            if build_snapshot(self.git_world(commit), self.schemas)['canon_version'] != control['new_canon_version']:
+                raise DataError('Prepared Canon version differs')
+            self.audit_prepared(journal, task, committed, workspace)
+            ref = 'refs/heads/' + bundle['branch']
+            refs = {line.split()[0]: line.split()[1] for line in
+                    self.git('for-each-ref', '--format=%(refname) %(objectname)', ref).decode().splitlines()}
+            if ref in refs:
+                if refs[ref] != commit: raise DataError('Existing Canon branch points at a different commit')
+            else:
+                # No branch publication occurred. Recheck the base and publish by CAS.
+                self.check_base(bundle['base_git_sha'], task['canon_snapshot'])
+                if self.base_ref() != bundle['base_ref']: raise DataError('Current base branch changed')
+                transaction = f"start\nverify {bundle['base_ref']} {bundle['base_git_sha']}\ncreate {ref} {commit}\nprepare\ncommit\n"
+                self.git('update-ref', '--stdin', raw=transaction.encode('ascii'))
+            path = publish(Workspace(self.repo / '.cache/tasks' / task['task_id']), 'committed.json', committed)
+            self.audit_committed(journal, committed)
+            return {'status': 'committed', 'branch': bundle['branch'], 'commit_sha': commit,
+                    'state_path': str(path), 'new_canon_version': control['new_canon_version']}

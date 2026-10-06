@@ -1,0 +1,73 @@
+{
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "event_id": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/event_id"
+    },
+    "checkpoint_id": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/checkpoint_id"
+    },
+    "world_id": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/world_id"
+    },
+    "task_id": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/task_id"
+    },
+    "run_id": {
+      "anyOf": [
+        {
+          "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/run_id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "event_type": {
+      "enum": [
+        "TaskCreated",
+        "RunStarted",
+        "LifecycleChanged",
+        "ResearchStarted",
+        "AgentRunReserved",
+        "AgentRunCompleted",
+        "AgentRunFailed",
+        "EvidenceAdded",
+        "RedTeamRaisedConflict",
+        "CanonChangeProposed",
+        "TaskInterrupted",
+        "TaskResumed",
+        "TaskCompleted",
+        "HumanApproved",
+        "HumanRejected",
+        "CanonPrepared",
+        "CanonCommitted",
+        "ArtifactRecovered"
+      ]
+    },
+    "occurred_at": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/datetime"
+    },
+    "data": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "schema_version",
+    "event_id",
+    "checkpoint_id",
+    "world_id",
+    "task_id",
+    "run_id",
+    "event_type",
+    "occurred_at",
+    "data"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://axiom-forge.invalid/schemas/event_record.schema.json",
+  "title": "event_record"
+}

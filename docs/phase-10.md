@@ -74,3 +74,6 @@ Git 命令使用参数列表，不执行 shell、模型生成脚本、用户 hoo
 现成 MCP 能力的检索、采用方式与缺口见 [本轮任务说明](tasks/phase-10.md)。
 
 2026-10-06 实际验收：全量 **162 项离线测试通过**（298.826 秒）；独立临时仓库演示成功创建 Canon 分支且 main 不变；39 个 Schema、7 个岗位契约、12 个模型登记均通过校验，正式 world 仅包含 world/world.json。编译检查、Git 差异检查与敏感文件忽略检查通过；没有初始化正式审批 Key、没有正式 Canon Apply、没有新增 API 调用。
+
+
+Phase 11 后续已增加 checkpoint/Event Log 与独立恢复 CLI，失败回执按每次执行保存在 failures/，当前恢复规则见 [Phase 11](phase-11.md)。以上验收记录是 Phase 10 当时的范围与结果。

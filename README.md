@@ -8,7 +8,7 @@
 
 已建立 Phase 0–5 的项目基础、世界观数据层、Evidence Ledger、统一业务 Schema、七个 Agent 角色契约与独立 Tool Layer。提供离线数据校验、业务 ID、Canon Snapshot、受限输入/输出校验，以及公开来源读取、论文检索、文档解析、受限暂存和已审核 Python 脚本调用接口。通用 Web 搜索服务未选定，通用计算执行器后续再建。
 
-Phase 0–9 已合并，包括官方 SDK Runtime、受限工具、模型路由和四种模式。Phase 10 功能分支增加 Python Task Manager、固定快照检索、本地 CLI 人工审批和批准后的 Canon 分支提交。四款模型已完成真实合成接入测试；模式与新任务/审批流程采用离线验收。生产 world 仍为空。使用方式见 [Phase 10](docs/phase-10.md)、[Runtime](runtimes/README.md)、[Routing](routing/README.md) 与 [工作模式](modes/README.md)。
+Phase 0–10 已合并，包括官方 SDK Runtime、受限工具、模型路由、四种模式、Task Manager 和本地人工 Canon 审批。Phase 11 功能分支增加阶段 checkpoint、业务事件日志和显式 CLI 中断恢复。四款模型已完成真实合成接入测试；模式与新任务/审批流程采用离线验收。生产 world 仍为空。使用方式见 [恢复与审计](docs/phase-11.md)、[人工审批](docs/phase-10.md)、[Runtime](runtimes/README.md)、[Routing](routing/README.md) 与 [工作模式](modes/README.md)。
 
 ## 本地使用
 
@@ -72,7 +72,7 @@ git ls-files .env.example
 ├── README.md          # 项目定位、使用方式和目录说明
 ├── requirements.txt / requirements-lock.txt
 ├── axiom_forge/       # 校验、ID、快照、Contract、tools/ 与 runtimes/ 实现
-├── schemas/           # 36 个 JSON Schema 与接口说明
+├── schemas/           # 41 个 JSON Schema 与接口说明
 ├── tools/             # 工具接口说明与空的已审核 Python 脚本登记表
 ├── runtimes/          # 官方 SDK Adapter 说明与独立锁定依赖
 ├── routing/           # 模型登记、岗位分配、路由与有界升级策略
@@ -98,7 +98,7 @@ GitHub 仓库使用 Private 可见性。私有仓库仍需严格排除凭据。
 
 AI 的重要系统或世界观修改必须在功能分支上完成，经验证、人工审查后再合并至 `main`。Phase 0 的 [PR #1](https://github.com/2942417487-lgtm/axiom-forge/pull/1)、Phase 1–3 的 [PR #2](https://github.com/2942417487-lgtm/axiom-forge/pull/2)、Phase 4 的 [PR #3](https://github.com/2942417487-lgtm/axiom-forge/pull/3) 与 Phase 5 的 [PR #4](https://github.com/2942417487-lgtm/axiom-forge/pull/4) 已经用户审查并授权合并；main 包含 Phase 0–5。
 
-PR #5、PR #6 已按用户授权合并，main 包含 Phase 0–9。本轮 Phase 10 在 `feat/phase-10-task-manager` 交付待审查 PR，不自动合并。Canon Apply 只创建新分支提交，发布与合并仍由操作者控制。
+PR #5、PR #6、PR #7 已按用户授权合并，main 包含 Phase 0–10。本轮 Phase 11 在 `feat/phase-11-persistence-audit` 交付待审查 PR，不自动合并。Canon Apply 只创建新分支提交，发布与合并仍由操作者控制。
 
 本机的 GitHub CLI 便携版与认证配置位于 `.cache/`，不会进入 Git。本仓库单独配置了 CLI credential helper；全局 Git 认证配置保持原状。更换电脑时需要自行配置 GitHub 认证，本地 `.cache/` 不可作为共享文件上传。
 
