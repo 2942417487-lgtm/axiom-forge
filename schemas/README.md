@@ -2,7 +2,7 @@
 
 所有 Schema 使用 [JSON Schema Draft 2020-12](https://json-schema.org/draft/2020-12)。`$id` 使用 `https://axiom-forge.invalid/schemas/` 作为命名空间，不是远端下载地址。Python 校验器仅使用本地 Registry，拒绝未登记的引用；实现依据 [jsonschema 官方引用说明](https://python-jsonschema.readthedocs.io/en/stable/referencing/)。
 
-共 36 个 Schema：原有 29 个结构，新增 ModelRegistry、RoutingPolicy、EscalationPolicy、RoleAssignments、RoutingRequest、ModeHost、ModeAnalysis。角色使用相同严格输入包，根据 role/stage 做语义限制；AgentInput 可选 mode_protocol=1.0，SynthesisResult 可选 mode_analysis，模式协议的最终综合强制后者存在。详见 [Agent Contract](../agents/README.md)、[Routing](../routing/README.md)、[模式](../modes/README.md)。
+共 41 个 Schema：原有数据、计算、工具、路由与模式结构，Phase 10 增加 CanonReview/Approval/Commit，Phase 11 增加 TaskCheckpoint/EventRecord。角色使用相同严格输入包，根据 role/stage 做语义限制；AgentInput 可选 mode_protocol=1.0，SynthesisResult 可选 mode_analysis，模式协议的最终综合强制后者存在。详见 [Agent Contract](../agents/README.md)、[Routing](../routing/README.md)、[模式](../modes/README.md)。
 
 ToolResult 记录工具调用身份、状态、输出或错误、开始/结束时间与参数/payload 哈希。完成状态必须有 data 且无 error；失败、不可用或拒绝状态不得携带成功输出。静态样例不是实际调用；来源记录与权限边界见 [Tool Layer](../tools/README.md)。
 
@@ -14,7 +14,7 @@ ToolResult 记录工具调用身份、状态、输出或错误、开始/结束�
 | --- | --- | --- |
 | World | WLD-UUIDv4 | 项目知识世界 |
 | Task | TSK-UUIDv4 | 用户的业务问题，重复执行保留 Task ID |
-| Run | RUN-UUIDv4 | 一次流程执行；重试整次流程应新建 Run |
+| Run | RUN-UUIDv4 | 一次流程执行；Phase 11 恢复延续原 Run，另起流程使用新 Run |
 | Agent Run | ARN-UUIDv4 | 某角色的一次运行；同角色多次运行各有独立 ID |
 | Artifact | ART-UUIDv4 | 一份有身份、位置与内容哈希的结果 |
 | Snapshot | SNP-UUIDv4 | 快照创建身份 |
@@ -22,6 +22,8 @@ ToolResult 记录工具调用身份、状态、输出或错误、开始/结束�
 | Claim | CLM-UUIDv4 | 可追溯主张 |
 | Evidence | EVD-UUIDv4 | 来源依据记录 |
 | Canon Change | CHG-UUIDv4 | 变更提案 |
+| Checkpoint | CKP-UUIDv4 | 原子阶段记录 |
+| Event | EVT-UUIDv4 | 关联 checkpoint 的业务事件 |
 
 使用 `python -m axiom_forge new-id task` 等命令生成。厂商 Session/Thread ID 放在 metadata 中，不能替代这些业务 ID。角色只使用稳定业务名，当前没有模型绑定。
 
@@ -31,7 +33,7 @@ ToolResult 记录工具调用身份、状态、输出或错误、开始/结束�
 
 所有输出包含 world_id、task_id、run_id、agent_run_id、artifact_id、canon_version。每个结果必须属于该 Task 的某个 Agent Run，角色与结果类型一致；结果规范化 JSON 的 SHA256 必须等于对应 Artifact 的 sha256。Run 的 Agent Run/Artifact 列表与实际记录一致。
 
-时间、实体引用、结果来源链、计算 Artifact、历史因果链 Evidence、冲突和提案基线会做语义校验。研究结果可以引用固定快照中的实体或完整提案集里的新实体。预期数据状态在内存整体校验，拒绝悬空引用和同一实体多个不同提案。WAITING_APPROVAL 要求 pending。Phase 10 COMMITTED 状态的可选 canon_commit 绑定原 waiting TaskState 哈希、人工回执、提案哈希与提交 SHA，保留模型输出中的 pending 提案；旧格式仍兼容要求已批准提案的结构检查。通用验证器只验证结构/内容绑定，不验 Key、不证明 Git 发布。生命周期执行由宿主 TaskManager/CanonHost 控制，尚无 Phase 11 恢复。
+时间、实体引用、结果来源链、计算 Artifact、历史因果链 Evidence、冲突和提案基线会做语义校验。研究结果可以引用固定快照中的实体或完整提案集里的新实体。预期数据状态在内存整体校验，拒绝悬空引用和同一实体多个不同提案。WAITING_APPROVAL 要求 pending。Phase 10 COMMITTED 状态的可选 canon_commit 绑定原 waiting TaskState 哈希、人工回执、提案哈希与提交 SHA，保留模型输出中的 pending 提案；旧格式仍兼容要求已批准提案的结构检查。通用验证器只验证结构/内容绑定，不验 Key、不证明 Git 发布。生命周期执行由宿主 TaskManager/CanonHost 控制；Phase 11 的 TaskCheckpoint 包含有效 TaskState、可信宿主游标、预留和关联事件，EventRecord 不向模型授予日志写入权。结构校验不能代替整条日志、文件、输入和签名恢复校验，见 [恢复说明](../docs/phase-11.md)。
 
 ## CanonChange
 

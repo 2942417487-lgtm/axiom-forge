@@ -27,6 +27,13 @@ def main(argv=None) -> int:
     task_run.add_argument("--config", type=Path, required=True)
     task_run.add_argument("--credentials", type=Path)
     task_run.add_argument("--allow-live", action="store_true")
+    for action in ('inspect', 'events', 'resume'):
+        entry = task_actions.add_parser(action)
+        entry.add_argument('--task-id', required=True)
+        if action == 'resume':
+            entry.add_argument('--config', type=Path)
+            entry.add_argument('--credentials', type=Path)
+            entry.add_argument('--allow-live', action='store_true')
     canon = commands.add_parser("canon", help="Local operator approval and Canon branch commits")
     canon_actions = canon.add_subparsers(dest="canon_action", required=True)
     canon_actions.add_parser("init-approval")
@@ -38,6 +45,8 @@ def main(argv=None) -> int:
         decision.add_argument("--reviewer", required=True)
     canon_apply = canon_actions.add_parser("apply")
     canon_apply.add_argument("--bundle", type=Path, required=True)
+    canon_recover = canon_actions.add_parser('recover')
+    canon_recover.add_argument('--bundle', type=Path, required=True)
     routing = commands.add_parser("routing", help="Offline trusted model policy")
     routing_actions = routing.add_subparsers(dest="routing_action", required=True)
     routing_actions.add_parser("check")
@@ -89,13 +98,15 @@ def main(argv=None) -> int:
             from .tasks import run_cli
             receipt = run_cli(args)
             print(json.dumps(receipt, ensure_ascii=False, indent=2))
-            return 0 if receipt["status"] in ("completed", "waiting_approval") else 1
+            return 0 if args.task_action in ('inspect', 'events') or receipt['status'] in (
+                'completed', 'waiting_approval', 'approved', 'applying', 'committed', 'rejected') else 1
         if args.command == "canon":
             from .canon_host import CanonHost
             host = CanonHost(args.repo)
             if args.canon_action == "init-approval": receipt = host.init_key()
             elif args.canon_action == "prepare": receipt = host.prepare(args.task)
             elif args.canon_action == "apply": receipt = host.apply(args.bundle)
+            elif args.canon_action == 'recover': receipt = host.recover(args.bundle)
             else:
                 # Only this host CLI asks for human confirmation; no ToolSession
                 # function or model-provided boolean can invoke approval.

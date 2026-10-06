@@ -13,6 +13,7 @@ ID_PREFIXES = {
     "world": "WLD", "task": "TSK", "run": "RUN", "agent_run": "ARN",
     "artifact": "ART", "snapshot": "SNP", "proposal": "CHG",
     "claim": "CLM", "evidence": "EVD",
+    "checkpoint": "CKP", "event": "EVT",
 }
 
 

@@ -1,0 +1,13 @@
+{
+  "checkpoint_id": "CKP-bf7d0c9c-21e3-491a-bd22-690a38d4de2c",
+  "data": {
+    "test_fixture": true
+  },
+  "event_id": "EVT-fa0315e8-b37b-4e99-b264-548e9408302c",
+  "event_type": "TaskCreated",
+  "occurred_at": "2026-10-06T00:00:00Z",
+  "run_id": null,
+  "schema_version": "1.0",
+  "task_id": "TSK-90b6e64c-fe5c-429e-961f-a255d86643d9",
+  "world_id": "WLD-1f591576-f6c4-4c77-a975-08494320662d"
+}
