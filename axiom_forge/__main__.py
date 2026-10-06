@@ -18,6 +18,18 @@ def main(argv=None) -> int:
     commands.add_parser("validate-world")
     commands.add_parser("check-schemas")
     commands.add_parser("check-contracts")
+    routing = commands.add_parser("routing", help="Offline trusted model policy")
+    routing_actions = routing.add_subparsers(dest="routing_action", required=True)
+    routing_actions.add_parser("check")
+    routing_select = routing_actions.add_parser("select")
+    routing_select.add_argument("--request", type=Path, required=True)
+    mode = commands.add_parser("modes", help="Bounded worldbuilding mode sessions")
+    mode_actions = mode.add_subparsers(dest="mode_action", required=True)
+    mode_run = mode_actions.add_parser("run")
+    mode_run.add_argument("--task", type=Path, required=True)
+    mode_run.add_argument("--config", type=Path, required=True)
+    mode_run.add_argument("--credentials", type=Path)
+    mode_run.add_argument("--allow-live", action="store_true")
     runtime_parser = commands.add_parser("runtime", help="Host-operated research Runtime")
     runtime_actions = runtime_parser.add_subparsers(dest="runtime_action", required=True)
     runtime_call = runtime_actions.add_parser("run")
@@ -53,6 +65,19 @@ def main(argv=None) -> int:
             print(new_id(args.kind, args.domain))
             return 0
         schemas = SchemaStore(args.repo / "schemas")
+        if args.command == "routing":
+            from .routing import ModelRouter
+            router = ModelRouter(args.repo)
+            if args.routing_action == "check":
+                print(f"OK: {len(router.models)} registered models, policy {router.sha256}")
+            else:
+                print(json.dumps(router.select(read_json(args.request)), ensure_ascii=False, indent=2))
+            return 0
+        if args.command == "modes":
+            from .modes import run_cli
+            receipt = run_cli(args)
+            print(json.dumps({key: receipt[key] for key in ("status", "run_id", "mode", "reason", "reserved_cost_usd")}, ensure_ascii=False, indent=2))
+            return 0 if receipt["status"] == "completed" else 1
         if args.command == "tools":
             from .tools import ToolSession, definitions
             from .tools.network import PublicHTTPS

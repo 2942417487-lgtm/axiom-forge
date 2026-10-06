@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://axiom-forge.invalid/schemas/routing_request.schema.json",
+  "title": "routing_request",
+  "type": "object",
+  "properties": {
+    "role": {
+      "enum": [
+        "lead",
+        "researcher",
+        "engineering_auditor",
+        "economic_auditor",
+        "historical_analyst",
+        "redteam",
+        "integrator"
+      ]
+    },
+    "task_kind": {
+      "enum": [
+        "metadata",
+        "coding",
+        "research",
+        "scenario",
+        "synthesis",
+        "review"
+      ]
+    },
+    "difficulty": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 3
+    },
+    "importance": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 3
+    },
+    "context_size": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 2000000
+    },
+    "output_tokens": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 32768
+    },
+    "tool_complexity": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 3
+    },
+    "latency_tolerance": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 3
+    },
+    "budget_usd": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "need_independent_review": {
+      "type": "boolean"
+    },
+    "major_canon_change": {
+      "type": "boolean"
+    },
+    "required_tools": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "canon_read",
+          "documents_read",
+          "draft_write",
+          "git_read",
+          "papers_read",
+          "python_call",
+          "web_read",
+          "web_search",
+          "workspace"
+        ]
+      },
+      "minItems": 0,
+      "uniqueItems": true
+    }
+  },
+  "required": [
+    "role",
+    "task_kind",
+    "difficulty",
+    "importance",
+    "context_size",
+    "output_tokens",
+    "tool_complexity",
+    "latency_tolerance",
+    "budget_usd",
+    "need_independent_review",
+    "major_canon_change",
+    "required_tools"
+  ],
+  "additionalProperties": false
+}

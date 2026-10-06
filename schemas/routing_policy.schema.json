@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://axiom-forge.invalid/schemas/routing_policy.schema.json",
+  "title": "routing_policy",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "extreme_difficulty": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 3
+    },
+    "high_importance": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 3
+    },
+    "complex_tools": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 3
+    },
+    "task_minimum_tiers": {
+      "type": "object",
+      "properties": {
+        "metadata": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 3
+        },
+        "coding": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 3
+        },
+        "research": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 3
+        },
+        "scenario": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 3
+        },
+        "synthesis": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 3
+        },
+        "review": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 3
+        }
+      },
+      "required": [
+        "metadata",
+        "coding",
+        "research",
+        "scenario",
+        "synthesis",
+        "review"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "schema_version",
+    "extreme_difficulty",
+    "high_importance",
+    "complex_tools",
+    "task_minimum_tiers"
+  ],
+  "additionalProperties": false
+}

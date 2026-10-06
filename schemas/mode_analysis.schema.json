@@ -1,0 +1,537 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://axiom-forge.invalid/schemas/mode_analysis.schema.json",
+  "title": "mode_analysis",
+  "oneOf": [
+    {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "const": "scenario_simulation"
+        },
+        "causal_nodes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^N[0-9]+$"
+              },
+              "order": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 3
+              },
+              "parents": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^N[0-9]+$"
+                },
+                "minItems": 0,
+                "uniqueItems": true
+              },
+              "analysis": {
+                "type": "object",
+                "properties": {
+                  "statement": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096
+                  },
+                  "reasoning": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096
+                  },
+                  "assumptions": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096
+                    },
+                    "minItems": 0,
+                    "uniqueItems": true
+                  },
+                  "evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/evidence_id"
+                    },
+                    "minItems": 0,
+                    "uniqueItems": true
+                  },
+                  "uncertainty": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096
+                  }
+                },
+                "required": [
+                  "statement",
+                  "reasoning",
+                  "assumptions",
+                  "evidence_ids",
+                  "uncertainty"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "order",
+              "parents",
+              "analysis"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 3,
+          "uniqueItems": true
+        },
+        "consistency_checks": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "open_questions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "minItems": 0,
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "mode",
+        "causal_nodes",
+        "consistency_checks",
+        "open_questions"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "const": "direct_challenge"
+        },
+        "premises": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "premise": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              },
+              "implicit_conditions": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 4096
+                },
+                "minItems": 0,
+                "uniqueItems": true
+              },
+              "counterexamples": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 4096
+                },
+                "minItems": 1,
+                "uniqueItems": true
+              },
+              "analysis": {
+                "type": "object",
+                "properties": {
+                  "statement": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096
+                  },
+                  "reasoning": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096
+                  },
+                  "assumptions": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096
+                    },
+                    "minItems": 0,
+                    "uniqueItems": true
+                  },
+                  "evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/evidence_id"
+                    },
+                    "minItems": 0,
+                    "uniqueItems": true
+                  },
+                  "uncertainty": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096
+                  }
+                },
+                "required": [
+                  "statement",
+                  "reasoning",
+                  "assumptions",
+                  "evidence_ids",
+                  "uncertainty"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "premise",
+              "implicit_conditions",
+              "counterexamples",
+              "analysis"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "required_revisions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "minItems": 0,
+          "uniqueItems": true
+        },
+        "open_questions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "minItems": 0,
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "mode",
+        "premises",
+        "required_revisions",
+        "open_questions"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "const": "roundtable"
+        },
+        "positions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "role": {
+                "enum": [
+                  "researcher",
+                  "engineering_auditor",
+                  "economic_auditor",
+                  "historical_analyst"
+                ]
+              },
+              "position": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              },
+              "analysis": {
+                "type": "object",
+                "properties": {
+                  "statement": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096
+                  },
+                  "reasoning": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096
+                  },
+                  "assumptions": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096
+                    },
+                    "minItems": 0,
+                    "uniqueItems": true
+                  },
+                  "evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/evidence_id"
+                    },
+                    "minItems": 0,
+                    "uniqueItems": true
+                  },
+                  "uncertainty": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096
+                  }
+                },
+                "required": [
+                  "statement",
+                  "reasoning",
+                  "assumptions",
+                  "evidence_ids",
+                  "uncertainty"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "role",
+              "position",
+              "analysis"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 4,
+          "uniqueItems": true
+        },
+        "disagreements": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "minItems": 0,
+          "uniqueItems": true
+        },
+        "evidence_comparison": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "open_questions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "minItems": 0,
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "mode",
+        "positions",
+        "disagreements",
+        "evidence_comparison",
+        "open_questions"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "const": "court"
+        },
+        "proposition": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "burden_of_proof": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "proponent": {
+          "type": "object",
+          "properties": {
+            "statement": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            },
+            "reasoning": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            },
+            "assumptions": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              },
+              "minItems": 0,
+              "uniqueItems": true
+            },
+            "evidence_ids": {
+              "type": "array",
+              "items": {
+                "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/evidence_id"
+              },
+              "minItems": 0,
+              "uniqueItems": true
+            },
+            "uncertainty": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            }
+          },
+          "required": [
+            "statement",
+            "reasoning",
+            "assumptions",
+            "evidence_ids",
+            "uncertainty"
+          ],
+          "additionalProperties": false
+        },
+        "objections": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "domain": {
+                "enum": [
+                  "physics",
+                  "engineering",
+                  "economics",
+                  "history"
+                ]
+              },
+              "objection": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              },
+              "resolution": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              },
+              "analysis": {
+                "type": "object",
+                "properties": {
+                  "statement": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096
+                  },
+                  "reasoning": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096
+                  },
+                  "assumptions": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096
+                    },
+                    "minItems": 0,
+                    "uniqueItems": true
+                  },
+                  "evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/evidence_id"
+                    },
+                    "minItems": 0,
+                    "uniqueItems": true
+                  },
+                  "uncertainty": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096
+                  }
+                },
+                "required": [
+                  "statement",
+                  "reasoning",
+                  "assumptions",
+                  "evidence_ids",
+                  "uncertainty"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "domain",
+              "objection",
+              "resolution",
+              "analysis"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 4,
+          "uniqueItems": true
+        },
+        "ruling_reasons": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "open_questions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "minItems": 0,
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "mode",
+        "proposition",
+        "burden_of_proof",
+        "proponent",
+        "objections",
+        "ruling_reasons",
+        "open_questions"
+      ],
+      "additionalProperties": false
+    }
+  ]
+}

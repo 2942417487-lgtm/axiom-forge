@@ -1,0 +1,21 @@
+{
+  "provider": "openai",
+  "base_url": "https://zenmux.ai/api/v1",
+  "model": "openai/gpt-6-luna",
+  "max_cost_usd": 0.05,
+  "input_usd_per_million": 0.2,
+  "output_usd_per_million": 1,
+  "limits": {
+    "max_turns": 2,
+    "timeout_seconds": 120,
+    "max_output_tokens": 2048,
+    "max_tool_calls": 1,
+    "max_tool_result_bytes": 6400
+  },
+  "tools": {
+    "capabilities": [
+      "canon_read"
+    ],
+    "enable_trusted_python": false
+  }
+}

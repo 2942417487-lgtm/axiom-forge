@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://axiom-forge.invalid/schemas/mode_host.schema.json",
+  "title": "mode_host",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "max_cost_usd": {
+      "type": "number",
+      "minimum": 0.001,
+      "maximum": 100
+    },
+    "routing": {
+      "type": "object",
+      "properties": {
+        "difficulty": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 3
+        },
+        "importance": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 3
+        },
+        "tool_complexity": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 3
+        },
+        "latency_tolerance": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 3
+        },
+        "need_independent_review": {
+          "type": "boolean"
+        },
+        "major_canon_change": {
+          "type": "boolean"
+        },
+        "required_tools": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "canon_read",
+              "documents_read",
+              "draft_write",
+              "git_read",
+              "papers_read",
+              "python_call",
+              "web_read",
+              "web_search",
+              "workspace"
+            ]
+          },
+          "minItems": 0,
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "difficulty",
+        "importance",
+        "tool_complexity",
+        "latency_tolerance",
+        "need_independent_review",
+        "major_canon_change",
+        "required_tools"
+      ],
+      "additionalProperties": false
+    },
+    "profiles": {
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^[a-z0-9.-]+$"
+      },
+      "additionalProperties": {
+        "type": "object"
+      },
+      "minProperties": 1
+    }
+  },
+  "required": [
+    "schema_version",
+    "max_cost_usd",
+    "routing",
+    "profiles"
+  ],
+  "additionalProperties": false
+}

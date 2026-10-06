@@ -140,6 +140,9 @@
         "$ref": "https://axiom-forge.invalid/schemas/artifact.schema.json"
       },
       "minItems": 0
+    },
+    "mode_protocol": {
+      "const": "1.0"
     }
   },
   "required": [

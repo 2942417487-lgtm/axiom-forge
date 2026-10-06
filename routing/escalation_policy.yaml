@@ -1,0 +1,6 @@
+schema_version: '1.0'
+max_attempts: 4
+next_tier:
+  '0': 1
+  '1': 2
+  '2': 3

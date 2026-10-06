@@ -1,0 +1,103 @@
+{
+  "schema_version": "1.0",
+  "max_cost_usd": 6,
+  "routing": {
+    "difficulty": 1,
+    "importance": 1,
+    "tool_complexity": 1,
+    "latency_tolerance": 3,
+    "need_independent_review": true,
+    "major_canon_change": false,
+    "required_tools": [
+      "canon_read"
+    ]
+  },
+  "profiles": {
+    "gpt-6-luna": {
+      "provider": "openai",
+      "base_url": "https://zenmux.ai/api/v1",
+      "model": "openai/gpt-6-luna",
+      "max_cost_usd": 0.05,
+      "input_usd_per_million": 0.2,
+      "output_usd_per_million": 1,
+      "limits": {
+        "max_turns": 2,
+        "timeout_seconds": 120,
+        "max_output_tokens": 2048,
+        "max_tool_calls": 1,
+        "max_tool_result_bytes": 6400
+      },
+      "tools": {
+        "capabilities": [
+          "canon_read"
+        ],
+        "enable_trusted_python": false
+      }
+    },
+    "claude-opus-5.5": {
+      "provider": "claude",
+      "base_url": "https://zenmux.ai/api/anthropic",
+      "model": "anthropic/claude-opus-5.5",
+      "claude_auth_mode": "auth_token",
+      "claude_disable_experimental_betas": true,
+      "max_cost_usd": 0.3,
+      "claude_cli_path": ".cache/claude-runtime/claude.exe",
+      "limits": {
+        "max_turns": 2,
+        "timeout_seconds": 300,
+        "max_output_tokens": 2048,
+        "max_tool_calls": 1,
+        "max_tool_result_bytes": 6400
+      },
+      "tools": {
+        "capabilities": [
+          "canon_read"
+        ],
+        "enable_trusted_python": false
+      }
+    },
+    "gpt-6.1-sol": {
+      "provider": "openai",
+      "base_url": "https://zenmux.ai/api/v1",
+      "model": "openai/gpt-6.1-sol",
+      "max_cost_usd": 0.6,
+      "input_usd_per_million": 4,
+      "output_usd_per_million": 15,
+      "limits": {
+        "max_turns": 2,
+        "timeout_seconds": 120,
+        "max_output_tokens": 2048,
+        "max_tool_calls": 1,
+        "max_tool_result_bytes": 6400
+      },
+      "tools": {
+        "capabilities": [
+          "canon_read"
+        ],
+        "enable_trusted_python": false
+      }
+    },
+    "claude-sonnet-5.5": {
+      "provider": "claude",
+      "base_url": "https://zenmux.ai/api/anthropic",
+      "model": "anthropic/claude-sonnet-5.5",
+      "claude_auth_mode": "auth_token",
+      "claude_disable_experimental_betas": true,
+      "max_cost_usd": 0.3,
+      "claude_cli_path": ".cache/claude-runtime/claude.exe",
+      "limits": {
+        "max_turns": 2,
+        "timeout_seconds": 300,
+        "max_output_tokens": 2048,
+        "max_tool_calls": 1,
+        "max_tool_result_bytes": 6400
+      },
+      "tools": {
+        "capabilities": [
+          "canon_read"
+        ],
+        "enable_trusted_python": false
+      }
+    }
+  }
+}

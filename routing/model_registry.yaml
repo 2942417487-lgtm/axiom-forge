@@ -1,0 +1,363 @@
+schema_version: '1.0'
+models:
+- id: claude-fable-5.1
+  label: Claude Fable 5.1
+  family: anthropic
+  provider: zenmux
+  runtime_provider: claude
+  model: anthropic/claude-fable-5.1
+  tier: 3
+  pool: current
+  enabled: false
+  validation: not_requested
+  validation_receipt: null
+  cost_class: 3
+  minimum_reservation_usd: 0.5
+  strengths:
+  - global_consistency
+  - architecture
+  weaknesses:
+  - Initial role preference is not a project benchmark
+  - Native capabilities do not grant host tool permissions
+  context_tokens: 1000000
+  max_output_tokens: 128000
+  available_tools:
+  - canon_read
+  - documents_read
+  - draft_write
+  - git_read
+  - papers_read
+  - python_call
+  - web_read
+  - web_search
+  - workspace
+  latency_class: 3
+  spec_sources:
+  - https://platform.claude.com/docs/en/models/overview
+  checked_at: '2026-10-06T00:00:00Z'
+- id: claude-opus-5.5
+  label: Claude Opus 5.5
+  family: anthropic
+  provider: zenmux
+  runtime_provider: claude
+  model: anthropic/claude-opus-5.5
+  tier: 2
+  pool: current
+  enabled: true
+  validation: passed
+  validation_receipt: ARN-99cbc203-8987-4325-87f8-1834d5c8b64e
+  cost_class: 2
+  minimum_reservation_usd: 0.3
+  strengths:
+  - synthesis
+  - redteam
+  - history
+  weaknesses:
+  - Initial role preference is not a project benchmark
+  - Native capabilities do not grant host tool permissions
+  context_tokens: 1000000
+  max_output_tokens: 128000
+  available_tools:
+  - canon_read
+  - documents_read
+  - draft_write
+  - git_read
+  - papers_read
+  - python_call
+  - web_read
+  - web_search
+  - workspace
+  latency_class: 2
+  spec_sources:
+  - https://platform.claude.com/docs/en/models/overview
+  checked_at: '2026-10-06T00:00:00Z'
+- id: claude-sonnet-5.5
+  label: Claude Sonnet 5.5
+  family: anthropic
+  provider: zenmux
+  runtime_provider: claude
+  model: anthropic/claude-sonnet-5.5
+  tier: 1
+  pool: current
+  enabled: true
+  validation: passed
+  validation_receipt: ARN-7d839051-58e1-4ecd-a9f6-78bfde33fa4e
+  cost_class: 1
+  minimum_reservation_usd: 0.2
+  strengths:
+  - scenario
+  - creative
+  - worldbuilding
+  weaknesses:
+  - Initial role preference is not a project benchmark
+  - Native capabilities do not grant host tool permissions
+  context_tokens: 1000000
+  max_output_tokens: 128000
+  available_tools:
+  - canon_read
+  - documents_read
+  - draft_write
+  - git_read
+  - papers_read
+  - python_call
+  - web_read
+  - web_search
+  - workspace
+  latency_class: 1
+  spec_sources:
+  - https://platform.claude.com/docs/en/models/overview
+  checked_at: '2026-10-06T00:00:00Z'
+- id: gpt-6-astra
+  label: GPT-6 Astra
+  family: openai
+  provider: zenmux
+  runtime_provider: openai
+  model: openai/gpt-6-astra
+  tier: 3
+  pool: current
+  enabled: false
+  validation: not_requested
+  validation_receipt: null
+  cost_class: 3
+  minimum_reservation_usd: 0.5
+  strengths:
+  - extreme_physics
+  - final_review
+  weaknesses:
+  - Initial role preference is not a project benchmark
+  - Native capabilities do not grant host tool permissions
+  context_tokens: 1050000
+  max_output_tokens: 128000
+  available_tools:
+  - canon_read
+  - documents_read
+  - draft_write
+  - git_read
+  - papers_read
+  - python_call
+  - web_read
+  - web_search
+  - workspace
+  latency_class: 3
+  spec_sources:
+  - https://developers.openai.com/api/docs/models/gpt-6-astra
+  checked_at: '2026-10-06T00:00:00Z'
+- id: gpt-6.1-sol
+  label: GPT-6.1 Sol
+  family: openai
+  provider: zenmux
+  runtime_provider: openai
+  model: openai/gpt-6.1-sol
+  tier: 1
+  pool: current
+  enabled: true
+  validation: passed
+  validation_receipt: ARN-8e21fee2-5c8d-409e-a75b-93a3da82077c
+  cost_class: 1
+  minimum_reservation_usd: 0.3
+  strengths:
+  - engineering
+  - science
+  - tools
+  - coding
+  weaknesses:
+  - Initial role preference is not a project benchmark
+  - Native capabilities do not grant host tool permissions
+  context_tokens: 1050000
+  max_output_tokens: 128000
+  available_tools:
+  - canon_read
+  - documents_read
+  - draft_write
+  - git_read
+  - papers_read
+  - python_call
+  - web_read
+  - web_search
+  - workspace
+  latency_class: 1
+  spec_sources:
+  - https://developers.openai.com/api/docs/models/gpt-6.1-sol
+  checked_at: '2026-10-06T00:00:00Z'
+- id: gpt-6-luna
+  label: GPT-6 Luna
+  family: openai
+  provider: zenmux
+  runtime_provider: openai
+  model: openai/gpt-6-luna
+  tier: 0
+  pool: current
+  enabled: true
+  validation: passed
+  validation_receipt: ARN-3eeaa263-4b16-42f8-8b74-3354b526de0f
+  cost_class: 0
+  minimum_reservation_usd: 0.03
+  strengths:
+  - classification
+  - metadata
+  - extraction
+  weaknesses:
+  - Initial role preference is not a project benchmark
+  - Native capabilities do not grant host tool permissions
+  context_tokens: 1050000
+  max_output_tokens: 128000
+  available_tools:
+  - canon_read
+  - documents_read
+  - draft_write
+  - git_read
+  - papers_read
+  - python_call
+  - web_read
+  - web_search
+  - workspace
+  latency_class: 0
+  spec_sources:
+  - https://developers.openai.com/api/docs/models/gpt-6-luna
+  checked_at: '2026-10-06T00:00:00Z'
+- id: deepseek-4.1-flash
+  label: DeepSeek 4.1 Flash
+  family: deepseek
+  provider: unconfigured
+  runtime_provider: null
+  model: deepseek-flash
+  tier: 0
+  pool: current
+  enabled: false
+  validation: not_requested
+  validation_receipt: null
+  cost_class: 0
+  minimum_reservation_usd: 0.03
+  strengths:
+  - mechanical_coding
+  - scripts
+  weaknesses:
+  - Initial role preference is not a project benchmark
+  - Native capabilities do not grant host tool permissions
+  context_tokens: 1000000
+  max_output_tokens: 384000
+  available_tools: []
+  latency_class: 0
+  spec_sources:
+  - https://api-docs.deepseek.com/quick_start/pricing/
+  checked_at: '2026-10-06T00:00:00Z'
+- id: gpt-6-sol
+  label: gpt-6-sol
+  family: openai
+  provider: unconfigured
+  runtime_provider: null
+  model: gpt-6-sol
+  tier: 1
+  pool: legacy
+  enabled: false
+  validation: not_requested
+  validation_receipt: null
+  cost_class: 1
+  minimum_reservation_usd: 0.3
+  strengths:
+  - Retained only if a future project evaluation proves an advantage
+  weaknesses:
+  - No permanent assignment; availability not verified
+  context_tokens: null
+  max_output_tokens: null
+  available_tools: []
+  latency_class: 2
+  spec_sources:
+  - https://developers.openai.com/api/docs/models
+  checked_at: '2026-10-06T00:00:00Z'
+- id: gpt-5.6-sol
+  label: gpt-5.6-sol
+  family: openai
+  provider: unconfigured
+  runtime_provider: null
+  model: gpt-5.6-sol
+  tier: 1
+  pool: legacy
+  enabled: false
+  validation: not_requested
+  validation_receipt: null
+  cost_class: 1
+  minimum_reservation_usd: 0.3
+  strengths:
+  - Retained only if a future project evaluation proves an advantage
+  weaknesses:
+  - No permanent assignment; availability not verified
+  context_tokens: null
+  max_output_tokens: null
+  available_tools: []
+  latency_class: 2
+  spec_sources:
+  - https://developers.openai.com/api/docs/models
+  checked_at: '2026-10-06T00:00:00Z'
+- id: gpt-5.6-luna
+  label: gpt-5.6-luna
+  family: openai
+  provider: unconfigured
+  runtime_provider: null
+  model: gpt-5.6-luna
+  tier: 1
+  pool: legacy
+  enabled: false
+  validation: not_requested
+  validation_receipt: null
+  cost_class: 1
+  minimum_reservation_usd: 0.3
+  strengths:
+  - Retained only if a future project evaluation proves an advantage
+  weaknesses:
+  - No permanent assignment; availability not verified
+  context_tokens: null
+  max_output_tokens: null
+  available_tools: []
+  latency_class: 2
+  spec_sources:
+  - https://developers.openai.com/api/docs/models
+  checked_at: '2026-10-06T00:00:00Z'
+- id: claude-opus-5
+  label: claude-opus-5
+  family: anthropic
+  provider: unconfigured
+  runtime_provider: null
+  model: claude-opus-5
+  tier: 1
+  pool: legacy
+  enabled: false
+  validation: not_requested
+  validation_receipt: null
+  cost_class: 1
+  minimum_reservation_usd: 0.3
+  strengths:
+  - Retained only if a future project evaluation proves an advantage
+  weaknesses:
+  - No permanent assignment; availability not verified
+  context_tokens: null
+  max_output_tokens: null
+  available_tools: []
+  latency_class: 2
+  spec_sources:
+  - https://platform.claude.com/docs/en/models/overview
+  checked_at: '2026-10-06T00:00:00Z'
+- id: claude-sonnet-5
+  label: claude-sonnet-5
+  family: anthropic
+  provider: unconfigured
+  runtime_provider: null
+  model: claude-sonnet-5
+  tier: 1
+  pool: legacy
+  enabled: false
+  validation: not_requested
+  validation_receipt: null
+  cost_class: 1
+  minimum_reservation_usd: 0.3
+  strengths:
+  - Retained only if a future project evaluation proves an advantage
+  weaknesses:
+  - No permanent assignment; availability not verified
+  context_tokens: null
+  max_output_tokens: null
+  available_tools: []
+  latency_class: 2
+  spec_sources:
+  - https://platform.claude.com/docs/en/models/overview
+  checked_at: '2026-10-06T00:00:00Z'

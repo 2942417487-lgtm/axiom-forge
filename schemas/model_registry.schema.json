@@ -1,0 +1,201 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://axiom-forge.invalid/schemas/model_registry.schema.json",
+  "title": "model_registry",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "models": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "family": {
+            "enum": [
+              "anthropic",
+              "openai",
+              "deepseek"
+            ]
+          },
+          "provider": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "runtime_provider": {
+            "enum": [
+              "claude",
+              "openai",
+              null
+            ]
+          },
+          "model": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "tier": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 3
+          },
+          "pool": {
+            "enum": [
+              "current",
+              "legacy"
+            ]
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "validation": {
+            "enum": [
+              "pending",
+              "passed",
+              "not_requested"
+            ]
+          },
+          "validation_receipt": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "cost_class": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 3
+          },
+          "minimum_reservation_usd": {
+            "type": "number",
+            "minimum": 0.001,
+            "maximum": 100
+          },
+          "strengths": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "weaknesses": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "context_tokens": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 2000000
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "max_output_tokens": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 2000000
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "available_tools": {
+            "type": "array",
+            "items": {
+              "enum": [
+                "canon_read",
+                "documents_read",
+                "draft_write",
+                "git_read",
+                "papers_read",
+                "python_call",
+                "web_read",
+                "web_search",
+                "workspace"
+              ]
+            },
+            "minItems": 0,
+            "uniqueItems": true
+          },
+          "latency_class": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 3
+          },
+          "spec_sources": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "checked_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "family",
+          "provider",
+          "runtime_provider",
+          "model",
+          "tier",
+          "pool",
+          "enabled",
+          "validation",
+          "validation_receipt",
+          "cost_class",
+          "minimum_reservation_usd",
+          "strengths",
+          "weaknesses",
+          "context_tokens",
+          "max_output_tokens",
+          "available_tools",
+          "latency_class",
+          "spec_sources",
+          "checked_at"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    }
+  },
+  "required": [
+    "schema_version",
+    "models"
+  ],
+  "additionalProperties": false
+}
