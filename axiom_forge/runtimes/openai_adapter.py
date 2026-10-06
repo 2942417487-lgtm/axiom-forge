@@ -4,17 +4,19 @@ import os
 from decimal import Decimal
 
 from .core import AdapterReply
+from .endpoints import host_endpoint
 from ..tools.storage import strict_json
 
 
 class OpenAIAdapter:
     provider = "openai"
 
-    def __init__(self, model, *, api_key=None, sdk_model=None, max_cost_usd=None,
+    def __init__(self, model, *, api_key=None, base_url=None, sdk_model=None, max_cost_usd=None,
                  input_usd_per_million=None, output_usd_per_million=None):
         if not isinstance(model, str) or not model or len(model) > 200:
             raise ValueError("An explicit model ID is required")
         self.model, self._api_key, self._sdk_model = model, api_key, sdk_model
+        self.base_url = host_endpoint(base_url, "https://api.openai.com/v1", model)
         self.budget = None
         if max_cost_usd is not None:
             try:
@@ -52,9 +54,9 @@ class OpenAIAdapter:
                 key = self._api_key or os.environ.get("OPENAI_API_KEY")
                 if not key:
                     raise ValueError("OpenAI credential is not configured")
-                # Explicit official endpoint; no agent-selected endpoint, automatic
+                # Explicit trusted host endpoint; no agent-selected endpoint, automatic
                 # retry, shared session or SDK global credential mutation.
-                client = AsyncOpenAI(api_key=key, base_url="https://api.openai.com/v1",
+                client = AsyncOpenAI(api_key=key, base_url=self.base_url,
                                      max_retries=0, timeout=limits.timeout_seconds)
                 model = OpenAIResponsesModel(model=self.model, openai_client=client)
             agent = self.build_agent(instructions, tools, limits, model)
@@ -64,7 +66,8 @@ class OpenAIAdapter:
                                       run_config=RunConfig(tracing_disabled=True,
                                                            trace_include_sensitive_data=False))
             usage = result.context_wrapper.usage
-            return AdapterReply(result.final_output, input_tokens=usage.input_tokens,
+            response_id = result.raw_responses[-1].response_id if result.raw_responses else None
+            return AdapterReply(result.final_output, session_id=response_id, input_tokens=usage.input_tokens,
                                 output_tokens=usage.output_tokens)
         finally:
             if client is not None:

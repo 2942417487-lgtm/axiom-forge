@@ -36,7 +36,8 @@ def run(args):
         raise DataError("Runtime execution requires the operator's --allow-live flag")
     config = read_json(args.config)
     allowed = {"provider", "model", "limits", "tools", "max_cost_usd", "input_usd_per_million",
-               "output_usd_per_million", "claude_cli_path"}
+               "output_usd_per_million", "claude_cli_path", "base_url", "claude_auth_mode",
+               "claude_disable_experimental_betas", "claude_https_proxy"}
     if (set(config) - allowed or config.get("provider") not in ("claude", "openai")
             or not isinstance(config.get("model"), str) or not config["model"]):
         raise DataError("Explicit provider/model and closed host Runtime config required")
@@ -48,10 +49,15 @@ def run(args):
         if cli_path is not None:
             cli_path = str((args.repo / cli_path).absolute())
         adapter = ClaudeAdapter(config["model"], api_key=keys.get("ANTHROPIC_API_KEY"),
+                                base_url=config.get("base_url"),
+                                auth_mode=config.get("claude_auth_mode", "api_key"),
+                                disable_experimental_betas=config.get("claude_disable_experimental_betas", False),
+                                https_proxy=config.get("claude_https_proxy"),
                                 cli_path=cli_path, max_budget_usd=config.get("max_cost_usd"))
     else:
         from .openai_adapter import OpenAIAdapter
         adapter = OpenAIAdapter(config["model"], api_key=keys.get("OPENAI_API_KEY"),
+                               base_url=config.get("base_url"),
                                max_cost_usd=config.get("max_cost_usd"),
                                input_usd_per_million=config.get("input_usd_per_million"),
                                output_usd_per_million=config.get("output_usd_per_million"))

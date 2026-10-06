@@ -38,18 +38,22 @@ class AdapterReply:
     input_tokens: int | None = None
     output_tokens: int | None = None
     cost_usd: float | None = None
+    cache_creation_input_tokens: int | None = None
+    cache_read_input_tokens: int | None = None
 
     def metadata(self):
         if self.session_id is not None and (not isinstance(self.session_id, str) or len(self.session_id) > 256):
             raise DataError("Invalid provider session metadata")
-        for value in (self.input_tokens, self.output_tokens):
+        for value in (self.input_tokens, self.output_tokens, self.cache_creation_input_tokens, self.cache_read_input_tokens):
             if value is not None and (type(value) is not int or value < 0):
                 raise DataError("Invalid token usage metadata")
         if self.cost_usd is not None and (type(self.cost_usd) not in (float, int)
                                          or not math.isfinite(self.cost_usd) or self.cost_usd < 0):
             raise DataError("Invalid cost metadata")
         return {"provider_session_id": self.session_id, "input_tokens": self.input_tokens,
-                "output_tokens": self.output_tokens, "reported_cost_usd": self.cost_usd}
+                "output_tokens": self.output_tokens, "reported_cost_usd": self.cost_usd,
+                "cache_creation_input_tokens": self.cache_creation_input_tokens,
+                "cache_read_input_tokens": self.cache_read_input_tokens}
 
 
 class ResearchAdapter(Protocol):

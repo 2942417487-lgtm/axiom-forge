@@ -107,6 +107,63 @@ class SDKTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(packet["agent_run"]["status"], "completed")
         self.assertEqual(model.count, 1)
 
+    async def test_relay_endpoints_route_only_to_explicit_host(self):
+        data, output = self.invocation()
+        upstream = self.model(output, call_tool=False)
+        owner = self
+        class FakeClient:
+            def __init__(self, **kwargs):
+                owner.assertEqual(kwargs["base_url"], "https://zenmux.ai/api/v1")
+                owner.assertEqual(kwargs["api_key"], "TEST-RELAY-KEY")
+                owner.assertEqual(kwargs["max_retries"], 0)
+            async def close(self):
+                pass
+        with patch("openai.AsyncOpenAI", FakeClient), patch(
+                "agents.models.openai_responses.OpenAIResponsesModel", return_value=upstream) as constructor:
+            runtime = AgentRuntime(self.repo, OpenAIAdapter("openai/gpt-6.1-sol",
+                api_key="TEST-RELAY-KEY", base_url="https://zenmux.ai/api/v1"))
+            packet = await runtime.run_input(data)
+        self.assertEqual(packet["agent_run"]["status"], "completed")
+        self.assertEqual(constructor.call_args.kwargs["model"], "openai/gpt-6.1-sol")
+        session = ToolSession(self.repo, data, capabilities=["canon_read"])
+        options = ClaudeAdapter("anthropic/claude-sonnet-5.5", api_key="TEST-RELAY-KEY",
+            base_url="https://zenmux.ai/api/anthropic").build_options("test", ToolBinding(session, RuntimeLimits()), RuntimeLimits())
+        self.assertEqual(options.model, "anthropic/claude-sonnet-5.5")
+        self.assertEqual(options.env["ANTHROPIC_BASE_URL"], "https://zenmux.ai/api/anthropic")
+        self.assertEqual(options.env["ANTHROPIC_API_KEY"], "TEST-RELAY-KEY")
+        gateway = ClaudeAdapter("anthropic/claude-sonnet-5.5", api_key="TEST-RELAY-KEY",
+            base_url="https://zenmux.ai/api/anthropic", auth_mode="auth_token",
+            disable_experimental_betas=True, https_proxy="http://127.0.0.1:10081").build_options("test", ToolBinding(session, RuntimeLimits()), RuntimeLimits())
+        self.assertEqual(gateway.env["ANTHROPIC_API_KEY"], "")
+        self.assertEqual(gateway.env["ANTHROPIC_AUTH_TOKEN"], "TEST-RELAY-KEY")
+        self.assertEqual(gateway.env["CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS"], "1")
+        self.assertEqual(gateway.env["CLAUDE_CODE_ATTRIBUTION_HEADER"], "0")
+        self.assertEqual(gateway.env["CLAUDE_CODE_MAX_RETRIES"], "0")
+        self.assertEqual(gateway.env["CLAUDE_CODE_NONSTREAMING_TIMEOUT_RETRIES"], "0")
+        self.assertEqual(gateway.env["API_TIMEOUT_MS"], "120000")
+        self.assertEqual(gateway.env["HTTPS_PROXY"], "http://127.0.0.1:10081")
+
+    async def test_endpoint_validation_prevents_implicit_relay_routing(self):
+        self.assertEqual(OpenAIAdapter("gpt-6.1-sol").base_url, "https://api.openai.com/v1")
+        self.assertEqual(ClaudeAdapter("claude-sonnet-5-5").base_url, "https://api.anthropic.com")
+        for adapter in (OpenAIAdapter, ClaudeAdapter):
+            with self.assertRaises(ValueError):
+                adapter("vendor/model")
+            for url in ("http://relay.example/v1", "https://key@relay.example/v1",
+                        "https://relay.example/v1?token=secret", "https://relay.example/v1#key",
+                        "https://relay.example\\@other.example", "https://relay.example:invalid",
+                        "https://relay.example/\n", "https:///v1", 123):
+                with self.subTest(adapter=adapter.provider, url=url), self.assertRaises(ValueError):
+                    adapter("vendor/model", base_url=url)
+        with self.assertRaises(ValueError):
+            ClaudeAdapter("fixture", auth_mode="automatic")
+        with self.assertRaises(ValueError):
+            ClaudeAdapter("fixture", disable_experimental_betas="yes")
+        for proxy in ("socks5://127.0.0.1:10081", "http://key@proxy.example", "http://proxy.example/path",
+                      "http://proxy.example?token=x", "http://proxy.example:bad", False):
+            with self.subTest(proxy=proxy), self.assertRaises(ValueError):
+                ClaudeAdapter("fixture", https_proxy=proxy)
+
     async def test_claude_sdk_tools_have_real_mcp_transport_and_deny_native_tools(self):
         from claude_agent_sdk import ResultMessage
         data, output = self.invocation()
@@ -134,13 +191,17 @@ class SDKTests(unittest.IsolatedAsyncioTestCase):
             async def receive_response(self):
                 yield ResultMessage(subtype="success", duration_ms=1, duration_api_ms=1, is_error=False,
                                     num_turns=2, session_id="synthetic-claude", result=json.dumps(output),
-                                    usage={"input_tokens": 10, "output_tokens": 20}, total_cost_usd=0)
+                                    usage={"input_tokens": 10, "output_tokens": 20,
+                                           "cache_creation_input_tokens": 100, "cache_read_input_tokens": 200}, total_cost_usd=0)
         adapter = ClaudeAdapter("TEST-FIXTURE", client_factory=FakeClient)
         runtime = AgentRuntime(self.repo, adapter, session_factory=lambda data: ToolSession(self.repo, data, capabilities=["canon_read"]))
         packet = await runtime.run_input(data)
         self.assertEqual(packet["agent_run"]["status"], "completed")
         self.assertEqual(len(packet["tool_artifacts"]), 1)
         self.assertEqual(packet["agent_run"]["metadata"]["provider_session_id"], "synthetic-claude")
+        self.assertEqual(packet["agent_run"]["metadata"]["input_tokens"], 310)
+        self.assertEqual(packet["agent_run"]["metadata"]["cache_creation_input_tokens"], 100)
+        self.assertEqual(packet["agent_run"]["metadata"]["cache_read_input_tokens"], 200)
 
     async def test_codex_scope_permissions_and_sdk_metadata(self):
         from openai_codex import ApprovalMode, Sandbox

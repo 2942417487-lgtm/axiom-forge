@@ -1,0 +1,11 @@
+{
+  "provider": "claude",
+  "base_url": "https://zenmux.ai/api/anthropic",
+  "model": "anthropic/claude-sonnet-5.5",
+  "claude_auth_mode": "auth_token",
+  "claude_disable_experimental_betas": true,
+  "max_cost_usd": 0.3,
+  "claude_cli_path": ".cache/claude-runtime/claude.exe",
+  "limits": {"max_turns": 2, "timeout_seconds": 300, "max_output_tokens": 2048, "max_tool_calls": 1, "max_tool_result_bytes": 6400},
+  "tools": {"capabilities": ["canon_read"], "enable_trusted_python": false}
+}
