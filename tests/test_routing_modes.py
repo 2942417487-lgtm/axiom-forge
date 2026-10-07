@@ -12,6 +12,7 @@ from axiom_forge.modes import MODES, ModeRunner
 from axiom_forge.mode_validation import validate_mode_analysis
 from axiom_forge.routing import ModelRouter, read_policy
 from axiom_forge.validation import DataError, SchemaStore, read_json
+from examples.offline_task_manager import initialize_fixture
 from examples.offline_modes import factory, fixture_analysis
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -66,7 +67,7 @@ class RoutingTests(unittest.TestCase):
         with self.assertRaises(DataError): self.router.escalate(self.request, "gpt-6.1-sol", [], flags)
 
     def test_closed_yaml_rejects_duplicates_aliases_tags_nonfinite_and_nonobjects(self):
-        with tempfile.TemporaryDirectory(dir=ROOT / ".cache/test-runs") as temporary:
+        with tempfile.TemporaryDirectory(dir=Path(tempfile.gettempdir()) / "axiom-forge-test-runs") as temporary:
             file = Path(temporary) / "policy.yaml"
             for raw in ("a: 1\na: 2", "a: &x [1]\nb: *x", "a: !!python/object:builtins.list {}", "a: .nan", "[1,2]", "a: 2026-10-06"):
                 file.write_text(raw, encoding="utf-8")
@@ -77,17 +78,17 @@ class RoutingTests(unittest.TestCase):
 
 class ModeTests(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
-        scratch = ROOT / ".cache/test-runs"
+        scratch = Path(tempfile.gettempdir()) / "axiom-forge-test-runs"
         scratch.mkdir(parents=True, exist_ok=True)
         self.temporary = tempfile.TemporaryDirectory(dir=scratch)
         self.repo = Path(self.temporary.name).absolute()
-        for path in ("schemas", "agents", "modes", "routing", ".claude"):
-            shutil.copytree(ROOT / path, self.repo / path)
-        shutil.copyfile(ROOT / "AGENTS.md", self.repo / "AGENTS.md")
+        self.workspace = initialize_fixture(self.repo).world
+        self.repo = self.workspace.root
+        self.engine = self.workspace.engine.root
         self.config = read_json(ROOT / "examples/mode-host.json")
         self.config["max_cost_usd"] = 20
         self.task = read_json(ROOT / "examples/task_state.json")
-        self.schemas = SchemaStore(self.repo / "schemas")
+        self.schemas = self.workspace.schemas
 
     def tearDown(self): self.temporary.cleanup()
 
@@ -97,7 +98,7 @@ class ModeTests(unittest.IsolatedAsyncioTestCase):
         for mode in MODES:
             self.task["task_type"] = mode
             seen = []
-            receipt = await ModeRunner(self.repo, self.config, runtime_factory=factory(self.repo, seen)).run(self.task)
+            receipt = await ModeRunner(self.workspace, self.config, runtime_factory=factory(self.workspace, seen)).run(self.task)
             self.assertEqual(receipt["status"], "completed", receipt["reason"])
             self.assertEqual(len(seen), 12)
             self.assertEqual(len({d["agent_run_id"] for d in seen}), 12)
@@ -112,12 +113,12 @@ class ModeTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(receipt["approval_status"], "not_requested")
             self.assertEqual(receipt["result"]["mode_analysis"]["mode"], mode)
             self.assertEqual(receipt["result"]["verdict"], "OPEN QUESTION")
-            self.assertFalse((self.repo / "world").exists())
+            self.assertTrue((self.repo / "world/world.json").exists())
         self.assertEqual(self.task["canon_snapshot"], before["canon_snapshot"])
 
     async def test_failed_first_round_stops_reviews_and_no_final_result(self):
         seen = []
-        receipt = await ModeRunner(self.repo, self.config, runtime_factory=factory(self.repo, seen, "independent")).run(self.task)
+        receipt = await ModeRunner(self.workspace, self.config, runtime_factory=factory(self.workspace, seen, "independent")).run(self.task)
         self.assertEqual(receipt["status"], "failed")
         self.assertEqual([d["stage"] for d in seen], ["planning", "independent"])
         self.assertIsNone(receipt["result"])
@@ -128,7 +129,7 @@ class ModeTests(unittest.IsolatedAsyncioTestCase):
             if kind == "budget": config["max_cost_usd"] = 0.01
             else: config["profiles"] = {"claude-sonnet-5.5": config["profiles"]["claude-sonnet-5.5"]}
             seen = []
-            receipt = await ModeRunner(self.repo, config, runtime_factory=factory(self.repo, seen)).run(self.task)
+            receipt = await ModeRunner(self.workspace, config, runtime_factory=factory(self.workspace, seen)).run(self.task)
             self.assertEqual(receipt["status"], "OPEN_QUESTION")
             self.assertIsNone(receipt["result"])
             if kind == "budget": self.assertEqual(seen, [])
@@ -138,7 +139,7 @@ class ModeTests(unittest.IsolatedAsyncioTestCase):
         for field, value in (("model", "unknown"), ("provider", "other"), ("api_key", "SECRET")):
             config = copy.deepcopy(self.config)
             config["profiles"]["gpt-6.1-sol"][field] = value
-            with self.assertRaises(DataError): ModeRunner(self.repo, config, runtime_factory=factory(self.repo))
+            with self.assertRaises(DataError): ModeRunner(self.workspace, config, runtime_factory=factory(self.workspace))
 
     def test_mode_semantics_reject_false_links_duplicate_domains_and_unknown_evidence(self):
         data = read_json(ROOT / "examples/agents/integrator-input.json")

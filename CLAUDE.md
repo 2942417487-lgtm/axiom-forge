@@ -4,7 +4,7 @@
 
 ## 当前阶段
 
-Phase 0–9 已合并；Phase 10 功能分支增加 Python Task Manager 与独立宿主 CLI 人工审批、Canon 分支提交，使用见 docs/phase-10.md。Claude Adapter 复用官方 SDK，关闭原生工具、共享会话、项目/用户设置与外部 MCP；`.claude/agents/` 手工岗位入口仍仅 Read。研究岗位不得调用审批/Git 写入宿主 API、读取 `.env.approval`、自行批准或把批准当成科学证据。任务流程本轮离线验收，未进行整轮付费研究。
+Phase 0–11 已合并；系统与外部世界的边界见 docs/world-workspaces.md。Phase 10 提供 Python Task Manager 与独立宿主 CLI 人工审批、Canon 分支提交，使用见 docs/phase-10.md。Claude Adapter 复用官方 SDK，关闭原生工具、共享会话、项目/用户设置与外部 MCP；`.claude/agents/` 手工岗位入口仍仅 Read。研究岗位不得调用审批/Git 写入宿主 API、读取 `.env.approval`、自行批准或把批准当成科学证据。任务流程本轮离线验收，未进行整轮付费研究。
 
 ## 开始工作
 
@@ -16,7 +16,7 @@ Phase 0–9 已合并；Phase 10 功能分支增加 Python Task Manager 与独�
 
 ## 后续研究流程
 
-按任务检索相关 Canon、Evidence 与时间线，使用 `python -m axiom_forge snapshot create` 固定自包含版本，记录 canon_version 与 snapshot_id；用 `snapshot verify <文件>` 验证。TaskManager 在缓存中保存固定版本，不把研究任务快照自动提交到 world。当前正式 world 为空，应由作者逐步建立；不得拿 examples/ 测试数据替代设定。调用方用受限 agent_input，禁止向首轮 Specialist 发送完整 TaskState、他人答案或 Artifact；选择的首轮全部完成后才交叉审查、Red Team 和综合。输入校验不替代 Runtime 的文件、工具和上下文隔离。
+按任务检索相关 Canon、Evidence 与时间线，使用 `python -m axiom_forge --world <外部世界目录> snapshot create` 固定自包含版本，记录 canon_version 与 snapshot_id；用 `snapshot verify <文件>` 验证。TaskManager 在外部世界的 .axiom/local/ 持久状态中保存固定版本，不把研究任务快照自动提交到 world。系统不承载正式 world，由作者在外部独立仓库建立；不得拿 examples/ 测试数据替代设定。调用方用受限 agent_input，禁止向首轮 Specialist 发送完整 TaskState、他人答案或 Artifact；选择的首轮全部完成后才交叉审查、Red Team 和综合。输入校验不替代 Runtime 的文件、工具和上下文隔离。
 
 使用运行环境实际提供的搜索、来源读取和计算工具；记录来源与实算结果。工具不可用时报告缺口，不得用参数记忆冒充搜索、文献读取或计算。
 
@@ -33,7 +33,7 @@ git diff --check
 git check-ignore .env .env.local .venv/ignore-check node_modules/ignore-check tmp/ignore-check
 git ls-files .env.example
 .\.venv\Scripts\python.exe -m axiom_forge check-schemas
-.\.venv\Scripts\python.exe -m axiom_forge validate-world
+.\.venv\Scripts\python.exe -m axiom_forge --world <外部世界目录> validate-world
 .\.venv\Scripts\python.exe -m axiom_forge check-contracts
 .\.venv\Scripts\python.exe -m axiom_forge validate-agent-output examples/agent_input.json examples/lead_plan.json
 .\.venv\Scripts\python.exe -m unittest discover -s tests -v

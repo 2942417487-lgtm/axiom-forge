@@ -4,6 +4,7 @@ import asyncio
 import json
 import os
 import sys
+import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -12,13 +13,13 @@ sys.path.insert(0, str(ROOT))
 from axiom_forge.journal import TaskJournal
 from axiom_forge.tasks import TaskManager
 from axiom_forge.validation import read_json
-from examples.offline_task_manager import fixture_factory
+from examples.offline_task_manager import fixture_factory, fixture_binding
 
 
 async def crash(repo, boundary, count=3):
     """Only operates on an already initialized isolated fixture repository."""
     repo = Path(repo).absolute()
-    scratch = ROOT / '.cache/test-runs'
+    scratch = Path(tempfile.gettempdir()) / "axiom-forge-test-runs"
     if not repo.resolve().is_relative_to(scratch.resolve()):
         raise ValueError('Crash harness requires an isolated test repository')
     config = read_json(ROOT / 'examples/mode-host.json')
@@ -39,7 +40,8 @@ async def crash(repo, boundary, count=3):
         return record
 
     TaskJournal.append = append
-    manager = TaskManager(repo, config, runtime_factory=fixture_factory(repo))
+    world = fixture_binding(repo)
+    manager = TaskManager(world, config, runtime_factory=fixture_factory(world))
     await manager.run('SYNTHETIC subprocess recovery task', 'court', ['TECH-001'])
 
 

@@ -1,8 +1,10 @@
 # Phase 6 Runtime
 
+当前版本的路径与兼容性以 [独立世界工作区](../docs/world-workspaces.md) 为准。世界操作显式指定外部 --world；配置与凭据来自外部宿主目录。以下历史验收保留原日期和当时结果。
+
 现有 [Router](../routing/README.md)、[模式入口](../modes/README.md) 和 [Phase 10 Task Manager](../docs/phase-10.md) 复用以下 SDK/单次 Runtime；四款模型接入与模式离线验收见 [记录](../docs/phase-7-9.md)。人工审批与 Canon Apply 位于独立宿主 CLI，未增加 Runtime/ToolSession 权限。
 
-这是单次岗位调用接口；模型路由、Roundtable/LangGraph 调度、审批与 Canon Apply 留给后续阶段。实现位于 `axiom_forge/runtimes/`，业务角色和 Schema 不导入厂商 SDK。
+这是单次岗位调用接口；模型路由、四种模式、任务管理和人工审批由既有上层宿主实现，LangGraph 尚未实现。实现位于 `axiom_forge/runtimes/`，业务角色和 Schema 不导入厂商 SDK。
 
 ## 已复用的官方组件
 
@@ -22,7 +24,7 @@ ZenMux 接入前也检索了其 [官方 Skills](https://zenmux.ai/docs/zh/guide/
 python -m pip --python .venv install -r runtimes/requirements-lock.txt
 ```
 
-锁定文件是本机 Python 3.14.7 / Windows x64 的已解析环境，不宣称已在其他平台验收。基础离线依赖仍在根目录；SDK 未安装时相应集成测试跳过。Codex 包附带固定版本 CLI。本次 Claude Windows 包从源码发行版安装，没有附带原生 CLI；使用官方 `downloads.claude.ai` 的 `manifest.json` 核对 SHA256，下载到忽略的 `.cache/claude-runtime/claude.exe`。本机为 2.1.291，二进制、下载脚本与凭据不进入 Git。其他电脑须按 [官方安装说明](https://code.claude.com/docs/en/setup) 补齐原生 CLI，或显式配置绝对/仓库相对 `claude_cli_path`；不得把 npm 的 `.cmd` shim 当作 SDK 可运行的原生文件。
+锁定文件是本机 Python 3.14.7 / Windows x64 的已解析环境，不宣称已在其他平台验收。基础离线依赖仍在根目录；SDK 未安装时相应集成测试跳过。Codex 包附带固定版本 CLI。本次 Claude Windows 包从源码发行版安装，没有附带原生 CLI；使用官方 `downloads.claude.ai` 的 `manifest.json` 核对 SHA256，下载到忽略的 `.cache/claude-runtime/claude.exe`。本机为 2.1.291，二进制、下载脚本与凭据不进入 Git。其他电脑须按 [官方安装说明](https://code.claude.com/docs/en/setup) 补齐原生 CLI，或显式配置位于世界目录外的绝对 `claude_cli_path`；不得把 npm 的 `.cmd` shim 当作 SDK 可运行的原生文件。
 
 ## 统一研究接口
 
@@ -30,9 +32,11 @@ python -m pip --python .venv install -r runtimes/requirements-lock.txt
 from axiom_forge.runtimes import AgentRuntime, RuntimeLimits, as_prior_result
 from axiom_forge.runtimes.openai_adapter import OpenAIAdapter
 from axiom_forge.tools.host import session_from_config
+from axiom_forge.workspaces import WorldWorkspace
 
-runtime = AgentRuntime(repo, OpenAIAdapter(model_id), limits=RuntimeLimits(),
-    session_factory=lambda data: session_from_config(repo, data, trusted_tool_config))
+world_workspace = WorldWorkspace(external_world_path, host_root=external_host_path)
+runtime = AgentRuntime(world_workspace, OpenAIAdapter(model_id), limits=RuntimeLimits(),
+    session_factory=lambda data: session_from_config(world_workspace, data, trusted_tool_config))
 packet = await runtime.run(role, task_state, {
     "execution": {"run_id": run_id, "agent_run_id": agent_run_id, "artifact_id": artifact_id},
     "stage": "independent",
@@ -48,7 +52,7 @@ prior = as_prior_result(packet)
 
 Claude 的 input_tokens 统一为普通输入＋缓存写入＋缓存读取，并在 metadata 单独保留两种缓存 token 数，避免忽略缓存计费；OpenAI SDK 已报告总输入。`reported_cost_usd` 保留 SDK 报告值，不能替代服务商账单。失败调用也可能产生费用，不能仅从没有成功 Artifact 推断未收费。
 
-调用前验证岗位、阶段、固定快照和前序结果；持久化到 `.cache/runtime-runs/<ARN>/` 的 input、started 与 completion。校验通过才发布 output 和 Artifact 内容哈希。重复/并行使用同一 ARN 被追加存储拒绝；失败、超时、取消没有可用科学结果。进程突然终止可能仅留下 started；重启恢复与结果认证属于后续工作流。本地存储不是防本机操作者篡改的可信数据库。
+调用前验证岗位、阶段、固定快照和前序结果；持久化到 `.axiom/local/runtime-runs/<ARN>/` 的 input、started 与 completion。校验通过才发布 output 和 Artifact 内容哈希。重复/并行使用同一 ARN 被追加存储拒绝；失败、超时、取消没有可用科学结果。进程突然终止可能仅留下 started；TaskManager 的显式重启恢复与结果校验见 Phase 11。本地存储不是防本机操作者篡改的可信数据库。
 
 后续 `prior_results` 使用 `as_prior_result(packet)` 的四字段包；计算所需工具 Artifact 由宿主显式加入 `supporting_artifacts`。规划输出不能作为前序科学结论。宿主仍负责验证历史包来源，静态完成回执不能证明真实执行。
 
@@ -88,12 +92,13 @@ ZenMux 两个协议可以使用同一个 Key；仍分别放在本地两个变量
 如果本机网络需要代理，可在本地宿主配置增加 `claude_https_proxy`，例如 `http://127.0.0.1:10081`；它只设置该 Claude 子进程的 HTTP(S)_PROXY，不修改系统、全局 Shell 或宿主环境，不接受代理账号/密码、路径、查询和片段。实际代理地址须由操作者核对；不得把某台机器的 localhost 端口当作通用默认值。本机 Python 使用 Windows 系统代理，而原生 Claude CLI 未自动继承，曾出现 ECONNREFUSED；联调用的本地覆盖配置位于忽略的 `.cache/phase6-zenmux-claude-host.json`。需要代理的本机用该覆盖配置替代公开样例路径；其余机器使用自己的显式配置。
 
 ```powershell
-# 先生成一个新的合法 AgentInput，不能跨调用复用 ARN。
-.\.venv\Scripts\python.exe -m axiom_forge runtime run --context <AgentInput.json> --config examples/runtimes/openai-host.json --credentials .env --allow-live
-.\.venv\Scripts\python.exe -m axiom_forge runtime run --context <另一个AgentInput.json> --config examples/runtimes/claude-host.json --credentials .env --allow-live
+# 将所需 examples/runtimes/*-host.json 复制到外部宿主目录，再调整配置。
+# 先生成与外部世界匹配的新合法 AgentInput，不能跨调用复用 ARN。
+.\.venv\Scripts\python.exe -m axiom_forge --world <外部世界目录> --host-root <外部宿主目录> runtime run --context <AgentInput.json> --config <外部宿主目录>/openai-host.json --credentials <外部.env> --allow-live
+.\.venv\Scripts\python.exe -m axiom_forge --world <外部世界目录> --host-root <外部宿主目录> runtime run --context <另一个AgentInput.json> --config <外部宿主目录>/claude-host.json --credentials <外部.env> --allow-live
 # 本机 .env 为 ZenMux Key 时使用以下专用配置。
-.\.venv\Scripts\python.exe -m axiom_forge runtime run --context <AgentInput.json> --config examples/runtimes/zenmux-openai-host.json --credentials .env --allow-live
-.\.venv\Scripts\python.exe -m axiom_forge runtime run --context <另一个AgentInput.json> --config examples/runtimes/zenmux-claude-host.json --credentials .env --allow-live
+.\.venv\Scripts\python.exe -m axiom_forge --world <外部世界目录> --host-root <外部宿主目录> runtime run --context <AgentInput.json> --config <外部宿主目录>/zenmux-openai-host.json --credentials <外部.env> --allow-live
+.\.venv\Scripts\python.exe -m axiom_forge --world <外部世界目录> --host-root <外部宿主目录> runtime run --context <另一个AgentInput.json> --config <外部宿主目录>/zenmux-claude-host.json --credentials <外部.env> --allow-live
 ```
 
 没有 `--allow-live` 时不读取凭据、不执行 SDK。CLI 只打印状态、Artifact 路径和安全错误，原始 SDK 异常和思考内容不写业务日志。不同供应商的密钥不会通过 SDK 工具参数或工程 subprocess 传递；子运行时环境把无关变量值置空，宿主环境不受修改。

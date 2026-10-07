@@ -1,5 +1,7 @@
 # Phase 10：任务运行与人工 Canon 审批
 
+当前版本的路径与兼容性以 [独立世界工作区](world-workspaces.md) 为准。世界操作显式指定外部 --world；配置与凭据来自外部宿主目录。以下历史验收保留原日期和当时结果。
+
 本阶段复用现有 Runtime、Router 和四种模式，实现简单 Python Task Manager。没有引入 LangGraph。新增 CLI 是宿主控制入口，研究岗位的工具集合没有增加审批、Canon Apply 或 Git 写入能力。
 
 ## 使用流程
@@ -8,33 +10,33 @@
 
 ```powershell
 # 问题写入 .cache/question.txt；配置须按任务长度、输出和费用另行调整。
-.\.venv\Scripts\python.exe -m axiom_forge tasks run --question-file .cache/question.txt --mode court --entity TECH-001 --config examples/mode-host.json --credentials .env --allow-live
+.\.venv\Scripts\python.exe -m axiom_forge --world <外部世界目录> --host-root <外部宿主目录> tasks run --question-file .cache/question.txt --mode court --entity TECH-001 --config <外部宿主配置.json> --credentials <外部.env> --allow-live
 ```
 
 这个命令会调用真实模型，必须显式 `--allow-live`；本轮没有运行，也没有新增付费授权。示例中的输出上限和模型单次费用上限主要用于小规模接入测试，不能保证完整科学研究能在相同参数内完成。模型与工具仍由可信宿主配置，Lead 不能更改模型、预算、工具权限或 Canon 快照。
 
 执行次序为：用户问题 → Lead Planning → 固定 Canon 检索 → 四岗位独立研究/审计 → 四岗位交叉审查 → 综合草案 → Red Team → 最终综合。Lead 必须覆盖全部四个审计岗位，其 question、required_checks 和 entity_ids 通过 `planning_assignment` 明确传给相应 Specialist；每个首轮输入在任何首轮答案产生前构建，交叉审查读取同一份首轮结果。计划不能删除审计领域。检索从固定快照读取指定实体的依赖/冲突闭包及附带 Evidence，保存带哈希 Artifact；全部岗位仍持有同一完整快照。科学真实性必须另外审查。
 
-成功任务在 `.cache/tasks/<TSK>/` 保存 `created.json`，以及 `completed.json`（无 Canon 提案）或 `waiting.json`（有最终提案）。状态包含 Run、12 次 AgentRun、结果和 Artifact 引用；Lead 与综合草案可通过其 Artifact 读取。最终提案集取自最终综合，草案不是同时待应用的另一份变更。失败保存 `failed.json` 和真实 Runtime 回执，不伪造失败 Agent 的完成 Artifact、不运行后续阶段；`created.json` 是初始有效状态，不代表失败阶段的完整 checkpoint。
+成功任务在 `.axiom/local/tasks/<TSK>/` 保存 `created.json`，以及 `completed.json`（无 Canon 提案）或 `waiting.json`（有最终提案）。状态包含 Run、12 次 AgentRun、结果和 Artifact 引用；Lead 与综合草案可通过其 Artifact 读取。最终提案集取自最终综合，草案不是同时待应用的另一份变更。失败保存 `failures/<ART>.json` 和真实 Runtime 回执，不伪造失败 Agent 的完成 Artifact、不运行后续阶段；`created.json` 是初始有效状态，不代表失败阶段的完整 checkpoint。
 
-有提案时生成 `.cache/canon-reviews/<内容 SHA-256>/bundle.json` 与 `review.md`，控制台返回路径。审查内容包括完整 add/update/delete 前后值、新增 Evidence、来源、假设、不确定性、反例、Red Team、综合和未解决问题，以及一起提交的审批记录模板。**批准整份包**，不支持部分批准或编辑后沿用旧审批；需要调整时应产生新的研究结果/审查包。没有提案不发布仅发现的新 Evidence。
+有提案时生成 `.axiom/local/canon-reviews/<内容 SHA-256>/bundle.json` 与 `review.md`，控制台返回路径。审查内容包括完整 add/update/delete 前后值、新增 Evidence、来源、假设、不确定性、反例、Red Team、综合和未解决问题，以及一起提交的审批记录模板。**批准整份包**，不支持部分批准或编辑后沿用旧审批；需要调整时应产生新的研究结果/审查包。没有提案不发布仅发现的新 Evidence。
 
 CanonChange 继续沿用已有 canon_entry 类型；actor、timeline 等专用记录的扩展修改接口不在本轮。审查文本被修改时会拒绝审批，规范 JSON 是完整内容依据。
 
 首次由本地操作者初始化专用审批凭据；不使用模型 API Key 代替审批 Key：
 
 ```powershell
-.\.venv\Scripts\python.exe -m axiom_forge canon init-approval
+.\.venv\Scripts\python.exe -m axiom_forge --world <外部世界目录> --host-root <外部宿主目录> canon init-approval
 ```
 
-该命令在被 Git 忽略的 `.env.approval` 写入随机 Key，不打印、不覆盖、不提交。POSIX 使用 0600 权限；Windows 继承当前用户目录权限，须使用独立系统账号/ACL 管理需要更强隔离的场景。丢失 Key 后旧批准不能验证；本阶段不提供轮换或自动恢复。不要把 `.env.approval`、`.env`、`.cache` 上传或发给模型。
+该命令在外部宿主的 `world-approvals/<绑定哈希>/.env.approval` 写入工作区专用随机 Key，不打印、不覆盖、不提交。POSIX 使用 0600 权限；Windows 继承当前用户目录权限，须使用独立系统账号/ACL 管理需要更强隔离的场景。丢失 Key 后旧批准不能验证；本阶段不提供轮换或自动恢复。不要把 `.env.approval`、`.env`、`.cache` 上传或发给模型。
 
 读取 `review.md` 和规范 JSON 后，在交互终端运行：
 
 ```powershell
-.\.venv\Scripts\python.exe -m axiom_forge canon approve --bundle .cache/canon-reviews/<SHA256>/bundle.json --reviewer "你的名字"
+.\.venv\Scripts\python.exe -m axiom_forge --world <外部世界目录> --host-root <外部宿主目录> canon approve --bundle <外部世界目录>/.axiom/local/canon-reviews/<SHA256>/bundle.json --reviewer "你的名字"
 # 或明确拒绝：
-.\.venv\Scripts\python.exe -m axiom_forge canon reject --bundle .cache/canon-reviews/<SHA256>/bundle.json --reviewer "你的名字"
+.\.venv\Scripts\python.exe -m axiom_forge --world <外部世界目录> --host-root <外部宿主目录> canon reject --bundle <外部世界目录>/.axiom/local/canon-reviews/<SHA256>/bundle.json --reviewer "你的名字"
 ```
 
 终端要求键入完整内容 SHA-256，随后写入带 reviewer、时间、提案哈希、任务哈希与 HMAC 的 `approval.json`。拒绝会另外保存 `rejected.json`，不能 Apply；同一包的决定不可覆盖。原始 waiting 状态与模型输出保持原样。直接编辑 JSON 的 `approval_status` 或 `CanonChange.approval` 不能代替宿主审批。
@@ -42,14 +44,14 @@ CanonChange 继续沿用已有 canon_entry 类型；actor、timeline 等专用�
 批准后应用：
 
 ```powershell
-.\.venv\Scripts\python.exe -m axiom_forge canon apply --bundle .cache/canon-reviews/<SHA256>/bundle.json
+.\.venv\Scripts\python.exe -m axiom_forge --world <外部世界目录> --host-root <外部宿主目录> canon apply --bundle <外部世界目录>/.axiom/local/canon-reviews/<SHA256>/bundle.json
 ```
 
 宿主再次校验任务/Artifact/审查包/HMAC、Git HEAD 和 Canon 基线，校验包含全部 Evidence 与实体引用的目标世界。通过临时 Git 索引和 Git 提交对象创建 `canon/<RUN>` 分支，当前分支、工作区和暂存区保持原状。提交只包含包中列出的 `world/` 变更；审批者、时间、包哈希及签名回执记录在提交消息，world/decisions 同时增加“人工批准不证明现实 FACT”的记录。不会自动 push、checkout 或 merge。你可先查看分支差异，再按照正常 PR 流程发布和合并：
 
 ```powershell
-git diff HEAD canon/<RUN> -- world
-git push origin canon/<RUN>
+git -C <外部世界目录> diff HEAD canon/<RUN> -- world
+git -C <外部世界目录> push origin canon/<RUN>
 ```
 
 本地 TaskState 的 `canon_commit` 单独保存批准与提交信息，COMMITTED 的原始 pending 模型提案和输出 Artifact 哈希保持不变。Canon 版本仍指分析基线，`canon_commit.new_canon_version` 指分支提交后的内容版本。通用 TaskState 校验验证结构和内容绑定；**不使用 Key 验签，也不证明 Git 分支已创建**。真正 Apply 的签名验证和原子分支发布在 CanonHost。

@@ -16,7 +16,7 @@ from axiom_forge.ids import new_id
 from axiom_forge.validation import DataError, SchemaStore, digest, read_json
 
 ROOT = Path(__file__).resolve().parents[1]
-SCRATCH = ROOT / ".cache/test-runs"
+SCRATCH = Path(tempfile.gettempdir()) / "axiom-forge-test-runs"
 
 
 def fixture(name):
@@ -306,10 +306,10 @@ class ContractTests(unittest.TestCase):
     def test_validation_never_mutates_inputs_or_production_world(self):
         data, result = invocation("integrator"), fixture("synthesis_result")
         before = copy.deepcopy((data, result))
-        world_before = {p: p.read_bytes() for p in (ROOT / "world").rglob("*.json")}
+        world_before = {p: p.read_bytes() for p in (ROOT / "templates/legacy-world").rglob("*.json")}
         validate_agent_output(data, result, self.schemas)
         self.assertEqual((data, result), before)
-        self.assertEqual(world_before, {p: p.read_bytes() for p in (ROOT / "world").rglob("*.json")})
+        self.assertEqual(world_before, {p: p.read_bytes() for p in (ROOT / "templates/legacy-world").rglob("*.json")})
 
     def test_registry_rejects_missing_roles_or_relaxed_boundaries(self):
         with tempfile.TemporaryDirectory(dir=SCRATCH) as tmp:

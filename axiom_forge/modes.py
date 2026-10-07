@@ -5,6 +5,7 @@ import copy
 from decimal import Decimal
 from pathlib import Path
 
+from .workspaces import require_world
 from .contracts import ContractStore, SPECIALISTS, project_input
 from .ids import new_id
 from .journal import publish
@@ -22,9 +23,11 @@ MODES = ("scenario_simulation", "direct_challenge", "roundtable", "court")
 
 class ModeRunner:
     def __init__(self, repo, config, *, runtime_factory, router=None):
-        self.repo = Path(repo).absolute()
-        self.store = ContractStore(self.repo)
-        self.router = router or ModelRouter(self.repo)
+        self.world = require_world(repo)
+        self.repo = self.world.root
+        self.engine_root = self.world.engine.root
+        self.store = ContractStore(self.engine_root, self.world.schemas)
+        self.router = router or ModelRouter(self.engine_root)
         self.store.schemas.validate("mode_host", config)
         canonical_bytes(config)
         self.config = copy.deepcopy(config)
@@ -42,6 +45,7 @@ class ModeRunner:
     async def run(self, task, *, observer=None, use_plan=False, recovery=None):
         task = copy.deepcopy(task)
         validate_task(task, self.store.schemas)
+        self.world.validate_world(task["world_id"])
         if task["task_type"] not in MODES:
             raise DataError("Unknown worldbuilding mode")
         # All four are deliberately selected; Lead provides an advisory plan but cannot
@@ -49,11 +53,11 @@ class ModeRunner:
         selected = list(SPECIALISTS)
         run_id = recovery.control['run_id'] if recovery and recovery.control['run_id'] else new_id("run")
         started_at = recovery.control['run_started_at'] if recovery and recovery.control['run_started_at'] else utc_now()
-        workspace = Workspace(self.repo / ".cache/mode-runs" / run_id)
+        workspace = Workspace(self.repo / ".axiom/local/mode-runs" / run_id)
         publish(workspace, "started.json", {"run_id": run_id, "task_id": task["task_id"], "started_at": started_at,
             "mode": task["task_type"], "canon_version": task["canon_version"],
             "task_sha256": digest(task), "host_config_sha256": self.config_sha256,
-            "policy_sha256": self.router.sha256})
+            "policy_sha256": self.router.sha256, "workspace_binding": self.world.binding})
         packets, routes, reserved = [], [], recovery.reserved if recovery else Decimal(0)
         lead_family = None
         status, reason, result = "completed", None, None
@@ -120,7 +124,7 @@ class ModeRunner:
             observe('reserved', {'input': data, 'route': routes[-1], 'amount_usd': format(Decimal(str(profile['max_cost_usd'])), 'f')})
             if data["role"] == "lead": lead_family = self.router.model(mid)["family"]
             runtime = self.runtime_factory(mid, profile)
-            if runtime.adapter.provider != profile["provider"] or runtime.adapter.model != profile["model"] or runtime.repo != self.repo:
+            if runtime.adapter.provider != profile["provider"] or runtime.adapter.model != profile["model"] or runtime.repo != self.repo or runtime.engine_root != self.engine_root or runtime.world.binding != self.world.binding:
                 raise DataError("Host factory returned a different Runtime/model")
             packet = await runtime.run_input(copy.deepcopy(data))
             packets.append(packet)
@@ -193,8 +197,8 @@ class ModeStop(Exception):
 def run_cli(args):
     if not args.allow_live:
         raise DataError("Mode execution requires the operator's --allow-live flag")
-    config = read_json(args.config)
+    config = read_json(args.workspace.host_file(args.config))
     # Validate trusted profiles before reading the caller-selected credential file.
-    runner = ModeRunner(args.repo, config, runtime_factory=lambda mid, profile: runtime_from_config(args.repo, profile, keys))
-    keys = credentials(args.credentials)
+    runner = ModeRunner(args.workspace, config, runtime_factory=lambda mid, profile: runtime_from_config(args.workspace, profile, keys))
+    keys = credentials(args.workspace.host_file(args.credentials))
     return asyncio.run(runner.run(read_json(args.task)))

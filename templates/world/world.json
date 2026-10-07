@@ -1,0 +1,10 @@
+{
+  "schema_version": "1.0",
+  "world_id": "WLD-00000000-0000-4000-8000-000000000000",
+  "name": "Empty world template",
+  "description": "Empty world; no Canon or real-world Evidence.",
+  "created_at": "2026-10-07T00:00:00Z",
+  "metadata": {
+    "template": true
+  }
+}

@@ -8,6 +8,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from examples.offline_task_manager import initialize_fixture
 from axiom_forge.contracts import IDENTITY, OUTPUTS
 from axiom_forge.ids import new_id
 from axiom_forge.runtimes import AdapterReply, AgentRuntime, RuntimeLimits
@@ -17,7 +18,7 @@ from axiom_forge.tools.storage import ToolError, strict_json
 from axiom_forge.validation import DataError, SchemaStore, digest, read_json
 
 ROOT = Path(__file__).resolve().parents[1]
-SCRATCH = ROOT / ".cache/test-runs"
+SCRATCH = Path(tempfile.gettempdir()) / "axiom-forge-test-runs"
 
 
 class FakeAdapter:
@@ -40,10 +41,10 @@ class RuntimeTests(unittest.IsolatedAsyncioTestCase):
         SCRATCH.mkdir(parents=True, exist_ok=True)
         cls.temporary = tempfile.TemporaryDirectory(dir=SCRATCH)
         cls.repo = Path(cls.temporary.name).absolute()
-        for path in ("schemas", "agents", ".claude"):
-            shutil.copytree(ROOT / path, cls.repo / path)
-        shutil.copyfile(ROOT / "AGENTS.md", cls.repo / "AGENTS.md")
-        cls.schemas = SchemaStore(cls.repo / "schemas")
+        cls.workspace = initialize_fixture(cls.repo).world
+        cls.repo = cls.workspace.root
+        cls.engine = cls.workspace.engine.root
+        cls.schemas = cls.workspace.schemas
 
     @classmethod
     def tearDownClass(cls):
@@ -58,8 +59,8 @@ class RuntimeTests(unittest.IsolatedAsyncioTestCase):
 
     def runtime(self, output, behavior=None, capabilities=(), **kwargs):
         adapter = FakeAdapter(output, behavior)
-        runtime = AgentRuntime(self.repo, adapter, session_factory=lambda data:
-                               ToolSession(self.repo, data, capabilities=capabilities), **kwargs)
+        runtime = AgentRuntime(self.workspace, adapter, session_factory=lambda data:
+                               ToolSession(self.workspace, data, capabilities=capabilities), **kwargs)
         return runtime, adapter
 
     async def test_all_role_outputs_saved_with_real_runtime_hashes(self):
@@ -115,7 +116,7 @@ class RuntimeTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(packet["agent_run"]["status"], "failed")
             self.assertIsNone(packet["artifact"])
             self.assertIsNone(packet["result"])
-            self.assertFalse((self.repo / ".cache/runtime-runs" / data["agent_run_id"] / "output.json").exists())
+            self.assertFalse((self.repo / ".axiom/local/runtime-runs" / data["agent_run_id"] / "output.json").exists())
 
     async def test_same_agent_run_cannot_be_reused(self):
         data, output = self.invocation()
@@ -160,7 +161,7 @@ class RuntimeTests(unittest.IsolatedAsyncioTestCase):
         runtime, _ = self.runtime(output, fail)
         packet = await runtime.run_input(data)
         self.assertEqual(packet["agent_run"]["status"], "failed")
-        stored = (self.repo / ".cache/runtime-runs" / data["agent_run_id"] / "completion.json").read_text()
+        stored = (self.repo / ".axiom/local/runtime-runs" / data["agent_run_id"] / "completion.json").read_text()
         self.assertNotIn("SECRET_TEST_KEY", stored)
 
     async def test_timeout_and_cancellation_record_failure_and_close_tools(self):
@@ -178,7 +179,7 @@ class RuntimeTests(unittest.IsolatedAsyncioTestCase):
     async def test_session_bound_to_other_input_rejected(self):
         data, output = self.invocation()
         other, _ = self.invocation()
-        runtime = AgentRuntime(self.repo, FakeAdapter(output), session_factory=lambda ignored: ToolSession(self.repo, other))
+        runtime = AgentRuntime(self.workspace, FakeAdapter(output), session_factory=lambda ignored: ToolSession(self.workspace, other))
         with self.assertRaises(DataError):
             await runtime.run_input(data)
 
@@ -229,8 +230,8 @@ class RuntimeTests(unittest.IsolatedAsyncioTestCase):
                                           "reproducible_code": "TEST FIXTURE: fake backend, not scientific computation"}]
                 if tampered:
                     output["calculations"][0]["outputs"][0]["value"] = 999
-            runtime = AgentRuntime(self.repo, FakeAdapter(output, calculate), session_factory=lambda data:
-                                   ToolSession(self.repo, data, capabilities=["python_call"], python_backend=FakePython()))
+            runtime = AgentRuntime(self.workspace, FakeAdapter(output, calculate), session_factory=lambda data:
+                                   ToolSession(self.workspace, data, capabilities=["python_call"], python_backend=FakePython()))
             packet = await runtime.run_input(data)
             self.assertEqual(packet["agent_run"]["status"], "failed" if tampered else "completed")
 
@@ -255,7 +256,7 @@ class RuntimeTests(unittest.IsolatedAsyncioTestCase):
         adapter = FakeAdapter({})
         adapter.provider = "codex"
         with self.assertRaises(ValueError):
-            AgentRuntime(self.repo, adapter)
+            AgentRuntime(self.workspace, adapter)
         for values in ({"max_turns": True}, {"timeout_seconds": 0}, {"max_tool_calls": 101}):
             with self.assertRaises(ValueError):
                 RuntimeLimits(**values)

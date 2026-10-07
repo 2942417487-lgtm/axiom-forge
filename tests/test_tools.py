@@ -18,6 +18,7 @@ from unittest.mock import patch
 
 from pypdf import PdfWriter
 
+from examples.offline_task_manager import initialize_fixture
 from axiom_forge.ids import new_id
 from axiom_forge.tools import ToolSession, definitions
 from axiom_forge.tools.git_read import git_read
@@ -28,7 +29,7 @@ from axiom_forge.tools.storage import MAX_BYTES, ToolError, Workspace, safe_rela
 from axiom_forge.validation import DataError, SchemaStore, canonical_bytes, collect_world, digest, read_json
 
 ROOT = Path(__file__).resolve().parents[1]
-SCRATCH = ROOT / ".cache/test-runs"
+SCRATCH = Path(tempfile.gettempdir()) / "axiom-forge-test-runs"
 SCRATCH.mkdir(parents=True, exist_ok=True)
 
 
@@ -56,8 +57,8 @@ class ToolTests(unittest.TestCase):
         context = read_json(ROOT / f"examples/agents/{role}-input.json")
         context["agent_run_id"] = new_id("agent_run")
         repo = self.temporary()
-        shutil.copytree(ROOT / "schemas", repo / "schemas")
-        result = ToolSession(repo, context, capabilities=capabilities, **kwargs)
+        world = initialize_fixture(repo).world
+        result = ToolSession(world, context, capabilities=capabilities, **kwargs)
         return result
 
     def test_catalog_is_independent_and_has_closed_argument_schemas(self):
@@ -130,7 +131,7 @@ class ToolTests(unittest.TestCase):
         first.call("filesystem.write", {"path": "answer.txt", "text": "PRIVATE FIRST ANSWER"})
         other = copy.deepcopy(first.context)
         other["agent_run_id"] = new_id("agent_run")
-        second = ToolSession(first.repo, other, capabilities=["workspace"])
+        second = ToolSession(first.world, other, capabilities=["workspace"])
         result = second.call("filesystem.read", {"path": "answer.txt"})
         self.assertEqual(result["status"], "failed")
         self.assertNotIn("PRIVATE FIRST ANSWER", json.dumps(result))
@@ -153,14 +154,14 @@ class ToolTests(unittest.TestCase):
         bad = copy.deepcopy(session.context)
         bad["metadata"] = {"peer_answer": "leak"}
         with self.assertRaises(DataError):
-            ToolSession(session.repo, bad, capabilities=["workspace"])
+            ToolSession(session.world, bad, capabilities=["workspace"])
 
     def test_same_agent_run_cannot_be_rebound_to_other_stage_or_input(self):
         session = self.session()
         bad = copy.deepcopy(session.context)
         bad["user_question"] = "different task content"
         with self.assertRaises(ToolError) as error:
-            ToolSession(session.repo, bad)
+            ToolSession(session.world, bad)
         self.assertEqual(error.exception.code, "context_mismatch")
 
     def test_link_detection_without_requiring_windows_link_privileges(self):
@@ -200,11 +201,12 @@ class ToolTests(unittest.TestCase):
 
     def test_unverified_evidence_stays_in_private_drafts(self):
         session = self.session(["draft_write"])
+        before = {path.name: path.read_bytes() for path in (session.repo / "world/evidence").iterdir()}
         record = read_json(ROOT / "examples/evidence.json")
         result = session.call("evidence.stage", {"record": record, "source_receipt_id": None})
         self.assertEqual(result["status"], "completed")
         self.assertTrue(session.workspace.path(result["data"]["path"]).is_file())
-        self.assertFalse((session.repo / "world/evidence").exists())
+        self.assertEqual({path.name: path.read_bytes() for path in (session.repo / "world/evidence").iterdir()}, before)
         self.assertEqual(session.call("evidence.stage", {"record": record, "source_receipt_id": None})["error"]["code"], "already_exists")
 
     def verified_record(self, session, receipt):
@@ -395,7 +397,7 @@ class ToolTests(unittest.TestCase):
     def test_reviewed_python_reuses_json_interface_and_strips_environment(self):
         session = self.session(["python_call"])
         content = "import json,sys,os\nrequest=json.load(sys.stdin)\nprint(json.dumps({'received': request, 'secret_present': 'AXIOM_TEST_SECRET' in os.environ}))\n"
-        session.python_backend = self.script_backend(session.repo, content)
+        session.python_backend = self.script_backend(session.engine_root, content)
         with patch.dict("os.environ", {"AXIOM_TEST_SECRET": "DO NOT EXPOSE"}):
             first = session.call("python.run_reviewed", {"script_id": "fixture.echo", "input": {"parameter": 1}})
             second = session.call("python.run_reviewed", {"script_id": "fixture.echo", "input": {"parameter": 2}})
@@ -406,12 +408,12 @@ class ToolTests(unittest.TestCase):
 
     def test_python_default_off_unknown_script_and_changed_program(self):
         session = self.session(["python_call"])
-        session.python_backend = self.script_backend(session.repo, "print('{}')", enabled=False)
+        session.python_backend = self.script_backend(session.engine_root, "print('{}')", enabled=False)
         args = {"script_id": "fixture.echo", "input": {}}
         self.assertEqual(session.call("python.run_reviewed", args)["status"], "unavailable")
         session.python_backend.enabled = True
         self.assertEqual(session.call("python.run_reviewed", {**args, "script_id": "missing"})["error"]["code"], "needs_implementation")
-        (session.repo / "tools/python-scripts/fixture.py").write_text("print('changed')", encoding="utf-8")
+        (session.engine_root / "tools/python-scripts/fixture.py").write_text("print('changed')", encoding="utf-8")
         self.assertEqual(session.call("python.run_reviewed", args)["error"]["code"], "program_changed")
 
     def test_python_failure_timeout_and_invalid_outputs(self):
@@ -421,7 +423,7 @@ class ToolTests(unittest.TestCase):
         for source, code in cases:
             with self.subTest(code=code):
                 session = self.session(["python_call"])
-                session.python_backend = self.script_backend(session.repo, source, timeout=0.3 if code == "timeout" else 5)
+                session.python_backend = self.script_backend(session.engine_root, source, timeout=0.3 if code == "timeout" else 5)
                 result = session.call("python.run_reviewed", {"script_id": "fixture.echo", "input": {}})
                 self.assertEqual(result["error"]["code"], code, result)
                 self.assertIsNone(result["data"])
@@ -448,7 +450,7 @@ class ToolTests(unittest.TestCase):
             self.schemas.validate("tool_result", record)
 
     def test_production_world_remains_empty(self):
-        self.assertEqual(set(collect_world(ROOT, self.schemas)), {"world/world.json"})
+        self.assertEqual(set(collect_world(ROOT / "templates/legacy-world", self.schemas)), {"world/world.json"})
 
     def test_json_duplicates_and_nonfinite_output_rejected(self):
         for raw in (b'{"x":1,"x":2}', b'{"x":NaN}', b'{"x":Infinity}', b'{"x":1e999}'):
@@ -461,7 +463,7 @@ class ToolTests(unittest.TestCase):
         for name, data in (("context", session.context), ("config", {"capabilities": ["web_search"]}),
                            ("arguments", {"query": "TEST FIXTURE", "limit": 1})):
             (directory / (name + ".json")).write_bytes(canonical_bytes(data))
-        command = [sys.executable, "-m", "axiom_forge", "tools"]
+        command = [sys.executable, "-m", "axiom_forge", "--engine-root", str(session.engine_root), "--world", str(session.repo), "--host-root", str(session.world.host_root), "tools"]
         listing = subprocess.run([*command, "list"], cwd=ROOT, capture_output=True, text=True)
         self.assertEqual(listing.returncode, 0, listing.stderr)
         self.assertEqual(len(json.loads(listing.stdout)), 14)

@@ -22,11 +22,14 @@ from examples.offline_task_manager import ProposalFixture
 
 class RecoveryTests(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
-        scratch = ROOT / '.cache/test-runs'
+        scratch = Path(tempfile.gettempdir()) / "axiom-forge-test-runs"
         scratch.mkdir(parents=True, exist_ok=True)
         self.temporary = tempfile.TemporaryDirectory(dir=scratch)
         self.repo = Path(self.temporary.name).absolute()
         self.host = initialize_fixture(self.repo)
+        self.workspace = self.host.world
+        self.repo = self.workspace.root
+        self.engine = self.workspace.engine.root
         self.base = self.host.head()
         self.config = read_json(ROOT / 'examples/mode-host.json')
         self.config['max_cost_usd'] = 20
@@ -34,14 +37,14 @@ class RecoveryTests(unittest.IsolatedAsyncioTestCase):
     def tearDown(self): self.temporary.cleanup()
 
     def manager(self, seen=None, **kwargs):
-        return TaskManager(self.repo, self.config, runtime_factory=fixture_factory(self.repo, seen, **kwargs))
+        return TaskManager(self.workspace, self.config, runtime_factory=fixture_factory(self.workspace, seen, **kwargs))
 
     def crash(self, boundary, count=3):
         result = subprocess.run([sys.executable, str(ROOT / 'examples/offline_recovery.py'),
                                  str(self.repo), boundary, str(count)], cwd=ROOT, capture_output=True, timeout=90)
         self.assertEqual(result.returncode, 75, result.stderr.decode(errors='replace'))
-        task_id = next((self.repo / '.cache/tasks').glob('TSK-*')).name
-        return TaskJournal(self.repo, task_id)
+        task_id = next((self.repo / '.axiom/local/tasks').glob('TSK-*')).name
+        return TaskJournal(self.workspace, task_id)
 
     async def test_real_process_exit_reuses_completed_roles_and_fixed_contexts(self):
         journal = self.crash('checkpoint')
@@ -110,15 +113,15 @@ class RecoveryTests(unittest.IsolatedAsyncioTestCase):
             return reply
         with patch.object(ProposalFixture, 'execute', with_receipt):
             from axiom_forge.tools.session import ToolSession
-            factory = fixture_factory(self.repo, fail_stage='cross_review')
+            factory = fixture_factory(self.workspace, fail_stage='cross_review')
             def granted(mid, profile):
                 runtime = factory(mid, profile)
-                runtime.session_factory = lambda data: ToolSession(self.repo, data,
+                runtime.session_factory = lambda data: ToolSession(self.workspace, data,
                     capabilities=profile['tools']['capabilities'])
                 return runtime
-            manager = TaskManager(self.repo, self.config, runtime_factory=granted)
+            manager = TaskManager(self.workspace, self.config, runtime_factory=granted)
             result = await manager.run('SYNTHETIC receipt recovery', 'court', ['TECH-001'])
-        journal = TaskJournal(self.repo, result['task_id'])
+        journal = TaskJournal(self.workspace, result['task_id'])
         artifacts = journal.latest()['task_state']['artifacts']
         receipt_ref = next(a for a in artifacts if a['kind'] == 'tool_result')
         request_ref = next(a for a in artifacts if a['kind'] == 'calculation_request')
@@ -139,7 +142,7 @@ class RecoveryTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_failed_invocation_retry_does_not_rerun_lead(self):
         result = await self.manager(fail_stage='independent').run('SYNTHETIC failure', 'court', ['TECH-001'])
-        journal = TaskJournal(self.repo, result['task_id'])
+        journal = TaskJournal(self.workspace, result['task_id'])
         failed = journal.latest()['control']['attempts'][-1]
         lead = journal.latest()['task_state']['agent_runs'][0]
         seen = []
@@ -156,19 +159,19 @@ class RecoveryTests(unittest.IsolatedAsyncioTestCase):
         def forbidden(*args): calls.append(args); raise AssertionError('Must not construct Runtime')
         changed = copy.deepcopy(self.config)
         changed['max_cost_usd'] += 1
-        with self.assertRaises(DataError): await TaskManager(self.repo, changed, runtime_factory=forbidden).resume(journal.task_id)
-        source = self.repo / 'agents/researcher.md'
+        with self.assertRaises(DataError): await TaskManager(self.workspace, changed, runtime_factory=forbidden).resume(journal.task_id)
+        source = self.engine / 'agents/researcher.md'
         original = source.read_bytes()
         source.write_bytes(original + b'\nchanged rules\n')
-        with self.assertRaises(DataError): await TaskManager(self.repo, self.config, runtime_factory=forbidden).resume(journal.task_id)
+        with self.assertRaises(DataError): await TaskManager(self.workspace, self.config, runtime_factory=forbidden).resume(journal.task_id)
         source.write_bytes(original)
         artifact = self.repo / journal.latest()['task_state']['artifacts'][0]['path']
         artifact.write_bytes(b'{}\n')
-        with self.assertRaises(DataError): await TaskManager(self.repo, self.config, runtime_factory=forbidden).resume(journal.task_id)
+        with self.assertRaises(DataError): await TaskManager(self.workspace, self.config, runtime_factory=forbidden).resume(journal.task_id)
         self.assertEqual(calls, [])
 
     async def test_rules_changed_during_execution_stop_before_next_runtime(self):
-        source = self.repo / 'agents/researcher.md'
+        source = self.engine / 'agents/researcher.md'
         original = source.read_bytes()
         execute = ProposalFixture.execute
         async def change_rules(adapter, *args, **kwargs):
@@ -180,8 +183,8 @@ class RecoveryTests(unittest.IsolatedAsyncioTestCase):
             with self.assertRaises(DataError):
                 await self.manager(seen).run('SYNTHETIC instruction change', 'court', ['TECH-001'])
         self.assertEqual([d['stage'] for d in seen], ['planning'])
-        task_id = next((self.repo / '.cache/tasks').glob('TSK-*')).name
-        journal = TaskJournal(self.repo, task_id)
+        task_id = next((self.repo / '.axiom/local/tasks').glob('TSK-*')).name
+        journal = TaskJournal(self.workspace, task_id)
         self.assertEqual(len(journal.latest()['control']['attempts']), 1)
         source.write_bytes(original)
         seen = []
@@ -205,7 +208,7 @@ class RecoveryTests(unittest.IsolatedAsyncioTestCase):
         self.config['max_cost_usd'] = 0.60  # Research minimum tier 1: each call reserves 0.30.
         result = await self.manager(fail_stage='independent').run('SYNTHETIC bounded retry', 'court', ['TECH-001'])
         self.assertEqual(result['status'], 'failed')
-        journal = TaskJournal(self.repo, result['task_id'])
+        journal = TaskJournal(self.workspace, result['task_id'])
         before = journal.latest()['control']['attempts']
         seen = []
         resumed = await self.manager(seen).resume(journal.task_id)
@@ -216,7 +219,7 @@ class RecoveryTests(unittest.IsolatedAsyncioTestCase):
     async def test_process_lock_and_terminal_resume_no_runtime(self):
         journal = self.crash('unknown_call')
         # A separate process must fail immediately while the operator owns the lock.
-        code = 'import sys; from axiom_forge.journal import TaskJournal; j=TaskJournal(sys.argv[1],sys.argv[2]);\nwith j.lock(): print("BAD")'
+        code = 'import sys; from axiom_forge.journal import TaskJournal; from examples.offline_task_manager import fixture_binding; j=TaskJournal(fixture_binding(sys.argv[1]),sys.argv[2]);\nwith j.lock(): print("BAD")'
         with journal.lock():
             p = subprocess.run([sys.executable, '-c', code, str(self.repo), journal.task_id], cwd=ROOT,
                                capture_output=True, timeout=30)
@@ -228,16 +231,16 @@ class RecoveryTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(again['review'], result['review'])
         self.assertEqual(seen, [])
         with redirect_stdout(io.StringIO()):
-            self.assertEqual(main(['--repo', str(self.repo), 'tasks', 'inspect', '--task-id', journal.task_id]), 0)
-            self.assertEqual(main(['--repo', str(self.repo), 'tasks', 'events', '--task-id', journal.task_id]), 0)
-            self.assertEqual(main(['--repo', str(self.repo), 'tasks', 'resume', '--task-id', journal.task_id]), 0)
+            self.assertEqual(main(['--engine-root', str(self.engine), '--world', str(self.repo), '--host-root', str(self.workspace.host_root), 'tasks', 'inspect', '--task-id', journal.task_id]), 0)
+            self.assertEqual(main(['--engine-root', str(self.engine), '--world', str(self.repo), '--host-root', str(self.workspace.host_root), 'tasks', 'events', '--task-id', journal.task_id]), 0)
+            self.assertEqual(main(['--engine-root', str(self.engine), '--world', str(self.repo), '--host-root', str(self.workspace.host_root), 'tasks', 'resume', '--task-id', journal.task_id]), 0)
 
     async def research_and_approve(self):
         result = await self.manager(new_evidence=True).run('SYNTHETIC approval recovery', 'court', ['TECH-001'])
         self.host.init_key()
         review = result['review']
         self.host.decide(Path(review['bundle']), 'SYNTHETIC operator', review['sha256'])
-        return result, Path(review['bundle']), TaskJournal(self.repo, result['task_id'])
+        return result, Path(review['bundle']), TaskJournal(self.workspace, result['task_id'])
 
     async def test_approval_file_checkpoint_gap_reconciles_without_reapproval(self):
         result = await self.manager().run('SYNTHETIC approval crash', 'court', ['TECH-001'])
@@ -245,7 +248,7 @@ class RecoveryTests(unittest.IsolatedAsyncioTestCase):
         bundle = Path(result['review']['bundle'])
         with patch.object(self.host, 'record_decision', side_effect=SystemExit(75)):
             with self.assertRaises(SystemExit): self.host.decide(bundle, 'SYNTHETIC operator', result['review']['sha256'])
-        journal = TaskJournal(self.repo, result['task_id'])
+        journal = TaskJournal(self.workspace, result['task_id'])
         self.assertEqual(journal.latest()['status'], 'waiting_approval')
         recovered = self.host.recover(bundle)
         self.assertEqual(recovered['status'], 'approved')

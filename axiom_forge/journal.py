@@ -7,6 +7,8 @@ import re
 from contextlib import contextmanager
 from pathlib import Path
 
+from . import __version__
+from .workspaces import require_world
 from .ids import new_id
 from .snapshots import utc_now
 from .tools.storage import Workspace, read_bounded, strict_json
@@ -35,11 +37,12 @@ class TaskJournal:
     def __init__(self, repo, task_id):
         if not re.fullmatch(r"TSK-[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}", task_id):
             raise DataError("Invalid task ID")
-        self.repo = Path(repo).absolute()
+        self.world = require_world(repo)
+        self.repo = self.world.root
         self.task_id = task_id
-        self.workspace = Workspace(self.repo / ".cache/tasks" / task_id)
+        self.workspace = Workspace(self.repo / ".axiom/local/tasks" / task_id)
         self.records = Workspace(self.workspace.root / "journal")
-        self.schemas = SchemaStore(self.repo / "schemas")
+        self.schemas = self.world.schemas
         self.locked = False
         self._cache = None
         self._verified_files = []
@@ -128,7 +131,7 @@ class TaskJournal:
         return records[-1]
 
     def _transition(self, before, after):
-        for key in ('run_id', 'run_started_at', 'host_config_sha256', 'policy_sha256', 'source_sha256'):
+        for key in ('run_id', 'run_started_at', 'host_config_sha256', 'policy_sha256', 'source_sha256', 'system_version'):
             if before['control'][key] != after['control'][key]: raise DataError('Frozen host control changed')
         old_attempts, new_attempts = before['control']['attempts'], after['control']['attempts']
         if len(new_attempts) < len(old_attempts): raise DataError('Budget reservations cannot be removed')
@@ -145,6 +148,10 @@ class TaskJournal:
 
     def _context(self, record):
         task, control = record['task_state'], record['control']
+        self.world.validate_world(task['world_id'])
+        self.world.validate_binding(task['metadata'].get('workspace_binding'))
+        if record['schema_version'] != '1.1' or control.get('system_version') != __version__:
+            raise DataError('Legacy or incompatible execution records require explicit migration')
         if task['metadata'].get('host_config_sha256') != control['host_config_sha256']:
             raise DataError('Task and checkpoint host config differ')
         if task['runs'] and (len(task['runs']) != 1 or task['runs'][0]['run_id'] != control['run_id']
@@ -165,7 +172,7 @@ class TaskJournal:
     def append(self, task, control, status, events):
         if not self.locked: raise DataError("Checkpoint writes require the operator process lock")
         prior = self.read()
-        record = {"schema_version": "1.0", "checkpoint_id": new_id("checkpoint"), "sequence": len(prior) + 1,
+        record = {"schema_version": "1.1", "checkpoint_id": new_id("checkpoint"), "sequence": len(prior) + 1,
             "previous_sha256": digest(prior[-1]) if prior else None, "created_at": utc_now(),
             "task_state": copy.deepcopy(task), "state_sha256": digest(task), "control": copy.deepcopy(control),
             "status": status, "events": []}
@@ -188,9 +195,9 @@ class TaskJournal:
 def source_fingerprint(repo):
     """Freeze instruction, schema and routing files actually used by research."""
     repo = Path(repo)
-    paths = {repo / "AGENTS.md", repo / "agents/README.md"}
+    paths = {repo / "AGENTS.md", repo / "agents/README.md", repo / "tools/python-scripts/manifest.json"}
     for directory, pattern in (("schemas", "*.schema.json"), ("agents", "*.md"),
             ("agents/contracts", "*.json"), ("routing", "*.yaml"), ("modes", "*.md")):
         paths.update((repo / directory).glob(pattern))
     import hashlib
-    return digest({p.relative_to(repo).as_posix(): hashlib.sha256(read_bounded(p)).hexdigest() for p in sorted(paths)})
+    return digest({"system_version": __version__, "resources": {p.relative_to(repo).as_posix(): hashlib.sha256(read_bounded(p)).hexdigest() for p in sorted(paths)}})

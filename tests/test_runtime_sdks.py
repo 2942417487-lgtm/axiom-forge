@@ -82,7 +82,7 @@ class SDKTests(unittest.IsolatedAsyncioTestCase):
         data, output = self.invocation()
         model = self.model(output)
         adapter = OpenAIAdapter("TEST-FIXTURE", sdk_model=model)
-        runtime = AgentRuntime(self.repo, adapter, session_factory=lambda data: ToolSession(self.repo, data, capabilities=["canon_read"]))
+        runtime = AgentRuntime(self.workspace, adapter, session_factory=lambda data: ToolSession(self.workspace, data, capabilities=["canon_read"]))
         packet = await runtime.run_input(data)
         self.assertEqual(packet["agent_run"]["status"], "completed")
         self.assertEqual(model.count, 2)
@@ -92,7 +92,7 @@ class SDKTests(unittest.IsolatedAsyncioTestCase):
     async def test_openai_budget_blocks_before_model_request(self):
         data, output = self.invocation()
         model = self.model(output, call_tool=False)
-        runtime = AgentRuntime(self.repo, OpenAIAdapter("TEST-FIXTURE", sdk_model=model,
+        runtime = AgentRuntime(self.workspace, OpenAIAdapter("TEST-FIXTURE", sdk_model=model,
                   max_cost_usd=0.000001, input_usd_per_million=2, output_usd_per_million=10))
         packet = await runtime.run_input(data)
         self.assertEqual(packet["agent_run"]["status"], "failed")
@@ -101,7 +101,7 @@ class SDKTests(unittest.IsolatedAsyncioTestCase):
     async def test_openai_budget_accepts_known_bounded_request(self):
         data, output = self.invocation()
         model = self.model(output, call_tool=False)
-        runtime = AgentRuntime(self.repo, OpenAIAdapter("TEST-FIXTURE", sdk_model=model,
+        runtime = AgentRuntime(self.workspace, OpenAIAdapter("TEST-FIXTURE", sdk_model=model,
                   max_cost_usd=0.5, input_usd_per_million=2, output_usd_per_million=10))
         packet = await runtime.run_input(data)
         self.assertEqual(packet["agent_run"]["status"], "completed")
@@ -120,12 +120,12 @@ class SDKTests(unittest.IsolatedAsyncioTestCase):
                 pass
         with patch("openai.AsyncOpenAI", FakeClient), patch(
                 "agents.models.openai_responses.OpenAIResponsesModel", return_value=upstream) as constructor:
-            runtime = AgentRuntime(self.repo, OpenAIAdapter("openai/gpt-6.1-sol",
+            runtime = AgentRuntime(self.workspace, OpenAIAdapter("openai/gpt-6.1-sol",
                 api_key="TEST-RELAY-KEY", base_url="https://zenmux.ai/api/v1"))
             packet = await runtime.run_input(data)
         self.assertEqual(packet["agent_run"]["status"], "completed")
         self.assertEqual(constructor.call_args.kwargs["model"], "openai/gpt-6.1-sol")
-        session = ToolSession(self.repo, data, capabilities=["canon_read"])
+        session = ToolSession(self.workspace, data, capabilities=["canon_read"])
         options = ClaudeAdapter("anthropic/claude-sonnet-5.5", api_key="TEST-RELAY-KEY",
             base_url="https://zenmux.ai/api/anthropic").build_options("test", ToolBinding(session, RuntimeLimits()), RuntimeLimits())
         self.assertEqual(options.model, "anthropic/claude-sonnet-5.5")
@@ -194,7 +194,7 @@ class SDKTests(unittest.IsolatedAsyncioTestCase):
                                     usage={"input_tokens": 10, "output_tokens": 20,
                                            "cache_creation_input_tokens": 100, "cache_read_input_tokens": 200}, total_cost_usd=0)
         adapter = ClaudeAdapter("TEST-FIXTURE", client_factory=FakeClient)
-        runtime = AgentRuntime(self.repo, adapter, session_factory=lambda data: ToolSession(self.repo, data, capabilities=["canon_read"]))
+        runtime = AgentRuntime(self.workspace, adapter, session_factory=lambda data: ToolSession(self.workspace, data, capabilities=["canon_read"]))
         packet = await runtime.run_input(data)
         self.assertEqual(packet["agent_run"]["status"], "completed")
         self.assertEqual(len(packet["tool_artifacts"]), 1)
@@ -225,7 +225,7 @@ class SDKTests(unittest.IsolatedAsyncioTestCase):
                     return SimpleNamespace(status="completed", error=None, id="synthetic-turn",
                         final_response="TEST FIXTURE engineering answer", usage=ThreadTokenUsage(total=usage, last=usage))
                 return SimpleNamespace(id="synthetic-thread", run=run)
-        runtime = CodexRuntime(self.repo, allow_login_reuse=True, sdk_factory=FakeCodex)
+        runtime = CodexRuntime(self.engine, allow_login_reuse=True, sdk_factory=FakeCodex)
         task = {"task_id": new_id("task"), "issue": "TEST FIXTURE engineering issue", "files": {"fixture.py": "# fixture"}}
         state = {key: new_id(key.removesuffix("_id")) for key in ("run_id", "agent_run_id", "artifact_id")}
         with self.assertRaises(DataError):
@@ -241,6 +241,6 @@ class SDKTests(unittest.IsolatedAsyncioTestCase):
         task = {"task_id": new_id("task"), "issue": "test", "files": {"../world/world.json": "unsafe"}}
         state = {key: new_id(key.removesuffix("_id")) for key in ("run_id", "agent_run_id", "artifact_id")}
         with self.assertRaises(DataError):
-            await CodexRuntime(self.repo).run("software_engineer", task, state)
+            await CodexRuntime(self.engine).run("software_engineer", task, state)
         with self.assertRaises(DataError):
-            await CodexRuntime(self.repo, allow_login_reuse=True).run("software_engineer", task, state)
+            await CodexRuntime(self.engine, allow_login_reuse=True).run("software_engineer", task, state)

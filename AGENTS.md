@@ -57,6 +57,12 @@
 - 原始大型论文 PDF 放在外部资料库；Git 保存 metadata、摘要、提取数据与 Evidence 关系。
 - 提交前检查明确的文件清单与差异；不得将项目目录之外的个人文件加入仓库。
 
+## 系统与世界工作区
+
+- 系统仓库只保存系统、模板与合成测试资料，正式世界必须是外部独立 Git 仓库。WorldWorkspace 与 EngineResources 分别绑定数据和可信执行资源，不从世界文件加载岗位、Schema、路由或程序登记。
+- 世界操作显式指定 --world，配置与凭据置于外部宿主路径。持久状态为世界目录 .axiom/local/，虽被 Git 忽略但必须保留以支持恢复；专用审批 Key 位于外部 host 的工作区专用目录。
+- 旧 --repo、旧混合缓存、复制/移动工作区的旧绑定不自动迁移或重签。GitHub 连接、标准导出/导入与 UI 尚未实现，详见 docs/world-workspaces.md。
+
 ## 当前检查
 
-使用 `.\.venv\Scripts\python.exe -m unittest discover -s tests -v` 运行测试；使用 `python -m axiom_forge check-schemas`、`validate-world`、`validate task_state <文件>`、`check-contracts`、`routing check` 与 `validate-agent-output <输入> <输出>` 检查数据与契约。使用 `git diff --check` 检查改动，使用 `git check-ignore` 验证 `.env.approval`、敏感文件和临时目录被忽略，检查 `.env.example` 全部为空值。范例全部为测试数据，不得导入正式 world；`examples/offline_task_manager.py` 仅在临时仓库演示完整任务、审批与分支提交。
+使用 `.\.venv\Scripts\python.exe -m unittest discover -s tests -v` 运行测试；使用 `python -m axiom_forge check-schemas`、`--world <外部世界目录> validate-world`、`validate task_state <文件>`、`check-contracts`、`routing check` 与 `validate-agent-output <输入> <输出>` 检查数据与契约。使用 `git diff --check` 检查改动，使用 `git check-ignore` 验证 `.env.approval`、敏感文件和临时目录被忽略，检查 `.env.example` 全部为空值，运行 `check-system-boundary` 确认系统无正式世界或被跟踪的私有状态。范例全部为测试数据，不得导入正式 world；`examples/offline_task_manager.py` 仅在临时仓库演示完整任务、审批与分支提交。

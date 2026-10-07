@@ -22,11 +22,14 @@ def write(path, value): path.write_text(json.dumps(value, ensure_ascii=False) + 
 
 class TaskManagerTests(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
-        scratch = ROOT / ".cache/test-runs"
+        scratch = Path(tempfile.gettempdir()) / "axiom-forge-test-runs"
         scratch.mkdir(parents=True, exist_ok=True)
         self.temporary = tempfile.TemporaryDirectory(dir=scratch)
         self.repo = Path(self.temporary.name).absolute()
         self.host = initialize_fixture(self.repo)
+        self.workspace = self.host.world
+        self.repo = self.workspace.root
+        self.engine = self.workspace.engine.root
         self.base = self.host.head()
         self.config = read_json(ROOT / "examples/mode-host.json")
         self.config["max_cost_usd"] = 20
@@ -34,7 +37,7 @@ class TaskManagerTests(unittest.IsolatedAsyncioTestCase):
     def tearDown(self): self.temporary.cleanup()
 
     async def research(self, **kwargs):
-        manager = TaskManager(self.repo, self.config, runtime_factory=fixture_factory(self.repo, **kwargs))
+        manager = TaskManager(self.workspace, self.config, runtime_factory=fixture_factory(self.workspace, **kwargs))
         result = await manager.run("SYNTHETIC task, no actual scientific conclusion", "court", ["TECH-001"])
         self.assertEqual(result["status"], "waiting_approval", result)
         return result
@@ -52,7 +55,7 @@ class TaskManagerTests(unittest.IsolatedAsyncioTestCase):
     async def test_four_modes_state_plan_retrieval_and_independent_first_round(self):
         for mode in MODES:
             seen = []
-            manager = TaskManager(self.repo, self.config, runtime_factory=fixture_factory(self.repo, seen, proposals=False))
+            manager = TaskManager(self.workspace, self.config, runtime_factory=fixture_factory(self.workspace, seen, proposals=False))
             result = await manager.run("SYNTHETIC no-change task", mode, ["TECH-001"])
             self.assertEqual(result["status"], "completed")
             task = document(Path(result["state_path"]))
@@ -197,16 +200,16 @@ class TaskManagerTests(unittest.IsolatedAsyncioTestCase):
         with self.assertRaises(DataError): self.host.apply(path)
         self.assertEqual(self.host.git("rev-parse", "refs/heads/" + branch).decode().strip(), self.base)
         self.assertEqual(self.host.head(), self.base)
-        self.assertFalse((self.repo / ".cache/tasks" / result["task_id"] / "committed.json").exists())
+        self.assertFalse((self.repo / ".axiom/local/tasks" / result["task_id"] / "committed.json").exists())
 
     async def test_failed_runtime_keeps_real_failure_without_fabricated_output(self):
-        manager = TaskManager(self.repo, self.config, runtime_factory=fixture_factory(self.repo, fail_stage="independent"))
+        manager = TaskManager(self.workspace, self.config, runtime_factory=fixture_factory(self.workspace, fail_stage="independent"))
         result = await manager.run("SYNTHETIC failure", "court", ["TECH-001"])
         self.assertEqual(result["status"], "failed")
         created = document(Path(result["state_path"]))
         validate_task(created, self.host.schemas)
         self.assertEqual(created["agent_runs"], [])
-        failed = [document(p) for p in (self.repo / ".cache/runtime-runs").glob("*/completion.json")
+        failed = [document(p) for p in (self.repo / ".axiom/local/runtime-runs").glob("*/completion.json")
                   if document(p)["agent_run"]["status"] == "failed"]
         self.assertEqual(len(failed), 1)
         self.assertIsNone(failed[0]["artifact"])
@@ -226,7 +229,7 @@ class TaskManagerTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_missing_budget_stops_without_synthetic_approval(self):
         self.config["max_cost_usd"] = 0.001
-        manager = TaskManager(self.repo, self.config, runtime_factory=fixture_factory(self.repo))
+        manager = TaskManager(self.workspace, self.config, runtime_factory=fixture_factory(self.workspace))
         result = await manager.run("SYNTHETIC low budget", "court", ["TECH-001"])
         self.assertEqual(result["status"], "OPEN_QUESTION")
         self.assertEqual(self.host.head(), self.base)
@@ -238,7 +241,7 @@ class TaskManagerTests(unittest.IsolatedAsyncioTestCase):
             if reply.output["result_type"] == "plan": reply.output["assignments"] = reply.output["assignments"][:1]
             return reply
         seen = []
-        manager = TaskManager(self.repo, self.config, runtime_factory=fixture_factory(self.repo, seen))
+        manager = TaskManager(self.workspace, self.config, runtime_factory=fixture_factory(self.workspace, seen))
         with patch.object(ProposalFixture, "execute", incomplete):
             result = await manager.run("SYNTHETIC incomplete plan", "court", ["TECH-001"])
         self.assertEqual(result["status"], "OPEN_QUESTION")
@@ -278,12 +281,12 @@ class TaskManagerTests(unittest.IsolatedAsyncioTestCase):
         branch = document(bundle_path)["branch"]
         self.assertEqual(git("for-each-ref", "--format=%(objectname)", "refs/heads/" + branch), b"")
         self.assertEqual(git("ls-files", "--stage"), index_before)
-        self.assertFalse((self.repo / ".cache/tasks" / result["task_id"] / "committed.json").exists())
+        self.assertFalse((self.repo / ".axiom/local/tasks" / result["task_id"] / "committed.json").exists())
 
     def test_cli_live_gate_and_no_research_approval_tools(self):
-        self.assertEqual(main(["--repo", str(self.repo), "tasks", "run", "--mode", "court",
+        self.assertEqual(main(["--engine-root", str(self.engine), "--world", str(self.repo), "--host-root", str(self.workspace.host_root), "tasks", "run", "--mode", "court",
             "--question-file", "MISSING", "--config", "MISSING", "--credentials", "MISSING"]), 1)
         names = {item["name"] for item in definitions()}
         self.assertFalse(any("approve" in n or "apply" in n or "commit" in n for n in names))
         with patch("sys.stdin.isatty", return_value=False):
-            self.assertEqual(main(["--repo", str(self.repo), "canon", "approve", "--bundle", "MISSING", "--reviewer", "test"]), 1)
+            self.assertEqual(main(["--engine-root", str(self.engine), "--world", str(self.repo), "--host-root", str(self.workspace.host_root), "canon", "approve", "--bundle", "MISSING", "--reviewer", "test"]), 1)

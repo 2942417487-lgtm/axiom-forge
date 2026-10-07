@@ -15,15 +15,17 @@ class Recovery:
     def __init__(self, runner, initial, control):
         self.runner, self.initial = runner, initial
         self.control = copy.deepcopy(control)
+        runner.world.validate_world(initial["world_id"])
+        runner.world.validate_binding(initial["metadata"].get("workspace_binding"))
         if (control['host_config_sha256'] != runner.config_sha256
                 or control['policy_sha256'] != runner.router.sha256
-                or control['source_sha256'] != source_fingerprint(runner.repo)):
+                or control['source_sha256'] != source_fingerprint(runner.engine_root)):
             raise DataError('Recovery requires the original host config, policy and instructions/schemas')
         self.inputs, self.packets, self.slots = {}, {}, {}
         for attempt in control['attempts']:
             arn = attempt['agent_run_id']
             if arn in self.inputs: raise DataError('Duplicate reserved invocation')
-            expected = f".cache/tasks/{initial['task_id']}/inputs/{arn}.json"
+            expected = f".axiom/local/tasks/{initial['task_id']}/inputs/{arn}.json"
             if attempt['input_path'] != expected: raise DataError('Reserved input path differs')
             data = load(runner.repo / safe_relative(expected))
             runner.store.validate_input(data)
@@ -43,7 +45,7 @@ class Recovery:
             if slot in self.slots and self.slots[slot]['status'] == 'completed':
                 raise DataError('A completed role must not have a later attempt')
             self.slots[slot] = attempt
-            path = f'.cache/runtime-runs/{arn}/completion.json'
+            path = f'.axiom/local/runtime-runs/{arn}/completion.json'
             if attempt['packet_path'] not in (None, path): raise DataError('Completion path differs')
             if (runner.repo / path).exists():
                 packet = load(runner.repo / path)
@@ -68,7 +70,8 @@ class Recovery:
                 or any(agent[k] != data[k] for k in IDENTITY)
                 or agent['metadata'].get('input_sha256') != digest(data)
                 or any(agent['metadata'].get(k) != profile[k] for k in ('provider', 'model'))
-                or agent['metadata'].get('stage') != data['stage']):
+                or agent['metadata'].get('stage') != data['stage']
+                or agent['metadata'].get('workspace_binding') != self.runner.world.binding):
             raise DataError('Archived completion identity/provider/input differs')
         if agent['status'] not in ('completed', 'failed', 'cancelled') or agent['finished_at'] is None:
             raise DataError('Archived Runtime has no finished status')
@@ -87,7 +90,7 @@ class Recovery:
             value = load(self.runner.repo / safe_relative(artifact['path']))
             if digest(value) != artifact['sha256']: raise DataError('Archived artifact content differs')
             if artifact in packet['tool_artifacts']:
-                if artifact['path'] != f".cache/tool-runs/{data['agent_run_id']}/receipts/{artifact['artifact_id']}.json":
+                if artifact['path'] != f".axiom/local/tool-runs/{data['agent_run_id']}/receipts/{artifact['artifact_id']}.json":
                     raise DataError('Tool receipt location differs')
                 schemas.validate('tool_result', value)
                 if value['result_id'] != artifact['artifact_id'] or value['status'] != 'completed':
@@ -101,7 +104,7 @@ class Recovery:
             artifact = packet['artifact']
             if (artifact['artifact_id'] != data['artifact_id']
                     or artifact['kind'] != OUTPUTS[data['role']]
-                    or artifact['path'] != f".cache/runtime-runs/{data['agent_run_id']}/output.json"
+                    or artifact['path'] != f".axiom/local/runtime-runs/{data['agent_run_id']}/output.json"
                     or artifact['sha256'] != digest(packet['result'])):
                 raise DataError('Archived output binding differs')
             validate_output_artifacts(data, packet['result'], schemas, packet['tool_artifacts'])
@@ -119,7 +122,7 @@ class Recovery:
                 if any(request[k] != data[k] for k in (*IDENTITY[:4], 'canon_version', 'role')):
                     raise DataError('Archived calculation request context differs')
                 ref = next(a for a in packet['calculation_request_artifacts'] if a['artifact_id'] == request['request_id'])
-                if (ref['path'] != f".cache/runtime-runs/{data['agent_run_id']}/calculations/{request['request_id']}.json"
+                if (ref['path'] != f".axiom/local/runtime-runs/{data['agent_run_id']}/calculations/{request['request_id']}.json"
                         or ref['sha256'] != digest(request)):
                     raise DataError('Archived calculation request binding differs')
 
