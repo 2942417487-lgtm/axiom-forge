@@ -218,6 +218,34 @@ class WorkspaceTests(unittest.TestCase):
         with self.assertRaises(DataError):
             create_world(target, "world", engine=self.engine, host_root=self.host_root)
 
+    def test_engine_boundary_accepts_managed_worktree_config_with_read_only_listing(self):
+        host = initialize_fixture(self.base)
+        engine = host.world.engine.root
+        git(engine, 'init', '-b', 'main')
+        git(engine, 'add', '--', 'AGENTS.md')
+        result = subprocess.run(['git', '-C', str(engine), 'config', '--local',
+                                 'extensions.worktreeConfig', 'true'], capture_output=True)
+        self.assertEqual(result.returncode, 0)
+        # Trusted developer worktree configuration is supported, with execution
+        # helpers disabled. World Git access retains its strict rejection.
+        (engine / '.git/config.worktree').write_text('[core]\n fsmonitor = forbidden-synthetic-fsmonitor\n', encoding='utf-8')
+        error = io.StringIO()
+        with redirect_stdout(io.StringIO()), redirect_stderr(error):
+            result = main(['--engine-root', str(engine), 'check-system-boundary'])
+        self.assertEqual(result, 0, error.getvalue())
+        with self.assertRaises(DataError):
+            git(engine, 'status', '--porcelain')
+        with self.assertRaises(DataError):
+            git(engine, 'update-ref', 'refs/heads/forbidden', '0' * 40, engine_listing=True)
+        private = engine / '.axiom/local/private.json'
+        private.parent.mkdir(parents=True)
+        private.write_text('{"synthetic":true}', encoding='utf-8')
+        result = subprocess.run(['git', '-C', str(engine), '-c', 'core.fsmonitor=false',
+                                 'add', '--', '.axiom/local/private.json'], capture_output=True)
+        self.assertEqual(result.returncode, 0)
+        with redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
+            self.assertEqual(main(['--engine-root', str(engine), 'check-system-boundary']), 1)
+
 
 class WorkspaceExecutionTests(unittest.IsolatedAsyncioTestCase):
     def setUp(self):

@@ -12,7 +12,7 @@ from .validation import DataError
 _checked_configs = {}
 
 
-def check_independent_git(root):
+def check_independent_git(root, *, engine_listing=False):
     """Reject shared Git internals and all symlink/junction descendants."""
     directory = Path(root) / ".git"
     check_links(directory)
@@ -20,7 +20,7 @@ def check_independent_git(root):
         raise DataError("Independent Git directory required")
     if (directory / "commondir").exists() or (directory / "objects/info/alternates").exists():
         raise DataError("Shared Git common/object directories are forbidden")
-    if (directory / "config.worktree").exists():
+    if (directory / "config.worktree").exists() and not engine_listing:
         raise DataError("World Git worktree configuration is unsupported")
     # Do not follow links while enumerating. Each child is checked before any
     # traversal; check_links rejects Windows reparse points as well as symlinks.
@@ -31,11 +31,16 @@ def check_independent_git(root):
             check_links(Path(current) / name)
 
 
-def git(root, *args, raw=None, index=None):
+def git(root, *args, raw=None, index=None, engine_listing=False):
+    # Only the trusted engine boundary checker may bypass world-specific
+    # worktree configuration restrictions, and only for an index file listing.
+    if engine_listing and (args[:3] != ("ls-files", "-z", "--") or raw is not None or index is not None):
+        raise DataError("Engine Git access is limited to tracked file listing")
+    config_scope = ["-c", "extensions.worktreeConfig=false"] if engine_listing else []
     root = Path(root).absolute()
     check_links(root)
     if (root / ".git").is_dir():
-        check_independent_git(root)
+        check_independent_git(root, engine_listing=engine_listing)
     env = {key: value for key, value in os.environ.items() if key.upper() in
            {"PATH", "PATHEXT", "SYSTEMROOT", "WINDIR", "COMSPEC", "TEMP", "TMP", "USERPROFILE"}}
     env.update(GIT_CONFIG_NOSYSTEM="1", GIT_CONFIG_GLOBAL=os.devnull,
@@ -45,9 +50,9 @@ def git(root, *args, raw=None, index=None):
     if (root / ".git").is_dir():
         config = root / ".git/config"
         fingerprint = hashlib.sha256(read_bounded(config)).hexdigest()
-        if _checked_configs.get(str(root)) != fingerprint:
+        if _checked_configs.get((str(root), engine_listing)) != fingerprint:
             try:
-                keys = subprocess.run(["git", "--git-dir=" + str(root / ".git"),
+                keys = subprocess.run(["git", *config_scope, "--git-dir=" + str(root / ".git"),
                     "--work-tree=" + str(root), "config", "--local", "--no-includes",
                     "--name-only", "--list"], cwd=root, env=env, capture_output=True,
                     timeout=30, shell=False)
@@ -61,14 +66,15 @@ def git(root, *args, raw=None, index=None):
                 raise DataError("Invalid world Git configuration names") from exc
             for key in names:
                 if (key.startswith(("filter.", "include.", "includeif.", "merge."))
-                        or key == "extensions.worktreeconfig"
+                        or (key == "extensions.worktreeconfig" and not engine_listing)
                         or key.startswith("diff.") and key.endswith((".command", ".textconv"))):
                     raise DataError("World Git filters, includes and external drivers require separate host authorization")
-            _checked_configs[str(root)] = fingerprint
+            _checked_configs[(str(root), engine_listing)] = fingerprint
     # A temporary host directory avoids writing merely to inspect a repository.
     with tempfile.TemporaryDirectory(prefix="axiom-git-hooks-") as hooks:
         location = ["--git-dir=" + str(root / ".git"), "--work-tree=" + str(root)] if (root / ".git").is_dir() else []
-        command = ["git", *location, "-c", "core.fsmonitor=false", "-c", "core.autocrlf=false",
+        command = ["git", *location, *config_scope,
+                   "-c", "core.fsmonitor=false", "-c", "core.autocrlf=false",
                    "-c", "core.attributesFile=" + os.devnull, "-c", "core.excludesFile=" + os.devnull,
                    "-c", "core.pager=", "-c", "diff.external=",
                    "-c", "commit.gpgsign=false", "-c", "core.hooksPath=" + hooks, *args]

@@ -120,7 +120,7 @@ def main(argv=None) -> int:
                 raise DataError("Live world/ must be outside system resources; retain templates/fixtures only")
             from .git_host import git
             if (args.engine.root / ".git").exists():
-                tracked = git(args.engine.root, "ls-files", "-z", "--", "world", ".axiom", ".cache", ".env", ".env.approval")
+                tracked = git(args.engine.root, "ls-files", "-z", "--", "world", ".axiom", ".cache", ".env", ".env.approval", engine_listing=True)
                 if tracked:
                     raise DataError("World data, private state or credentials are tracked in the system repository")
             print("OK: system resources contain no live world or tracked private execution state")
