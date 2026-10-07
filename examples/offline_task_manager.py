@@ -11,6 +11,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
+from axiom_forge.workspaces import EngineResources, WorldWorkspace, WORLD_IGNORE
+from axiom_forge.git_host import git
 from axiom_forge.canon_host import CanonHost
 from axiom_forge.ids import new_id
 from axiom_forge.runtimes.core import AgentRuntime, RuntimeLimits
@@ -60,10 +62,20 @@ def fixture_factory(repo, seen=None, **kwargs):
     return create
 
 
-def initialize_fixture(repo):
-    for folder in ("schemas", "agents", "modes", "routing", ".claude"):
-        shutil.copytree(ROOT / folder, repo / folder)
-    for file in ("AGENTS.md", ".gitignore"): shutil.copyfile(ROOT / file, repo / file)
+def fixture_binding(repo):
+    repo = Path(repo).absolute()
+    return WorldWorkspace(repo, EngineResources(repo.parent / "engine"), host_root=repo.parent / "host")
+
+
+def initialize_fixture(directory):
+    directory = Path(directory).absolute()
+    repo, engine = directory / "world-repo", directory / "engine"
+    repo.mkdir()
+    engine.mkdir()
+    for folder in ("schemas", "agents", "modes", "routing", ".claude", "tools", "templates"):
+        shutil.copytree(ROOT / folder, engine / folder)
+    shutil.copyfile(ROOT / "AGENTS.md", engine / "AGENTS.md")
+    (repo / ".gitignore").write_text(WORLD_IGNORE, encoding="utf-8")
     for folder in KNOWLEDGE_DIRECTORIES:
         directory = repo / folder
         directory.mkdir(parents=True, exist_ok=True)
@@ -75,24 +87,24 @@ def initialize_fixture(repo):
         files[f"world/canon/technology/{target}.json"] = entry
     for path, data in files.items():
         (repo / path).write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    host = CanonHost(repo)
-    host.git("init", "-b", "main")
-    host.git("config", "user.name", "SYNTHETIC test operator")
-    host.git("config", "user.email", "fixture@example.invalid")
-    host.git("add", "--", ".")
-    host.git("commit", "-m", "SYNTHETIC fixture baseline")
-    return host
+    git(repo, "init", "-b", "main")
+    git(repo, "config", "user.name", "SYNTHETIC test operator")
+    git(repo, "config", "user.email", "fixture@example.invalid")
+    git(repo, "add", "--", ".")
+    git(repo, "commit", "-m", "SYNTHETIC fixture baseline")
+    return CanonHost(fixture_binding(repo))
 
 
 async def main():
-    scratch = ROOT / ".cache/test-runs"
+    scratch = Path(tempfile.gettempdir()) / "axiom-forge-test-runs"
     scratch.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(dir=scratch) as temporary:
         repo = Path(temporary).absolute()
         host = initialize_fixture(repo)
+        world = host.world
         config = read_json(ROOT / "examples/mode-host.json")
         config["max_cost_usd"] = 20  # Synthetic reservations only; this factory cannot call any API.
-        manager = TaskManager(repo, config, runtime_factory=fixture_factory(repo, operations=True, new_evidence=True))
+        manager = TaskManager(world, config, runtime_factory=fixture_factory(world, operations=True, new_evidence=True))
         head = host.head()
         result = await manager.run("SYNTHETIC contract/approval test; no scientific research", "court", ["TECH-001"])
         if result["status"] != "waiting_approval": raise RuntimeError(result)

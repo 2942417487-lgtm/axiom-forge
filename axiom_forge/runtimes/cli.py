@@ -2,6 +2,8 @@
 
 import asyncio
 import math
+from pathlib import Path
+from ..workspaces import require_world
 
 from .core import AgentRuntime, RuntimeLimits
 from .endpoints import host_endpoint, host_proxy
@@ -64,13 +66,17 @@ def validate_host_config(config):
 
 def runtime_from_config(repo, config, keys):
     """Shared trusted host factory; callers gate live authorization before reading keys."""
+    world = require_world(repo)
     validate_host_config(config)
     provider = config["provider"]
     if provider == "claude":
         from .claude_adapter import ClaudeAdapter
         cli_path = config.get("claude_cli_path")
         if cli_path is not None:
-            cli_path = str((repo / cli_path).absolute())
+            if not Path(cli_path).is_absolute():
+                raise DataError("Claude executable must be an explicit absolute host path")
+            if Path(cli_path).resolve().is_relative_to(world.root):
+                raise DataError("Claude executable cannot be loaded from a world workspace")
         adapter = ClaudeAdapter(config["model"], api_key=keys.get("ANTHROPIC_API_KEY"),
                                 base_url=config.get("base_url"),
                                 auth_mode=config.get("claude_auth_mode", "api_key"),
@@ -85,14 +91,14 @@ def runtime_from_config(repo, config, keys):
                                input_usd_per_million=config.get("input_usd_per_million"),
                                output_usd_per_million=config.get("output_usd_per_million"))
     limits = RuntimeLimits(**config.get("limits", {}))
-    return AgentRuntime(repo, adapter, limits=limits, session_factory=lambda data:
-                         session_from_config(repo, data, config.get("tools", {})))
+    return AgentRuntime(world, adapter, limits=limits, session_factory=lambda data:
+                         session_from_config(world, data, config.get("tools", {})))
 
 
 def run(args):
     if not args.allow_live:
         raise DataError("Runtime execution requires the operator's --allow-live flag")
-    config = validate_host_config(read_json(args.config))
-    keys = credentials(args.credentials)
-    runtime = runtime_from_config(args.repo, config, keys)
+    config = validate_host_config(read_json(args.workspace.host_file(args.config)))
+    keys = credentials(args.workspace.host_file(args.credentials))
+    runtime = runtime_from_config(args.workspace, config, keys)
     return asyncio.run(runtime.run_input(read_json(args.context)))

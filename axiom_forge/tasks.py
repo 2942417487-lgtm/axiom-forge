@@ -4,6 +4,8 @@ import asyncio
 import copy
 from pathlib import Path
 
+from . import __version__
+from .workspaces import require_world
 from .ids import new_id
 from .journal import LIFECYCLES, TaskJournal, load, publish, source_fingerprint
 from .modes import MODES, ModeRunner
@@ -21,15 +23,17 @@ STAGES = {'planning': 'PLANNING', 'independent': 'RESEARCHING', 'cross_review': 
 
 class TaskManager:
     def __init__(self, repo, config, *, runtime_factory):
-        self.repo = Path(repo).absolute()
-        self.runner = ModeRunner(self.repo, config, runtime_factory=runtime_factory)
+        self.world = require_world(repo)
+        self.repo = self.world.root
+        self.engine_root = self.world.engine.root
+        self.runner = ModeRunner(self.world, config, runtime_factory=runtime_factory)
         self.schemas = self.runner.store.schemas
 
     async def run(self, question, mode, relevant_entities=()):
         from .canon_host import CanonHost
         if not isinstance(question, str) or not question.strip() or mode not in MODES:
             raise DataError('A nonempty question and known mode are required')
-        host = CanonHost(self.repo)
+        host = CanonHost(self.world)
         base = host.head()
         snapshot = build_snapshot(host.live_world(), self.schemas)
         host.check_base(base, snapshot)
@@ -39,28 +43,28 @@ class TaskManager:
                 'relevant_entities': list(relevant_entities), 'synthesis': None,
                 'proposed_changes': [], 'approval_status': 'not_requested', 'final_result': None,
                 'runs': [], 'agent_runs': [], 'artifacts': [], 'contradictions': [],
-                'metadata': {'task_manager': '1.1', 'base_git_sha': base,
+                'metadata': {'task_manager': '2.0', 'workspace_binding': self.world.binding, 'system_version': __version__, 'base_git_sha': base,
                              'host_config_sha256': self.runner.config_sha256}}
         for field in RESULT_FIELDS.values(): task[field] = []
         validate_task(task, self.schemas)
-        journal = TaskJournal(self.repo, task['task_id'])
+        journal = TaskJournal(self.world, task['task_id'])
         with journal.lock():
             journal.workspace.write_json('created.json', task)
             control = {'run_id': new_id('run'), 'run_started_at': utc_now(),
                        'host_config_sha256': self.runner.config_sha256, 'policy_sha256': self.runner.router.sha256,
-                       'source_sha256': source_fingerprint(self.repo), 'attempts': []}
+                       'source_sha256': source_fingerprint(self.engine_root), 'system_version': __version__, 'attempts': []}
             journal.append(task, control, 'running', [('TaskCreated', {'initial_task_sha256': digest(task)})])
             return await self._execute(task, copy.deepcopy(task), control, journal)
 
     async def resume(self, task_id):
-        journal = TaskJournal(self.repo, task_id)
+        journal = TaskJournal(self.world, task_id)
         with journal.lock():
             latest = journal.latest()
             initial = load(journal.workspace.path('created.json'))
             if initial != journal.read()[0]['task_state']: raise DataError('Original task differs from its first checkpoint')
             Recovery(self.runner, initial, latest['control'])
-            verify_state_artifacts(self.repo, latest['task_state'])
-            if latest['status'] not in ('running', 'interrupted'): return settled(self.repo, latest)
+            verify_state_artifacts(self.world, latest['task_state'])
+            if latest['status'] not in ('running', 'interrupted'): return settled(self.world, latest)
             journal.append(latest['task_state'], latest['control'], 'running',
                            [('TaskResumed', {'retry_unfinished': True, 'reuse_completed': True})])
             return await self._execute(initial, copy.deepcopy(latest['task_state']), copy.deepcopy(latest['control']), journal)
@@ -90,7 +94,7 @@ class TaskManager:
                     if lifecycle == 'RESEARCHING': events.append(('ResearchStarted', {'canon_version': task['canon_version']}))
                     checkpoint(events)
             elif event == 'reserved':
-                if source_fingerprint(self.repo) != control['source_sha256']:
+                if source_fingerprint(self.engine_root) != control['source_sha256']:
                     raise DataError('Task instructions/schemas changed before invocation')
                 data = payload['input']
                 path = workspace.write_json('inputs/' + data['agent_run_id'] + '.json', data)
@@ -128,7 +132,7 @@ class TaskManager:
                 agent = payload['agent_run']
                 attempt = next(a for a in control['attempts'] if a['agent_run_id'] == agent['agent_run_id'])
                 if event == 'reused_packet' and attempt['status'] == 'completed': return
-                attempt.update(status=agent['status'], packet_path=f".cache/runtime-runs/{agent['agent_run_id']}/completion.json",
+                attempt.update(status=agent['status'], packet_path=f".axiom/local/runtime-runs/{agent['agent_run_id']}/completion.json",
                                packet_sha256=digest(payload))
                 if agent['status'] != 'completed':
                     run['metadata']['failed_agent_run_id'] = agent['agent_run_id']
@@ -181,23 +185,27 @@ class TaskManager:
             events.append(('CanonChangeProposed', {'proposal_hashes': {c['proposal_id']: digest(c) for c in task['proposed_changes']}}))
             events.append(('LifecycleChanged', {'lifecycle': 'WAITING_APPROVAL'}))
         latest = checkpoint(events, 'waiting_approval' if task['proposed_changes'] else 'completed')
-        result = settled(self.repo, latest)
+        result = settled(self.world, latest)
         result['reserved_cost_usd'] = receipt['reserved_cost_usd']
         return result
 
 
 def verify_state_artifacts(repo, task):
+    world = require_world(repo)
+    world.validate_world(task["world_id"])
+    world.validate_binding(task["metadata"].get("workspace_binding"))
     from .tools.storage import safe_relative
     for artifact in task['artifacts']:
-        if digest(load(Path(repo) / safe_relative(artifact['path']))) != artifact['sha256']:
+        if digest(load(world.root / safe_relative(artifact['path']))) != artifact['sha256']:
             raise DataError('Checkpoint artifact content changed')
 
 
 def settled(repo, latest):
+    world = require_world(repo)
     from .canon_host import CanonHost
     task, status = latest['task_state'], latest['status']
     name = 'waiting.json' if status in ('waiting_approval', 'approved', 'applying') else status + '.json'
-    workspace = Workspace(Path(repo) / '.cache/tasks' / task['task_id'])
+    workspace = Workspace(world.root / '.axiom/local/tasks' / task['task_id'])
     path = publish(workspace, name, task)
     review = CanonHost(repo).prepare(path) if status == 'waiting_approval' else None
     return {'status': status, 'task_id': task['task_id'], 'run_id': latest['control']['run_id'],
@@ -211,18 +219,18 @@ load_document = load
 def run_cli(args):
     from .runtimes.cli import credentials, runtime_from_config
     if args.task_action in ('inspect', 'events'):
-        journal = TaskJournal(args.repo, args.task_id)
+        journal = TaskJournal(args.workspace, args.task_id)
         return journal.latest() if args.task_action == 'inspect' else {'events': journal.events()}
     if args.task_action == 'resume':
-        journal = TaskJournal(args.repo, args.task_id)
+        journal = TaskJournal(args.workspace, args.task_id)
         with journal.lock():
             latest = journal.latest()
-            verify_state_artifacts(args.repo, latest['task_state'])
-            if latest['status'] not in ('running', 'interrupted'): return settled(args.repo, latest)
+            verify_state_artifacts(args.workspace, latest['task_state'])
+            if latest['status'] not in ('running', 'interrupted'): return settled(args.workspace, latest)
     if not args.allow_live: raise DataError('Task research requires explicit --allow-live; offline demo is separate')
     if args.config is None: raise DataError('Research resume requires the original --config')
-    manager = TaskManager(args.repo, load(args.config),
-        runtime_factory=lambda mid, profile: runtime_from_config(args.repo, profile, credentials(args.credentials)))
+    manager = TaskManager(args.workspace, load(args.workspace.host_file(args.config)),
+        runtime_factory=lambda mid, profile: runtime_from_config(args.workspace, profile, credentials(args.workspace.host_file(args.credentials))))
     if args.task_action == 'resume': return asyncio.run(manager.resume(args.task_id))
     question = read_bounded(args.question_file, limit=65536).decode('utf-8')
     return asyncio.run(manager.run(question, args.mode, args.entity))

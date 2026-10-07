@@ -63,9 +63,13 @@ class ToolSession:
     def __init__(self, repo, agent_input, *, capabilities=(), documents=None,
                  network=None, search_backend=None, python_backend=None):
         # This constructor belongs to the trusted operator/Runtime, not the model.
-        self.repo = Path(repo).absolute()
-        self.schemas = SchemaStore(self.repo / "schemas")
+        from ..workspaces import require_world
+        self.world = require_world(repo)
+        self.repo = self.world.root
+        self.engine_root = self.world.engine.root
+        self.schemas = self.world.schemas
         validate_agent_input(agent_input, self.schemas)
+        self.world.validate_world(agent_input["world_id"])
         self.context = copy.deepcopy(agent_input)
         self.capabilities = frozenset(capabilities)
         if not self.capabilities <= CAPABILITIES:
@@ -87,8 +91,8 @@ class ToolSession:
         self.evidence = {identifier: dataset["evidence"][identifier] for identifier in evidence_ids}
         # UUID AgentRun names keep Windows process working directories short.
         # An immutable full-context binding prevents cross-task/stage reuse.
-        self.workspace = Workspace(self.repo / ".cache/tool-runs" / self.context["agent_run_id"])
-        binding = {"input_sha256": digest(self.context)}
+        self.workspace = Workspace(self.repo / ".axiom/local/tool-runs" / self.context["agent_run_id"])
+        binding = {"input_sha256": digest(self.context), "workspace_binding": self.world.binding}
         try:
             self.workspace.write_json("context.json", binding)
         except ToolError as exc:
@@ -202,6 +206,8 @@ class ToolSession:
         if name == "canon.propose":
             return self._propose(args["record"])
         if name == "git.inspect":
+            if args["action"] == "diff":
+                raise ToolError("denied", "World Git diff is unavailable; use the granted fixed Canon snapshot")
             return git_read(self.repo, args["action"], args["path"])
         if name == "python.run_reviewed":
             if self.python_backend is None:

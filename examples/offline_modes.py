@@ -3,6 +3,7 @@
 import asyncio
 import json
 import sys
+import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -66,15 +67,22 @@ def factory(repo, seen=None, fail_stage=None):
     return create
 
 
-async def main():
+async def run_fixture(world):
     config = read_json(ROOT / "examples/mode-host.json")
     config["max_cost_usd"] = 20  # Reservations are synthetic; this demo cannot call an API.
     task = read_json(ROOT / "examples/task_state.json")
     for mode in MODES:
         task["task_type"] = mode
-        receipt = await ModeRunner(ROOT, config, runtime_factory=factory(ROOT)).run(task)
+        receipt = await ModeRunner(world, config, runtime_factory=factory(world)).run(task)
         print(json.dumps({"test_fixture": True, "mode": mode, "status": receipt["status"], "run_id": receipt["run_id"]}))
         if receipt["status"] != "completed": raise SystemExit(1)
+
+
+async def main():
+    from examples.offline_task_manager import initialize_fixture
+    with tempfile.TemporaryDirectory(prefix="axiom-offline-modes-") as directory:
+        world = initialize_fixture(Path(directory)).world
+        await run_fixture(world)
 
 
 if __name__ == "__main__": asyncio.run(main())

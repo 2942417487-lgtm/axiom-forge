@@ -9,12 +9,25 @@ from .ids import DOMAIN_PREFIXES, ID_PREFIXES, new_id
 from .contracts import ContractStore, validate_agent_input, validate_agent_output
 from .snapshots import create_snapshot, verify_snapshot
 from .validation import DataError, SchemaStore, collect_world, read_json, validate_task
+from .workspaces import EngineResources, WorldWorkspace, create_world
 
 
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--repo", type=Path, default=Path.cwd(), help="Repository root")
+    parser.add_argument("--engine-root", type=Path, help="Explicit trusted system resource root")
+    parser.add_argument("--world", type=Path, help="External world Git workspace; never defaults to cwd")
+    parser.add_argument("--host-root", type=Path, help="External trusted host configuration/approval storage")
+    parser.add_argument("--repo", type=Path, help="Legacy mixed layout; rejected, use --world/--engine-root")
     commands = parser.add_subparsers(dest="command", required=True)
+    world = commands.add_parser("world", help="Independent local world workspaces")
+    world_actions = world.add_subparsers(dest="world_action", required=True)
+    world_create = world_actions.add_parser("create")
+    world_create.add_argument("--path", type=Path, required=True)
+    world_create.add_argument("--name", required=True)
+    world_create.add_argument("--author-name")
+    world_create.add_argument("--author-email")
+    world_actions.add_parser("check")
+    commands.add_parser("check-system-boundary")
     commands.add_parser("validate-world")
     commands.add_parser("check-schemas")
     commands.add_parser("check-contracts")
@@ -90,10 +103,38 @@ def main(argv=None) -> int:
     snapshot.add_argument("file", type=Path, nargs="?")
     args = parser.parse_args(argv)
     try:
+        if args.repo is not None:
+            raise DataError("--repo is a legacy mixed layout. Specify --world and, if needed, --engine-root; existing records are preserved")
         if args.command == "new-id":
             print(new_id(args.kind, args.domain))
             return 0
-        schemas = SchemaStore(args.repo / "schemas")
+        args.engine = EngineResources(args.engine_root) if args.engine_root else EngineResources.default()
+        schemas = args.engine.schemas
+        if args.command == "world" and args.world_action == "create":
+            receipt = create_world(args.path, args.name, engine=args.engine, host_root=args.host_root,
+                                   author_name=args.author_name, author_email=args.author_email)
+            print(json.dumps(receipt, ensure_ascii=False, indent=2))
+            return 0
+        if args.command == "check-system-boundary":
+            if (args.engine.root / "world").exists():
+                raise DataError("Live world/ must be outside system resources; retain templates/fixtures only")
+            from .git_host import git
+            if (args.engine.root / ".git").exists():
+                tracked = git(args.engine.root, "ls-files", "-z", "--", "world", ".axiom", ".cache", ".env", ".env.approval")
+                if tracked:
+                    raise DataError("World data, private state or credentials are tracked in the system repository")
+            print("OK: system resources contain no live world or tracked private execution state")
+            return 0
+        world_required = (args.command in ("tasks", "canon", "modes", "runtime", "validate-world", "world")
+                          or args.command == "tools" and args.tool_action == "call"
+                          or args.command == "snapshot" and args.action == "create")
+        if world_required:
+            if args.world is None:
+                raise DataError("This operation requires an explicit external --world workspace")
+            args.workspace = WorldWorkspace(args.world, args.engine, host_root=args.host_root)
+        if args.command == "world":
+            print(json.dumps(args.workspace.check(), ensure_ascii=False, indent=2))
+            return 0
         if args.command == "tasks":
             from .tasks import run_cli
             receipt = run_cli(args)
@@ -102,7 +143,7 @@ def main(argv=None) -> int:
                 'completed', 'waiting_approval', 'approved', 'applying', 'committed', 'rejected') else 1
         if args.command == "canon":
             from .canon_host import CanonHost
-            host = CanonHost(args.repo)
+            host = CanonHost(args.workspace)
             if args.canon_action == "init-approval": receipt = host.init_key()
             elif args.canon_action == "prepare": receipt = host.prepare(args.task)
             elif args.canon_action == "apply": receipt = host.apply(args.bundle)
@@ -122,7 +163,7 @@ def main(argv=None) -> int:
             return 0
         if args.command == "routing":
             from .routing import ModelRouter
-            router = ModelRouter(args.repo)
+            router = ModelRouter(args.engine.root)
             if args.routing_action == "check":
                 print(f"OK: {len(router.models)} registered models, policy {router.sha256}")
             else:
@@ -140,16 +181,16 @@ def main(argv=None) -> int:
             if args.tool_action == "list":
                 print(json.dumps(definitions(), ensure_ascii=False, indent=2))
                 return 0
-            config = read_json(args.config)
+            config = read_json(args.workspace.host_file(args.config))
             allowed = {"capabilities", "network_hosts", "documents", "contact", "enable_trusted_python", "python_timeout"}
             if (set(config) - allowed or not isinstance(config.get("capabilities", []), list)
                     or not isinstance(config.get("network_hosts", []), list)
                     or not isinstance(config.get("documents", {}), dict)):
                 raise DataError("Invalid host Tool Layer config")
             network = PublicHTTPS(config["network_hosts"], contact=config.get("contact")) if config.get("network_hosts") else None
-            backend = TrustedPython(args.repo, read_json(args.repo / "tools/python-scripts/manifest.json"),
+            backend = TrustedPython(args.engine.root, read_json(args.engine.root / "tools/python-scripts/manifest.json"),
                                     enabled=config.get("enable_trusted_python", False), timeout=config.get("python_timeout", 10))
-            session = ToolSession(args.repo, read_json(args.context), capabilities=config.get("capabilities", []),
+            session = ToolSession(args.workspace, read_json(args.context), capabilities=config.get("capabilities", []),
                                   documents=config.get("documents", {}), network=network, python_backend=backend)
             result = session.call(args.name, read_json(args.input))
             print(json.dumps(result, ensure_ascii=False, indent=2))
@@ -165,7 +206,7 @@ def main(argv=None) -> int:
         elif args.command == "check-schemas":
             print(f"OK: {len(schemas.schemas)} schemas, all references resolve offline")
         elif args.command == "check-contracts":
-            contracts = ContractStore(args.repo, schemas)
+            contracts = ContractStore(args.engine.root, schemas)
             print(f"OK: {len(contracts.contracts)} role contracts and prompt files")
         elif args.command == "validate-agent-input":
             validate_agent_input(read_json(args.file), schemas)
@@ -174,7 +215,7 @@ def main(argv=None) -> int:
             validate_agent_output(read_json(args.input), read_json(args.output), schemas)
             print(f"OK: agent output: {args.output}")
         elif args.command == "validate-world":
-            files = collect_world(args.repo, schemas)
+            files = collect_world(args.workspace.root, schemas)
             print(f"OK: {len(files)} knowledge documents")
         elif args.command == "validate":
             data = read_json(args.file)
@@ -190,7 +231,7 @@ def main(argv=None) -> int:
         elif args.action == "create":
             if args.file is not None:
                 raise DataError("snapshot create does not accept an output override")
-            print(create_snapshot(args.repo, schemas))
+            print(create_snapshot(args.workspace.root, schemas))
         else:
             if args.file is None:
                 raise DataError("snapshot verify requires a file")

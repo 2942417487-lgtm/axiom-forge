@@ -17,7 +17,7 @@ from axiom_forge.validation import (
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SCRATCH = ROOT / ".cache/test-runs"
+SCRATCH = Path(tempfile.gettempdir()) / "axiom-forge-test-runs"
 SCRATCH.mkdir(parents=True, exist_ok=True)
 
 
@@ -75,7 +75,7 @@ class FoundationTests(unittest.TestCase):
         self.assertEqual(example("claim")["category"], "OPEN QUESTION")
 
     def test_live_world_is_empty(self):
-        files = collect_world(ROOT, self.schemas)
+        files = collect_world(ROOT / "templates/legacy-world", self.schemas)
         self.assertEqual(set(files), {"world/world.json"})
 
     def test_business_ids_use_their_own_namespace(self):
@@ -362,7 +362,7 @@ class FoundationTests(unittest.TestCase):
             validate_task(task, self.schemas)
 
     def test_cli_success_and_failure_exit_codes(self):
-        for arguments, expected in ((["check-schemas"], 0), (["validate-world"], 0),
+        for arguments, expected in ((["check-schemas"], 0), (["validate-world"], 1),
                                     (["validate", "task_state", "examples/task_state.json"], 0),
                                     (["validate", "missing_schema", "examples/task_state.json"], 1),
                                     (["new-id", "entity"], 1), (["snapshot", "verify"], 1)):

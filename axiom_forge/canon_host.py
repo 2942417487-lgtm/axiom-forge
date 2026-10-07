@@ -16,6 +16,8 @@ import tempfile
 from contextlib import contextmanager
 from pathlib import Path
 
+from .git_host import git
+from .workspaces import require_world
 from .snapshots import build_snapshot, utc_now
 from .journal import TaskJournal, publish
 from .tools.storage import Workspace, check_links, read_bounded, safe_relative, strict_json
@@ -44,34 +46,16 @@ def render_review(task, bundle, bundle_hash):
 
 class CanonHost:
     def __init__(self, repo):
-        self.repo = Path(repo).absolute()
+        self.world = require_world(repo)
+        self.repo = self.world.root
         check_links(self.repo)
-        self.schemas = SchemaStore(self.repo / "schemas")
-        self.key_path = self.repo / ".env.approval"
+        self.schemas = self.world.schemas
+        self.key_path = self.world.key_path
         self._journals = {}
 
     def git(self, *args, raw=None, index=None):
-        # No shell, external diff, prompts, inherited GIT_* redirects, API secrets,
-        # global config, fsmonitor, signing programs or user hooks.
-        env = {key: value for key, value in os.environ.items() if key.upper() in
-               {"PATH", "PATHEXT", "SYSTEMROOT", "WINDIR", "COMSPEC", "TEMP", "TMP", "USERPROFILE"}}
-        env.update(GIT_CONFIG_NOSYSTEM="1", GIT_CONFIG_GLOBAL=os.devnull,
-                   GIT_TERMINAL_PROMPT="0", GIT_OPTIONAL_LOCKS="0")
-        if index is not None: env["GIT_INDEX_FILE"] = str(index)
-        hooks = self.repo / ".cache/empty-hooks"
-        check_links(hooks)
-        hooks.mkdir(parents=True, exist_ok=True)
-        # Use a new empty directory for every call so no pre-existing hook executes.
-        with tempfile.TemporaryDirectory(dir=hooks) as empty_hooks:
-            try:
-                result = subprocess.run(["git", "-c", "core.fsmonitor=false", "-c", "core.autocrlf=false",
-                    "-c", "commit.gpgsign=false", "-c", "core.hooksPath=" + empty_hooks, *args],
-                    cwd=self.repo, env=env, input=raw, capture_output=True, timeout=30, shell=False)
-            except (OSError, subprocess.TimeoutExpired) as exc:
-                raise DataError("Git host command unavailable or timed out") from exc
-        if result.returncode: raise DataError("Git host command failed: " + args[0])
-        if len(result.stdout) > 2 * 1024 * 1024: raise DataError("Git response exceeds size limit")
-        return result.stdout
+        self.world.validate_current()
+        return git(self.repo, *args, raw=raw, index=index)
 
     def head(self):
         sha = self.git("rev-parse", "--verify", "HEAD").decode("ascii").strip()
@@ -116,11 +100,10 @@ class CanonHost:
         return collect_world(self.repo, self.schemas)
 
     def init_key(self):
-        # Key stays in a separately ignored .env file, never in a review package.
-        if self.git("ls-files", "-z", "--", ".env.approval"):
-            raise DataError("Approval credentials cannot be a tracked file")
-        self.git("check-ignore", "--no-index", ".env.approval")
-        Workspace(self.repo).write(".env.approval", b"AXIOM_APPROVAL_KEY=" + secrets.token_hex(32).encode("ascii") + b"\n")
+        # Explicit operator action, using host-local storage outside world Git.
+        require_world(self.world)
+        Workspace(self.key_path.parent).write(".env.approval",
+            b"AXIOM_APPROVAL_KEY=" + secrets.token_hex(32).encode("ascii") + b"\n")
         if os.name != "nt": self.key_path.chmod(0o600)
         return {"status": "initialized", "key_file": str(self.key_path), "key_printed": False}
 
@@ -133,12 +116,15 @@ class CanonHost:
     def task(self, path):
         path = Path(path).absolute()
         task = document(path)
-        expected = self.repo / ".cache/tasks" / task["task_id"] / "waiting.json"
+        require_world(self.world)
+        self.world.validate_world(task["world_id"])
+        self.world.validate_binding(task["metadata"].get("workspace_binding"))
+        expected = self.repo / ".axiom/local/tasks" / task["task_id"] / "waiting.json"
         if path != expected: raise DataError("Approval accepts only the host's waiting TaskState")
         validate_task(task, self.schemas)
         if (task["lifecycle"] != "WAITING_APPROVAL" or task["approval_status"] != "pending"
                 or not task["proposed_changes"] or task["synthesis"] is None
-                or task["metadata"].get("task_manager") not in ("1.0", "1.1")
+                or task["metadata"].get("task_manager") != "2.0"
                 or len(task["runs"]) != 1 or task["runs"][0]["status"] != "completed"):
             raise DataError("Only a completed research task with pending final proposals can be reviewed")
         if task["proposed_changes"] != task["synthesis"]["proposed_changes"]:
@@ -185,7 +171,7 @@ class CanonHost:
         if decision_path in after: raise DataError("Decision identity already exists")
         after[decision_path] = decision
         validate_dataset(after, self.schemas)
-        bundle = {"schema_version": "1.0", **{k: task[k] for k in ("world_id", "task_id", "canon_version")},
+        bundle = {"schema_version": "1.1", "workspace_binding": self.world.binding, **{k: task[k] for k in ("world_id", "task_id", "canon_version")},
             "run_id": task["runs"][0]["run_id"], "task_path": Path(task_path).absolute().relative_to(self.repo).as_posix(),
             "task_sha256": digest(task), "base_git_sha": base, "base_ref": base_ref or self.base_ref(),
             "branch": "canon/" + task["runs"][0]["run_id"], "decision_id": decision_id,
@@ -195,7 +181,7 @@ class CanonHost:
             "created_at": task["runs"][0]["finished_at"]}
         self.schemas.validate("canon_review", bundle)
         bundle_hash = digest(bundle)
-        workspace = Workspace(self.repo / ".cache/canon-reviews" / bundle_hash)
+        workspace = Workspace(self.repo / ".axiom/local/canon-reviews" / bundle_hash)
         if workspace.path("bundle.json").exists():
             if document(workspace.path("bundle.json")) != bundle: raise DataError("Existing review differs")
         else:
@@ -209,6 +195,7 @@ class CanonHost:
     def reviewed(self, bundle_path, *, verify_base=True):
         bundle = document(bundle_path)
         self.schemas.validate("canon_review", bundle)
+        self.world.validate_binding(bundle.get("workspace_binding"))
         task = self.task(self.repo / safe_relative(bundle["task_path"]))
         if digest(task) != bundle["task_sha256"]: raise DataError("Reviewed task content changed")
         expected = self.prepare(self.repo / safe_relative(bundle["task_path"]),
@@ -240,13 +227,13 @@ class CanonHost:
     def operator(self, bundle_path):
         bundle = document(bundle_path)
         self.schemas.validate('canon_review', bundle)
-        journal = self._journals.setdefault(bundle['task_id'], TaskJournal(self.repo, bundle['task_id']))
+        journal = self._journals.setdefault(bundle['task_id'], TaskJournal(self.world, bundle['task_id']))
         with journal.lock():
             # Legacy Phase 10 packages stay usable, without fabricated past events.
             records = journal.read()
             if not records:
                 task = self.task(self.repo / safe_relative(bundle['task_path']))
-                if task['metadata'].get('task_manager') == '1.1': raise DataError('Phase 11 task journal is missing')
+                if task['metadata'].get('task_manager') in ('1.1', '2.0'): raise DataError('Phase 11 task journal is missing')
             yield journal if records else None
 
     def record_decision(self, journal, task, workspace, receipt):
@@ -255,7 +242,7 @@ class CanonHost:
             rejected = copy.deepcopy(task)
             rejected.update(lifecycle="SYNTHESIS", approval_status="rejected", final_result=task["synthesis"]["summary"])
             validate_task(rejected, self.schemas)
-            publish(Workspace(self.repo / '.cache/tasks' / task['task_id']), 'rejected.json', rejected)
+            publish(Workspace(self.repo / '.axiom/local/tasks' / task['task_id']), 'rejected.json', rejected)
         if journal:
             kind = 'HumanApproved' if status == 'approved' else 'HumanRejected'
             data = {'approval_path': workspace.path('approval.json').relative_to(self.repo).as_posix(),
@@ -329,7 +316,7 @@ class CanonHost:
         if self.base_ref() != bundle["base_ref"]: raise DataError("Current base branch changed")
         transaction = f"start\nverify {bundle['base_ref']} {bundle['base_git_sha']}\ncreate refs/heads/{bundle['branch']} {commit}\nprepare\ncommit\n"
         self.git("update-ref", "--stdin", raw=transaction.encode("ascii"))
-        path = Workspace(self.repo / ".cache/tasks" / task["task_id"]).write_json("committed.json", committed)
+        path = Workspace(self.repo / ".axiom/local/tasks" / task["task_id"]).write_json("committed.json", committed)
         self.audit_committed(journal, committed)
         return {"status": "committed", "branch": bundle["branch"], "commit_sha": commit,
                 "state_path": str(path), "new_canon_version": new_snapshot["canon_version"]}
@@ -405,7 +392,7 @@ class CanonHost:
                 if self.base_ref() != bundle['base_ref']: raise DataError('Current base branch changed')
                 transaction = f"start\nverify {bundle['base_ref']} {bundle['base_git_sha']}\ncreate {ref} {commit}\nprepare\ncommit\n"
                 self.git('update-ref', '--stdin', raw=transaction.encode('ascii'))
-            path = publish(Workspace(self.repo / '.cache/tasks' / task['task_id']), 'committed.json', committed)
+            path = publish(Workspace(self.repo / '.axiom/local/tasks' / task['task_id']), 'committed.json', committed)
             self.audit_committed(journal, committed)
             return {'status': 'committed', 'branch': bundle['branch'], 'commit_sha': commit,
                     'state_path': str(path), 'new_canon_version': control['new_canon_version']}

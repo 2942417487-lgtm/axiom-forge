@@ -1,5 +1,7 @@
 # Phase 5：独立工具层
 
+当前版本的路径与兼容性以 [独立世界工作区](../docs/world-workspaces.md) 为准。世界操作显式指定外部 --world；配置与凭据来自外部宿主目录。以下历史验收保留原日期和当时结果。
+
 实现位于 `axiom_forge/tools/`。`ToolSession.call(name, arguments)` 采用统一入口，与模型厂商和岗位提示词无关；`definitions()` 提供工具名称、所需 capability 与严格 JSON 输入格式，未来 Runtime 可转换为 SDK/MCP 的工具定义。
 
 本轮已经实现本地工具，不包含 MCP server/传输、厂商 SDK、模型调用或自动任务调度。Claude 岗位文件仍只有 Read，不会因创建这些代码而获得新的执行权限。
@@ -19,18 +21,18 @@
 | canon.read / evidence.read | canon_read | 固定快照中所选实体及其关联 Evidence，返回深拷贝 |
 | evidence.stage | draft_write | 校验并暂存 Evidence 草稿，不写正式 Ledger |
 | canon.propose | draft_write | 仅 Integrator 暂存 pending CanonChange，不应用修改 |
-| git.inspect | git_read | status、HEAD、指定代码/文档路径的未暂存 diff；无 Git 写操作 |
+| git.inspect | git_read | 所选世界的 status、HEAD；研究 ToolSession 拒绝 diff，避免绕过固定快照；无 Git 写操作 |
 | python.run_reviewed | python_call | 调用宿主已审核、哈希匹配的登记脚本；默认关闭 |
 
 ## 可信宿主与隔离
 
 宿主先建立通过 Phase 4 校验的 AgentInput，再构造 ToolSession，显式授予 capabilities、documents、网络客户端及后端。模型只能获得所选工具的调用入口，不能自行创建 Session、修改 config、登记程序或更换 Context。
 
-工具存储位于 `.cache/tool-runs/<agent_run_id>/`，不会进入 Git。`context.json` 绑定完整输入的 SHA256；相同 AgentRun ID 不可用于另一个问题、Snapshot 或阶段。`files/`、`drafts/`、`receipts/`、`jobs/` 分开，通用文件工具只能访问 files/，不能伪造来源回执。不同 AgentRun 不共享工作区。
+工具存储位于 `.axiom/local/tool-runs/<agent_run_id>/`，不会进入 Git。`context.json` 绑定完整输入的 SHA256 与工作区身份；相同 AgentRun ID 不可用于另一个问题、Snapshot 或阶段。`files/`、`drafts/`、`receipts/`、`jobs/` 分开，通用文件工具只能访问 files/，不能伪造来源回执。不同 AgentRun 不共享工作区。
 
 路径拒绝绝对地址、父目录、Windows 驱动器/数据流/保留名、非规范分隔符、符号链接与 junction。文件和普通 HTTP 响应限制 2 MiB；文件写入采用不可覆盖的完整发布。授予的外部文档使用命名 ID，不接受模型传来的任意本机路径。
 
-这些检查约束通过 ToolSession 发出的操作，不是 OS 级沙箱或身份认证。可信宿主必须控制 config、可见资料、进程和 CLI 权限；已拥有任意 Shell/Read 权限的模型可能在工具层之外读取文件。Context 的结构/哈希不能证明调用者身份。真实 Runtime 隔离与审批认证仍待后续实现。
+这些检查约束通过 ToolSession 发出的操作，不是 OS 级沙箱或身份认证。可信宿主必须控制 config、可见资料、进程和 CLI 权限；已拥有任意 Shell/Read 权限的模型可能在工具层之外读取文件。Context 的结构/哈希不能证明调用者身份。受控 SDK Runtime 与独立本地 HMAC 审批已实现；OS 隔离和远程身份认证尚未实现。
 
 ## 来源与网络
 
@@ -71,7 +73,7 @@ ToolResult 的结构见 `schemas/tool_result.schema.json`：result_id/call_id、
 
 非对象、非有限 JSON 和超出输入大小的调用在 dispatch 前拒绝，不产生执行回执。有效调用的成功/失败回执存入当前 AgentRun 的 receipts/。静态 ToolResult Schema 检查结构与基本状态；Session 生成真实工具调用记录，后续持久化/Artifact 集成还需核验哈希、身份和来源。
 
-CanonChange 暂存检查 pending、业务上下文、所选 Snapshot 的 before 与 Integrator 身份；完整提案集仍须 Phase 4 输出/数据状态验证，然后人工审批和未来 Apply。Evidence 暂存不更新 world/evidence，通用文件工具也无 world 写权限。
+CanonChange 暂存检查 pending、业务上下文、所选 Snapshot 的 before 与 Integrator 身份；完整提案集仍须 Phase 4 输出/数据状态验证，然后通过独立宿主入口人工审批与 Apply。Evidence 暂存不更新 world/evidence，通用文件工具也无 world 写权限。
 
 ## 本地 CLI
 
@@ -79,16 +81,16 @@ CanonChange 暂存检查 pending、业务上下文、所选 Snapshot 的 before 
 
 ```powershell
 .\.venv\Scripts\python.exe -m axiom_forge tools list
-Copy-Item -LiteralPath examples/tools/host-config.json -Destination .cache/tool-config.json
-.\.venv\Scripts\python.exe -m axiom_forge tools call canon.read --input examples/tools/canon-read.json --context examples/agents/engineering_auditor-input.json --config .cache/tool-config.json
+Copy-Item -LiteralPath examples/tools/host-config.json -Destination 'D:\AxiomHost\tool-config.json'
+.\.venv\Scripts\python.exe -m axiom_forge --world 'D:\AxiomWorlds\MyWorld' tools call canon.read --input examples/tools/canon-read.json --context '<与所选世界匹配的AgentInput.json>' --config 'D:\AxiomHost\tool-config.json'
 ```
 
-以上读取 TEST FIXTURE 的固定快照，不是生产 world。配置字段仅支持 capabilities、network_hosts、documents、contact、enable_trusted_python、python_timeout；无配置默认不授权工具。documents 示例形状为 `{"paper-id": {"path": "绝对资料路径", "url": "https://来源地址"}}`，由操作者主动选取资料。
+examples/ 中的输入与快照仅是合成结构样例，不可直接用于新建正式世界；调用输入必须匹配所选外部世界身份。配置字段仅支持 capabilities、network_hosts、documents、contact、enable_trusted_python、python_timeout；无配置默认不授权工具。documents 示例形状为 `{"paper-id": {"path": "绝对资料路径", "url": "https://来源地址"}}`，由操作者主动选取资料。
 
 Python 宿主接入示意：
 
 ```python
-session = ToolSession(repo, validated_agent_input,
+session = ToolSession(world_workspace, validated_agent_input,
                       capabilities={"canon_read", "papers_read"}, network=http_client)
 result = session.call("papers.crossref.search", {"query": "electric propulsion", "limit": 5})
 ```
