@@ -10,6 +10,7 @@ DOMAIN_PREFIXES = {
     "actors": "ACT", "assumptions": "ASM", "audits": "AUD", "decisions": "DEC",
 }
 ID_PREFIXES = {
+    "project": "PRJ",
     "world": "WLD", "task": "TSK", "run": "RUN", "agent_run": "ARN",
     "artifact": "ART", "snapshot": "SNP", "proposal": "CHG",
     "claim": "CLM", "evidence": "EVD",

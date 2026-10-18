@@ -10,6 +10,7 @@ from .contracts import ContractStore, validate_agent_input, validate_agent_outpu
 from .snapshots import create_snapshot, verify_snapshot
 from .validation import DataError, SchemaStore, collect_world, read_json, validate_task
 from .workspaces import EngineResources, WorldWorkspace, create_world
+from .project_metadata import ProjectMetadataError, check_project, check_project_file
 
 
 def main(argv=None) -> int:
@@ -27,6 +28,9 @@ def main(argv=None) -> int:
     world_create.add_argument("--author-name")
     world_create.add_argument("--author-email")
     world_actions.add_parser("check")
+    project = commands.add_parser("project", help="Read-only project metadata; no registration or Git checks")
+    project_actions = project.add_subparsers(dest="project_action", required=True)
+    project_actions.add_parser("check")
     commands.add_parser("check-system-boundary")
     commands.add_parser("validate-world")
     commands.add_parser("check-schemas")
@@ -110,6 +114,14 @@ def main(argv=None) -> int:
             return 0
         args.engine = EngineResources(args.engine_root) if args.engine_root else EngineResources.default()
         schemas = args.engine.schemas
+        if args.command == "project":
+            if args.world is None:
+                raise ProjectMetadataError("inspection_incomplete", "project.json#", "This check requires an explicit external --world directory")
+            print(json.dumps(check_project(args.world, args.engine), ensure_ascii=True, indent=2))
+            return 0
+        if args.command == "validate" and args.schema == "project_metadata":
+            print(json.dumps(check_project_file(args.file, schemas), ensure_ascii=True, indent=2))
+            return 0
         if args.command == "world" and args.world_action == "create":
             receipt = create_world(args.path, args.name, engine=args.engine, host_root=args.host_root,
                                    author_name=args.author_name, author_email=args.author_email)
@@ -238,6 +250,9 @@ def main(argv=None) -> int:
             verify_snapshot(read_json(args.file), schemas)
             print(f"OK: verified self-contained snapshot {args.file}")
         return 0
+    except ProjectMetadataError as exc:
+        print(json.dumps(exc.diagnostic(), ensure_ascii=True), file=sys.stderr)
+        return 1
     except (DataError, OSError, ValueError, EOFError) as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 1

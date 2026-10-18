@@ -125,6 +125,10 @@ class SchemaStore:
         if errors:
             error = errors[0]
             location = "/".join(str(part) for part in error.path) or "<root>"
+            if name == "project_metadata":
+                # Labels and even unknown field names can contain secrets.
+                # Project errors must not include jsonschema's instance text.
+                raise DataError(f"project_metadata:{location}: Invalid metadata field")
             raise DataError(f"{name}:{location}: {error.message}")
         if name == "canon_change":
             validate_change(data)

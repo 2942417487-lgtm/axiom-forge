@@ -437,10 +437,13 @@ class ToolTests(unittest.TestCase):
                 TrustedPython(repo, manifest)
 
     def test_git_read_has_no_mutation_or_secret_path_interface(self):
-        self.assertEqual(git_read(ROOT, "head")["text"].strip(), subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT).decode().strip())
+        # Research Git operations target an independent synthetic world, not
+        # the development checkout with its host-managed worktree settings.
+        world = initialize_fixture(self.temporary()).world
+        self.assertEqual(git_read(world.root, "head")["text"].strip(), subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=world.root).decode().strip())
         for action, path in (("push", None), ("reset", None), ("diff", ".env"), ("diff", "docs/.env.local"), ("diff", "../README.md")):
             with self.assertRaises(ToolError):
-                git_read(ROOT, action, path)
+                git_read(world.root, action, path)
 
     def test_receipt_schema_does_not_allow_failed_output_as_completed(self):
         record = read_json(ROOT / "examples/tool_result.json")
