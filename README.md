@@ -10,6 +10,8 @@ Phase 0–11 已合并，PR #8 完成持久化、审计与显式恢复。本轮�
 
 已有官方 SDK Runtime、受限工具、模型路由、四种模式、Task Manager 和人工 Canon 审批。四款模型的真实合成接入测试与研究流程的离线验收分别记录，不代表完整科学研究已通过真实模型验收。通用 Web 搜索与计算执行器尚未实现。
 
+项目元数据现有四字段 Schema、PRJ 标识和只读格式／世界身份检查。使用 [项目元数据检查](docs/project-metadata-check.md)；它不会登记项目、创建本机绑定或更新世界，也不证明 Git／敏感检查通过。宿主回执、仓库接受／接续及完整产品功能仍待实施。
+
 ## 本地使用
 
 在项目目录中阅读 `AGENTS.md` 和 `CLAUDE.md`，了解研究与开发边界。需要 API 接入时，将空值模板复制到系统与世界仓库之外的宿主目录，再填写本地配置：
@@ -36,6 +38,8 @@ python -m pip --python .venv install -r requirements-lock.txt
 .\.venv\Scripts\python.exe -m axiom_forge check-contracts
 .\.venv\Scripts\python.exe -m axiom_forge validate-agent-output examples/agent_input.json examples/lead_plan.json
 .\.venv\Scripts\python.exe -m axiom_forge new-id task
+.\.venv\Scripts\python.exe -m axiom_forge validate project_metadata examples/project_metadata.json
+.\.venv\Scripts\python.exe -m axiom_forge --world 'D:\AxiomWorlds\MyWorld' project check
 .\.venv\Scripts\python.exe -m axiom_forge new-id entity --domain technology
 .\.venv\Scripts\python.exe -m axiom_forge --world 'D:\AxiomWorlds\MyWorld' snapshot create
 .\.venv\Scripts\python.exe -m axiom_forge tools list
@@ -72,7 +76,7 @@ git ls-files .env.example
 ├── README.md          # 项目定位、使用方式和目录说明
 ├── requirements.txt / requirements-lock.txt
 ├── axiom_forge/       # 校验、ID、快照、Contract、tools/ 与 runtimes/ 实现
-├── schemas/           # 41 个 JSON Schema 与接口说明
+├── schemas/           # 42 个 JSON Schema 与接口说明
 ├── tools/             # 工具接口说明与空的已审核 Python 脚本登记表
 ├── runtimes/          # 官方 SDK Adapter 说明与独立锁定依赖
 ├── routing/           # 模型登记、岗位分配、路由与有界升级策略

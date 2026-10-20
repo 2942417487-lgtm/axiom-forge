@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://axiom-forge.invalid/schemas/project_metadata.schema.json",
+  "title": "project_metadata",
+  "type": "object",
+  "properties": {
+    "project_format_version": {"type": "string", "const": "1.0"},
+    "project_id": {"$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/project_id"},
+    "world_id": {
+      "$ref": "https://axiom-forge.invalid/schemas/common.schema.json#/$defs/world_id",
+      "minLength": 40,
+      "maxLength": 40
+    },
+    "display_version": {
+      "anyOf": [
+        {"type": "null"},
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "not": {"pattern": "[\\u0000-\\u001f\\u007f-\\u009f\\ud800-\\udfff]|^ | $"}
+        }
+      ]
+    }
+  },
+  "required": ["project_format_version", "project_id", "world_id", "display_version"],
+  "additionalProperties": false
+}

@@ -3,6 +3,12 @@
   "$id": "https://axiom-forge.invalid/schemas/common.schema.json",
   "title": "common",
   "$defs": {
+    "project_id": {
+      "type": "string",
+      "minLength": 40,
+      "maxLength": 40,
+      "pattern": "^PRJ-[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
     "world_id": {
       "type": "string",
       "pattern": "^WLD-[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"

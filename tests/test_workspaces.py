@@ -9,6 +9,7 @@ import shutil
 import tempfile
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
+from hashlib import sha256
 from pathlib import Path
 from unittest.mock import patch
 
@@ -19,6 +20,7 @@ from axiom_forge.journal import TaskJournal
 from axiom_forge.runtimes.core import AgentRuntime
 from axiom_forge.tasks import TaskManager
 from axiom_forge.tools.session import ToolSession
+from axiom_forge.tools.storage import read_bounded
 from axiom_forge.validation import DataError, canonical_bytes, digest, read_json
 from axiom_forge.workspaces import EngineResources, WorldWorkspace, create_world, root_identity
 from examples.offline_task_manager import ROOT, fixture_factory, initialize_fixture
@@ -41,7 +43,14 @@ class WorkspaceTests(unittest.TestCase):
         return WorldWorkspace(path, self.engine, host_root=self.host_root), receipt
 
     def test_new_world_has_independent_git_snapshot_and_ignored_durable_state(self):
-        before = git(ROOT, "status", "--porcelain", "--untracked-files=no")
+        def engine_state():
+            # Only this restricted listing permits managed engine worktree
+            # settings. Hash explicit trusted resources; never read credentials.
+            paths = git(ROOT, "ls-files", "-z", "--", "AGENTS.md", "README.md",
+                        "axiom_forge", "schemas", "templates", engine_listing=True)
+            return {path: sha256(read_bounded(ROOT / path.decode("utf-8"))).hexdigest()
+                    for path in paths.split(b"\0") if path}
+        before = engine_state()
         world, receipt = self.create()
         self.assertEqual(receipt['status'], 'created')
         self.assertFalse(receipt['github_connected'])
@@ -51,7 +60,7 @@ class WorkspaceTests(unittest.TestCase):
         self.assertTrue(Path(receipt['snapshot']).is_file())
         self.assertEqual(git(world.root, "status", "--porcelain"), b"")
         self.assertEqual(git(world.root, "ls-files", "--", ".axiom/local"), b"")
-        self.assertEqual(git(ROOT, "status", "--porcelain", "--untracked-files=no"), before)
+        self.assertEqual(engine_state(), before)
         self.assertFalse(world.key_path.is_relative_to(world.root))
 
     def test_nonempty_target_and_nested_engine_are_rejected_without_overwrite(self):
