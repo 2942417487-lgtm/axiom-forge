@@ -1,30 +1,20 @@
-# Phase 6 Runtime
+# Runtime 接口与配置
 
-当前版本的路径与兼容性以 [独立世界工作区](../docs/world-workspaces.md) 为准。世界操作显式指定外部 --world；配置与凭据来自外部宿主目录。以下历史验收保留原日期和当时结果。
+世界操作与路径约束见 [独立世界工作区](../docs/guides/world-workspaces.md)。显式指定外部 --world，配置与凭据来自外部宿主目录。
 
-现有 [Router](../routing/README.md)、[模式入口](../modes/README.md) 和 [Phase 10 Task Manager](../docs/phase-10.md) 复用以下 SDK/单次 Runtime；四款模型接入与模式离线验收见 [记录](../docs/phase-7-9.md)。人工审批与 Canon Apply 位于独立宿主 CLI，未增加 Runtime/ToolSession 权限。
+[Router](../routing/README.md)、[模式](../modes/README.md) 和 [TaskManager](../docs/guides/task-management.md) 复用单次 Runtime。人工审批与 Canon Apply 是独立宿主 CLI，不增加 Runtime／ToolSession 权限。
 
 这是单次岗位调用接口；模型路由、四种模式、任务管理和人工审批由既有上层宿主实现，LangGraph 尚未实现。实现位于 `axiom_forge/runtimes/`，业务角色和 Schema 不导入厂商 SDK。
 
-## 已复用的官方组件
+## 依赖与安装
 
-| Adapter | 实际执行循环 | 本机核对版本 / 代码许可证 |
-| --- | --- | --- |
-| OpenAI | 官方 Agents SDK `Agent` / `Runner`，Responses API | openai-agents 0.23.1 / MIT |
-| Claude | 官方 Claude Agent SDK `ClaudeSDKClient`；SDK 内进程 MCP 工具绑定 | claude-agent-sdk 0.2.163 / MIT；CLI 使用条款另见官方说明 |
-| Codex | 官方 Python SDK `AsyncCodex`，本地 app-server | openai-codex 0.160.1 / Apache-2.0 |
-
-已真实检索并查阅 [Agents SDK](https://developers.openai.com/api/docs/guides/agents/sdk)、[Claude SDK 与自定义工具](https://github.com/anthropics/claude-agent-sdk-python)、[Codex SDK](https://learn.chatgpt.com/docs/codex-sdk) 和 [旧 MCP 示例](https://developers.openai.com/cookbook/examples/codex/codex_mcp_agents_sdk/building_consistent_workflows_codex_cli_agents_sdk)。旧 Codex MCP server 已弃用，新自动化选择官方 SDK。Claude 的内进程 SDK MCP 可复用已有 ToolSession，不需要再实现通用 MCP 传输或工具执行循环。项目新增代码只处理本项目的输入投影、权限、输出校验和本地记录。
-
-ZenMux 接入前也检索了其 [官方 Skills](https://zenmux.ai/docs/zh/guide/zenmux-skills.html)：已有接入配置和账户用量助手，适用于操作者交互，不提供本项目的岗位契约和受限研究调用。因此本轮复用已有官方 SDK 的 gateway 配置，不安装全局 Skill，也不自建通用模型执行器。
-
-依赖安装：
+OpenAI、Claude 和 Codex Adapter 分别复用官方 Agents SDK、Claude Agent SDK 与 Codex SDK；依赖版本以本目录 requirements-lock.txt 为准。SDK 是可选依赖，基础离线操作使用根目录的锁定依赖。
 
 ```powershell
 python -m pip --python .venv install -r runtimes/requirements-lock.txt
 ```
 
-锁定文件是本机 Python 3.14.7 / Windows x64 的已解析环境，不宣称已在其他平台验收。基础离线依赖仍在根目录；SDK 未安装时相应集成测试跳过。Codex 包附带固定版本 CLI。本次 Claude Windows 包从源码发行版安装，没有附带原生 CLI；使用官方 `downloads.claude.ai` 的 `manifest.json` 核对 SHA256，下载到忽略的 `.cache/claude-runtime/claude.exe`。本机为 2.1.291，二进制、下载脚本与凭据不进入 Git。其他电脑须按 [官方安装说明](https://code.claude.com/docs/en/setup) 补齐原生 CLI，或显式配置位于世界目录外的绝对 `claude_cli_path`；不得把 npm 的 `.cmd` shim 当作 SDK 可运行的原生文件。
+Claude SDK 需要可运行的原生 CLI；按 [官方安装说明](https://code.claude.com/docs/en/setup) 安装，必要时通过外部宿主配置提供绝对 claude_cli_path，不用 npm 的 .cmd shim 代替原生程序。某台机器的 CLI 下载、代理和接入记录保存在开发历史，不作为其他机器的默认配置。
 
 ## 统一研究接口
 
@@ -52,13 +42,13 @@ prior = as_prior_result(packet)
 
 Claude 的 input_tokens 统一为普通输入＋缓存写入＋缓存读取，并在 metadata 单独保留两种缓存 token 数，避免忽略缓存计费；OpenAI SDK 已报告总输入。`reported_cost_usd` 保留 SDK 报告值，不能替代服务商账单。失败调用也可能产生费用，不能仅从没有成功 Artifact 推断未收费。
 
-调用前验证岗位、阶段、固定快照和前序结果；持久化到 `.axiom/local/runtime-runs/<ARN>/` 的 input、started 与 completion。校验通过才发布 output 和 Artifact 内容哈希。重复/并行使用同一 ARN 被追加存储拒绝；失败、超时、取消没有可用科学结果。进程突然终止可能仅留下 started；TaskManager 的显式重启恢复与结果校验见 Phase 11。本地存储不是防本机操作者篡改的可信数据库。
+调用前验证岗位、阶段、固定快照和前序结果；持久化到 `.axiom/local/runtime-runs/<ARN>/` 的 input、started 与 completion。校验通过才发布 output 和 Artifact 内容哈希。重复/并行使用同一 ARN 被追加存储拒绝；失败、超时、取消没有可用科学结果。进程突然终止可能仅留下 started；TaskManager 的显式重启恢复与结果校验见 [恢复指南](../docs/guides/recovery.md)。本地存储不是防本机操作者篡改的可信数据库。
 
 后续 `prior_results` 使用 `as_prior_result(packet)` 的四字段包；计算所需工具 Artifact 由宿主显式加入 `supporting_artifacts`。规划输出不能作为前序科学结论。宿主仍负责验证历史包来源，静态完成回执不能证明真实执行。
 
 ## 工具绑定和计算
 
-权限只取可信宿主的 ToolSession。SDK 工具名把点变为双下划线，如 `canon.read` → `canon__read`；Claude 前缀为 `mcp__axiom__canon__read`。参数继续由 Phase 5 校验，回执保存实际开始/结束、上下文和哈希。模型只看到授权工具；有权限但未配服务的工具仍返回 unavailable。
+权限只取可信宿主的 ToolSession。SDK 工具名把点变为双下划线，如 `canon.read` → `canon__read`；Claude 前缀为 `mcp__axiom__canon__read`。参数继续由工具层校验，回执保存实际开始/结束、上下文和哈希。模型只看到授权工具；有权限但未配服务的工具仍返回 unavailable。
 
 Claude 设置 `tools=[]` 关闭原生工具、`setting_sources=[]`、`skills=[]`、`strict_mcp_config=True`，不加载项目或用户 MCP/插件；PreToolUse 钩子和拒绝权限回调防止新增工具绕过绑定。独立 cwd、无会话恢复；CLI 的权限控制不是 OS 沙箱。本机原生 Windows 不支持 Claude shell sandbox，因此研究岗位不获得原生 Shell 或任意文件 Read。现有 `.claude/agents/` 的 Read 岗位入口保留，不能把手工启动该入口等同于受控 Adapter。
 
@@ -70,42 +60,26 @@ OpenAI 仅使用本地 FunctionTool，无 hosted shell、Web search、file searc
 
 若宿主另外批准并登记已有脚本：模型调用 `python__run_reviewed`；本次 calculations 只能引用成功 Python ToolResult 的 `result_id`。为避免模型改写实算数值，脚本 JSON 需含 `calculation: {inputs, outputs, assumptions}`，三个字段与岗位旧 calculations 的数值/单位/假设完全一致；不匹配则拒绝结果。该兼容桥不运行通用模型、不验证任意 script JSON 为 CalculationResult，也不保证算法科学正确。脚本审核和 OS 权限仍由操作者负责。
 
-## 操作者 CLI、密钥与额度
+## 操作者 CLI、凭据与预算
 
-本机用户选择的模型 ID 已按官方页面查证：[claude-sonnet-5-5](https://platform.claude.com/docs/en/models/sonnet-5-5/overview)、[gpt-6.1-sol](https://developers.openai.com/api/docs/models/gpt-6.1-sol)。模型只出现在显式宿主配置，不固定到岗位。样例的普通文本 token 单价于 2026-10-06 核对，后续运行前须重新查证，不能当作永久价格。
+模型、base_url、工具授权与预算只来自可信宿主配置。样例见 examples/runtimes/；复制到外部宿主目录后按当前任务调整，不能把样例价格或额度当成实时服务商限制。真实规格、可用性和价格须在运行前重新核对。
 
-用户在本地 `.env` 填写 ANTHROPIC_API_KEY、OPENAI_API_KEY；不要上传、打印或在聊天中发送密钥。程序仅按显式 `--credentials` 路径读取，也可使用操作者已配置的环境变量；不自动扫描个人凭据目录或执行 `.env` 中的 shell 内容。
-
-API Key 用于认证；宿主配置的 `model` 选择模型，`base_url` 选择接入地址。省略 `base_url` 时使用对应官方直连地址；带供应商前缀的模型 ID 必须显式指定接入地址，避免把中转商 Key 意外发送给官方。地址必须为 HTTPS，不能包含账号、密码、查询或片段；不从 AgentInput、工具回包或任意环境变量中选择 API endpoint。这个校验不证明任意第三方可信，操作者仍需选择服务商。SDK 内部网络行为与服务商转发不能仅靠 URL 字符串校验保证。
-
-本轮用户选择 [ZenMux](https://zenmux.ai/docs/zh/guide/quickstart.html)，该服务支持 Responses 和 Anthropic Messages 原生协议，继续复用官方 SDK，未新增模型执行循环。对应配置如下，模型名称应使用 ZenMux 的完整 Slug：
-
-| 配置 | `base_url` | `model` |
-| --- | --- | --- |
-| `examples/runtimes/zenmux-openai-host.json` | `https://zenmux.ai/api/v1` | `openai/gpt-6.1-sol` |
-| `examples/runtimes/zenmux-claude-host.json` | `https://zenmux.ai/api/anthropic` | `anthropic/claude-sonnet-5.5` |
-
-ZenMux 两个协议可以使用同一个 Key；仍分别放在本地两个变量中，工具不会收到它们。官方直连样例保留，不能将 ZenMux Key 与它们混用。2026-10-06 的 [GPT 页面](https://zenmux.ai/openai/gpt-6.1-sol) 列出输入 $2–4 / 输出 $10–15 每百万 token；ZenMux OpenAI 样例用上限 $4 / $15 做本地预留。[Claude 页面](https://zenmux.ai/anthropic/claude-sonnet-5.5) 列出输入 $2 / 输出 $10、缓存写入 $2.5–4 每百万 token；Claude CLI 的 `total_cost_usd` 是 SDK 自身估算，不作为中转商账单。模型价格与接入支持需在后续运行前重新核对。
-
-按 [ZenMux Claude Code 接入说明](https://zenmux.ai/docs/zh/best-practices/claude-code.html)，Claude gateway 配置设置 `claude_auth_mode="auth_token"`：同一 `.env` 的 ANTHROPIC_API_KEY 值只在专用子进程内映射到 ANTHROPIC_AUTH_TOKEN，子进程 ANTHROPIC_API_KEY 置空；宿主变量不变。`claude_disable_experimental_betas=true` 关闭实验性 beta 与 attribution header，减少不兼容路由；这两个选项是闭合宿主配置，不允许传入任意环境变量或工具修改配置。
-
-如果本机网络需要代理，可在本地宿主配置增加 `claude_https_proxy`，例如 `http://127.0.0.1:10081`；它只设置该 Claude 子进程的 HTTP(S)_PROXY，不修改系统、全局 Shell 或宿主环境，不接受代理账号/密码、路径、查询和片段。实际代理地址须由操作者核对；不得把某台机器的 localhost 端口当作通用默认值。本机 Python 使用 Windows 系统代理，而原生 Claude CLI 未自动继承，曾出现 ECONNREFUSED；联调用的本地覆盖配置位于忽略的 `.cache/phase6-zenmux-claude-host.json`。需要代理的本机用该覆盖配置替代公开样例路径；其余机器使用自己的显式配置。
+凭据只通过显式 --credentials 路径或操作者已配置的环境变量提供；程序不扫描个人凭据目录，也不执行 .env 中的 shell 内容。用户自行在外部 .env／Secret Store 填写对应 Key，不上传或回显。base_url 必须为 HTTPS，不含账号、密码、查询或片段；第三方路由的模型 Slug 与 Key 必须匹配其服务地址。SDK 设置不构成服务商数据保留承诺。
 
 ```powershell
-# 将所需 examples/runtimes/*-host.json 复制到外部宿主目录，再调整配置。
-# 先生成与外部世界匹配的新合法 AgentInput，不能跨调用复用 ARN。
 .\.venv\Scripts\python.exe -m axiom_forge --world <外部世界目录> --host-root <外部宿主目录> runtime run --context <AgentInput.json> --config <外部宿主目录>/openai-host.json --credentials <外部.env> --allow-live
 .\.venv\Scripts\python.exe -m axiom_forge --world <外部世界目录> --host-root <外部宿主目录> runtime run --context <另一个AgentInput.json> --config <外部宿主目录>/claude-host.json --credentials <外部.env> --allow-live
-# 本机 .env 为 ZenMux Key 时使用以下专用配置。
-.\.venv\Scripts\python.exe -m axiom_forge --world <外部世界目录> --host-root <外部宿主目录> runtime run --context <AgentInput.json> --config <外部宿主目录>/zenmux-openai-host.json --credentials <外部.env> --allow-live
-.\.venv\Scripts\python.exe -m axiom_forge --world <外部世界目录> --host-root <外部宿主目录> runtime run --context <另一个AgentInput.json> --config <外部宿主目录>/zenmux-claude-host.json --credentials <外部.env> --allow-live
 ```
 
-没有 `--allow-live` 时不读取凭据、不执行 SDK。CLI 只打印状态、Artifact 路径和安全错误，原始 SDK 异常和思考内容不写业务日志。不同供应商的密钥不会通过 SDK 工具参数或工程 subprocess 传递；子运行时环境把无关变量值置空，宿主环境不受修改。
+没有 --allow-live 时不读取凭据、不执行 SDK。每次调用使用新的 ARN，输入须匹配外部世界；不要直接用 examples 中的身份启动正式任务。控制台只打印状态、Artifact 路径和安全错误，不打印原始 SDK 异常或思考内容。子运行时收敛无关凭据变量，宿主环境保持原状。
 
-限制包括输出 token、SDK 最大轮次、工具次数、工具可见结果大小和 asyncio 截止时间；同步工具 I/O 与 SDK 清理可延迟截止，不是硬进程杀死时限。超大的工具结果保存回执，但向模型返回 unavailable，不能截断后冒充完整结果。
+兼容网关的配置示例为 zenmux-openai-host.json／zenmux-claude-host.json。Claude 可通过 claude_auth_mode="auth_token" 在专用子进程映射认证变量；claude_disable_experimental_betas 控制兼容 header。如果机器需要代理，使用当前宿主显式选择的 claude_https_proxy；不复制历史机器的 localhost 端口，不修改全局代理。
 
-Claude `max_budget_usd` 是 SDK 在请求后检查的停止阈值，可能被最后一个请求越过；第三方模型 Slug 的 CLI 估价可能与服务商计费不一致。OpenAI 每个请求按宿主核对的 token 价格、UTF-8 字节与额外协议余量预留额度；预检不足时不调用模型。它是本地保守估算，不是官方账单限额或通用价格服务。样例禁 hosted 付费工具、图片与隐藏会话上下文；OpenAI 客户端关闭自动重试，Claude 子进程设置 `CLAUDE_CODE_MAX_RETRIES=0`、`CLAUDE_CODE_NONSTREAMING_TIMEOUT_RETRIES=0` 和与 Runtime 截止一致的 `API_TIMEOUT_MS`（参见 [官方变量说明](https://code.claude.com/docs/en/env-vars)）；gateway 内部重试不能由客户端设置保证。变更调用方式须重新评估。官方直连样例为 Claude 0.4 / OpenAI 0.5 美元；ZenMux 样例按上限价格分配 Claude 0.3 / OpenAI 0.6 美元，分别最多两轮、2048 输出 token、一次小型快照工具调用，Claude 等待上限 300 秒。失败不由本项目自动重试；修正后重新联调须使用新 ARN，并先核对累计费用。总 API 上限 1 美元的授权只适用于本轮联调；后续运行须由操作者设置额度，可另外使用 [ZenMux Key Credit Limit](https://zenmux.ai/docs/zh/guide/pay-as-you-go.html) 的服务端限额。Codex 本机账号联调使用订阅配额，API 单价不能推算其账号计费。
+限制包括输出 token、SDK 轮次、工具次数与可见结果大小及 asyncio 截止时间。同步 I/O 或 SDK 清理可能延迟退出，不是硬进程隔离。过大的工具结果保留回执，向模型返回 unavailable，不能截断后冒充完整结果。
+
+OpenAI 使用宿主核对单价和输入估计做调用前预留；Claude 的 max_budget_usd 为请求后检查阈值，最后一次请求可能越过预算。第三方 Slug 的 SDK 估价不等于服务商账单；失败或没有 Artifact 也不能推断未收费。样例不能替代服务商侧额度控制。
+
+项目关闭自动重试；Claude 子进程设置相应重试变量和 API_TIMEOUT_MS，仍不能保证网关内部不重试。修改调用方式须重新评估预算。失败后的再次联调使用新 ARN，并由操作者核对累计费用；过去某一轮的付费授权不延续到新任务。
 
 ## Codex 工程接口
 

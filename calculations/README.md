@@ -1,8 +1,8 @@
 # 可复用计算请求与程序接口
 
-本目录定义协议。本轮没有创建计算执行器、模型程序、MATLAB Adapter 或工具授权；样例都是待执行请求。两岗位已有真实工具计算规则，本补充使“需要计算”能够交付为规范文件，而不只是一段文字。
+本目录定义参数化计算请求、模型和结果协议。通用计算执行器及 MATLAB Adapter 未提供；缺工具／模型／参数时交付完整请求，不能冒充已实算结果。
 
-后续 Phase 5 已建立 [已审核 Python 脚本宿主接口](../tools/README.md)，默认关闭且登记表为空；它不会自动解析 CalculationRequest、分发模型、核验单位或生成 CalculationResult。通用计算执行器仍按用户要求后续再建，研究岗位尚未接入新权限。
+[已审核 Python 脚本宿主接口](../tools/README.md) 默认关闭且登记表为空；它不会自动解析 CalculationRequest、分发模型、核验单位或生成 CalculationResult。
 
 ## 两条工作路径
 
@@ -11,7 +11,7 @@
 3. 否则交付同一个请求文件给作者，供 Codex、DSH 或其他编程工具构建/调用程序。缺少工具、模型或必要参数时保持 OPEN QUESTION，不产生伪造数值。
 4. 程序交付并审查后登记版本化模型；后续请求可改变参数/情景并复用该程序。
 
-当前 Claude 入口只有 Read；两岗位将完整请求 JSON 放入结果的 `calculation_requests` 数组，或返回独立 JSON 代码块供作者保存。磁盘导出、自动分发和工具调用由未来 Runtime 实现；当前岗位不声称文件已写出。
+手工 Claude 岗位入口只有 Read。两岗位在 calculation_requests 数组交付完整请求；受控 Runtime 验证后保存独立请求文件和 Artifact。通用分发与计算执行仍须另外实现，请求文件不是计算结果。
 
 ## 通用文件格式
 
@@ -65,7 +65,7 @@ Python 接口规划为 `execute(request: Mapping) -> Mapping`；MATLAB 接口规
 - needs_implementation：模型或所需程序尚未构建。
 - unsupported_engine：当前没有请求允许的可执行后端。
 
-后三项不得携带已执行回执或计算结果。缺工具时交付请求本身与问题说明；本轮提供的 CalculationResult 样例为 needs_implementation，不是实算记录。
+后三项不得携带已执行回执或计算结果。缺工具时交付请求本身与问题说明；CalculationResult 样例为 needs_implementation，不是实算记录。
 
 completed 结果只有通过后续调用方的语义与 Artifact 核验，才能写入既有 `EngineeringResult/EconomicResult.calculations`。待执行请求放 calculation_requests，不放 calculations，不伪造 executable receipt。后续 Runtime 还需绑定输出与当前 AgentRun、防止篡改和首轮他人结果泄露。
 
@@ -73,7 +73,7 @@ completed 结果只有通过后续调用方的语义与 Artifact 核验，才能
 
 现有 `validate <schema> <file>` 能检查新增三类 JSON 的结构、类型与基本状态约束。能拒绝把缺工具请求写成 completed 却没有回执，也能拒绝 planned 模型携带虚假源码定位。
 
-本轮没有新增计算协议语义执行器：request/result 之间的身份与哈希关联、参数名唯一性、矩阵规则性、上下界关系、单位转换、模型版本匹配、情景覆盖、输出全集与所有验收条件的执行，须在后续实现中检查。request 内声明 auto_if_available_else_handoff 不提供工具授权，也不能突破项目权限。
+现有校验不包含通用计算协议语义执行器：request/result 之间的身份与哈希关联、参数名唯一性、矩阵规则性、上下界关系、单位转换、模型版本匹配、情景覆盖、输出全集与所有验收条件的执行，须在后续实现中检查。request 内声明 auto_if_available_else_handoff 不提供工具授权，也不能突破项目权限。
 
 ```powershell
 .\.venv\Scripts\python.exe -m axiom_forge validate calculation_request examples/calculation_request.json

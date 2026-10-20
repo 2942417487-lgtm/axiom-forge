@@ -1,0 +1,5 @@
+interface:
+  display_name: 'Axiom Dev: Research'
+  short_description: Research from high-trust sources
+policy:
+  allow_implicit_invocation: true

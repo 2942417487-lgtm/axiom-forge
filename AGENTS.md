@@ -34,7 +34,7 @@
 - Phase 1–3 提供 Schema、完整性校验与 Snapshot；Phase 10 增加独立宿主 CLI 审批与 Canon 分支提交。结构校验不验审批 Key、不证明 Git 已提交；真正 Apply 须验证宿主批准回执、内容绑定和 Git/Canon 基线。
 - Phase 4 使用受限 agent_input；首轮禁止传入完整 TaskState、他人结果与 Artifact，后续审查要求全部所选首轮完成，最终综合要求 Red Team。契约校验不替代 Runtime 的上下文、文件与工具权限隔离。
 - 七个研究角色的输出无审批或 Canon 写入权限；ProposedCanonChange 必须 pending，批准与 Apply 仅通过独立人工宿主步骤。不得访问 `.env.approval`、伪造确认或用工具写入批准文件。原始模型输出和 Artifact 不随批准改写。
-- Phase 10 TaskManager 使用 Lead 的受限岗位分工与固定快照检索，收集结果并交付内容绑定的审查包。CLI 人工批准要求交互确认整份包；Apply 只创建新 Canon 分支，不 checkout、push 或 merge。HMAC 依赖本地 OS/Key 权限，不代表远程身份认证。Phase 11 保存原子 checkpoint/事件批次；仅由操作者显式 CLI 恢复，自动尝试未完成调用一次，复用已验证完成岗位。新尝试新建 ARN/ART，失败/未知费用旧预留不得移除；配置、规则、快照和 Artifact 不匹配时停止。恢复不依赖厂商会话。Canon 恢复须独立验证原签名审批、准备提交与分支；不自动批准，不覆盖分支。详见 docs/phase-11.md。
+- Phase 10 TaskManager 使用 Lead 的受限岗位分工与固定快照检索，收集结果并交付内容绑定的审查包。CLI 人工批准要求交互确认整份包；Apply 只创建新 Canon 分支，不 checkout、push 或 merge。HMAC 依赖本地 OS/Key 权限，不代表远程身份认证。Phase 11 保存原子 checkpoint/事件批次；仅由操作者显式 CLI 恢复，自动尝试未完成调用一次，复用已验证完成岗位。新尝试新建 ARN/ART，失败/未知费用旧预留不得移除；配置、规则、快照和 Artifact 不匹配时停止。恢复不依赖厂商会话。Canon 恢复须独立验证原签名审批、准备提交与分支；不自动批准，不覆盖分支。详见 docs/guides/recovery.md。
 
 ## 架构与开发
 
@@ -61,7 +61,14 @@
 
 - 系统仓库只保存系统、模板与合成测试资料，正式世界必须是外部独立 Git 仓库。WorldWorkspace 与 EngineResources 分别绑定数据和可信执行资源，不从世界文件加载岗位、Schema、路由或程序登记。
 - 世界操作显式指定 --world，配置与凭据置于外部宿主路径。持久状态为世界目录 .axiom/local/，虽被 Git 忽略但必须保留以支持恢复；专用审批 Key 位于外部 host 的工作区专用目录。
-- 旧 --repo、旧混合缓存、复制/移动工作区的旧绑定不自动迁移或重签。GitHub 连接、标准导出/导入与 UI 尚未实现，详见 docs/world-workspaces.md。
+- 旧 --repo、旧混合缓存、复制/移动工作区的旧绑定不自动迁移或重签。GitHub 连接、标准导出/导入与 UI 尚未实现，详见 docs/guides/world-workspaces.md。
+
+## 系统开发技能与跨窗口接续
+
+- 系统软件开发先读 docs/development/CURRENT.md，再读其中当前任务；按需追溯 CHANGELOG、任务和历史。现场 Git 状态及用户消息优先于日志缓存。
+- `.agents/skills/af-dev-*` 仅用于本系统的软件工程。规则、用途及版本见 docs/development/skills/README.md；研究岗位、Evidence、正式世界和 Canon 审批不使用这些技能，也不因此增加任何工具／写入权限。
+- 进度、历史验收和改动记录集中在 docs/development/；README 与模块 README 维护用法、接口、目录和必要限制，不再累积阶段日志。
+- 编辑工程指引使用 af-dev-writing-for-agents；重要变更按 af-dev-code-review 分别检查 Standards／Spec。当前任务已记录的范围和基线不重复询问；未提交审查须包括明确的未跟踪文件。
 
 ## 当前检查
 

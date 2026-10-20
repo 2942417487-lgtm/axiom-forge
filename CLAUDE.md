@@ -2,13 +2,11 @@
 
 先完整阅读根目录 `AGENTS.md`，遵守其中的用户确认、事实分层、Canon 审批、密钥安全和 Git 审查规则。本文件补充 Claude 的操作方式。
 
-## 当前阶段
-
-Phase 0–11 已合并；系统与外部世界的边界见 docs/world-workspaces.md。Phase 10 提供 Python Task Manager 与独立宿主 CLI 人工审批、Canon 分支提交，使用见 docs/phase-10.md。Claude Adapter 复用官方 SDK，关闭原生工具、共享会话、项目/用户设置与外部 MCP；`.claude/agents/` 手工岗位入口仍仅 Read。研究岗位不得调用审批/Git 写入宿主 API、读取 `.env.approval`、自行批准或把批准当成科学证据。任务流程本轮离线验收，未进行整轮付费研究。
+系统开发接续使用 docs/development/CURRENT.md 和当前任务；需要工程技能时遵守 docs/development/skills/README.md 的范围。研究调用仍使用下述岗位与受控 Runtime 规则，开发日志和工程技能不是研究 Evidence 或工具授权。
 
 ## 开始工作
 
-1. 阅读 `README.md`、`docs/phase-5.md`、`tools/README.md`、`agents/README.md` 与相关 `docs/tasks/` 任务，确认已实现内容和当前授权范围。
+1. 阅读 README 的用法导航、docs/development/CURRENT.md 与当前开发任务；按任务读取模块说明，确认功能和授权范围。
 2. 执行 `git status --short --branch`，确认分支及用户未提交修改；重要变更在工作分支进行。
 3. 要求存在歧义时先询问用户；不得自行扩展到后续阶段。
 4. 涉及软件实现时，先记录范围明确的 issue 或本地任务说明，再修改代码。
@@ -39,6 +37,6 @@ git ls-files .env.example
 .\.venv\Scripts\python.exe -m unittest discover -s tests -v
 ```
 
-测试覆盖本地数据工具与角色契约边界，不证明真实 Agent Runtime、Claude 岗位加载、人工审批或完整研究应用已经实现。后续代码阶段应根据项目实际配置运行测试；不得虚构测试通过记录。
+测试结果只证明实际执行的用例，不证明真实模型、人工审批或科学研究完成。具体次数和联调范围记录在开发日志，代码变更运行适当测试，不能虚构通过记录。
 
 检查待提交文件清单与差异，在工作分支提交。推送至私有仓库后交付 review；合并由用户最终控制。交付说明包含已完成内容、检查结果和仍未实现的功能。

@@ -18,19 +18,10 @@ RoutingRequest 有 role、task_kind、difficulty/importance（0–3）、context
 
 `ModelRouter.select` 过滤禁用/未验证/legacy、档次不足、容量、输出、工具、预算和延迟，返回选择或 `OPEN_QUESTION`，列出过滤原因与策略哈希。不会把不可用 Tier 3 静默降到 Tier 1。`pair` 对要求独立审查或重要任务约束不同原生模型家族，即使两者都通过 ZenMux。没有满足条件的组合就保留问题；不同家族不保证没有共同错误。
 
-`escalate(request, current_model, attempted, signals)` 是可调用的有界升级接口，signals 明确提供 uncertain、disagreement、unresolved 三个布尔值。它只选择模型，不付费调用、不从模型的任意 metadata 读取授权。模式入口使用当前宿主难度/重要性与一次调用次序，失败即停；自动评估结果并重新派发、恢复和预算账本的完整 TaskManager 留给 Phase 10–11。改变 request 的最低要求后应重新核对预算和独立审查组合。
+`escalate(request, current_model, attempted, signals)` 是可调用的有界升级接口，signals 明确提供 uncertain、disagreement、unresolved 三个布尔值。它只选择模型，不付费调用、不从模型的任意 metadata 读取授权。模式入口只使用 select，按当前宿主要求选择模型，失败即停；尚未接入自动结果评估、升级或重新派发。TaskManager 提供固定流程编排、预算预留记录和操作者显式恢复。改变 request 的最低要求后应重新核对预算和独立审查组合。
 
-## 初始分工
+## 配置与选型边界
 
-| 模型 | 初始用途 | 当前状态 |
-| --- | --- | --- |
-| GPT-6 Luna | 分类、metadata、抽取、低成本预处理 | 已联调；研究模式最低 Tier 1，不使用其代替审计 |
-| DeepSeek 4.1 Flash | 机械 Coding、脚本与样板任务 | 登记但禁用，Adapter 未接入 |
-| Sonnet 5.5 | 情景/创意讨论、历史整理、普通 Lead/综合 | 已联调 |
-| GPT-6.1 Sol | 科学/工程/Evidence、工具任务、Coding 主力 | 研究 Adapter 已联调；Codex 仍只接软件工程 |
-| Opus 5.5 | 高重要性 Lead、Integrator、Red Team | 已联调，Tier 2 |
-| Fable 5.1 / GPT-6 Astra | 极难问题、全局一致性与最终独立复核 | 登记但禁用；需要 Tier 3 时返回 OPEN QUESTION |
+岗位候选、模型启用状态、验证回执和最低档次以实际 YAML 配置为准；登记项可能禁用。软件工程任务与研究岗位分开，Codex 工程 Runtime 只接收 software_engineer，不因模型相同而获得研究权限。联调回执仅证明对应合成调用与协议可运行，不证明科学能力评测通过。
 
-软件工程分工是初始策略，不授予研究 Runtime 软件工程工具。所有强弱项均待项目自己的评测；联调通过只证明合成工具与 JSON 协议可运行。
-
-现成方案检索：[LiteLLM Router](https://docs.litellm.ai/docs/routing) 已提供网关负载/延迟/成本路由；本阶段保留 Phase 6 官方 SDK，新增薄业务策略以执行固定快照、Canon 重要性、已验证状态与跨家族审查条件，没有部署新网关或重复实现供应商执行循环。YAML 复用 [PyYAML](https://pyyaml.org/wiki/PyYAMLDocumentation) SafeLoader，另拒绝别名、重复字段、非 JSON 值与超大文件；本机版本 6.0.3，许可证 MIT。
+YAML 使用 PyYAML SafeLoader，另拒绝别名、重复字段、非 JSON 值与超大文件。路由为业务策略，不部署新的模型网关，也不替代 SDK 调用和宿主预算控制。
