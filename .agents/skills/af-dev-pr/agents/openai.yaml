@@ -1,0 +1,5 @@
+interface:
+  display_name: 'Axiom Dev: PR'
+  short_description: Write a PR body that's fast to review
+policy:
+  allow_implicit_invocation: true

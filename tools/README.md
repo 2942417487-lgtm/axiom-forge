@@ -1,12 +1,12 @@
-# Phase 5：独立工具层
+# 工具层用法
 
-当前版本的路径与兼容性以 [独立世界工作区](../docs/world-workspaces.md) 为准。世界操作显式指定外部 --world；配置与凭据来自外部宿主目录。以下历史验收保留原日期和当时结果。
+世界操作与路径约束见 [独立世界工作区](../docs/guides/world-workspaces.md)。显式指定外部 --world，配置与凭据来自外部宿主目录。
 
 实现位于 `axiom_forge/tools/`。`ToolSession.call(name, arguments)` 采用统一入口，与模型厂商和岗位提示词无关；`definitions()` 提供工具名称、所需 capability 与严格 JSON 输入格式，未来 Runtime 可转换为 SDK/MCP 的工具定义。
 
-本轮已经实现本地工具，不包含 MCP server/传输、厂商 SDK、模型调用或自动任务调度。Claude 岗位文件仍只有 Read，不会因创建这些代码而获得新的执行权限。
+工具层不包含通用 MCP server／传输或自动调度；SDK 调用与任务编排分别由 Runtime 和任务宿主负责。手工 Claude 岗位文件仍只有 Read，不因工具代码存在而获得执行权限。
 
-用户后续选型要求：接入或新增工具前，先真实搜索网上现成的 MCP Tools 或 skills，核查功能、维护、兼容性、许可证、权限、依赖与费用；可满足要求时优先复用，仅在明确缺口处自行实现。现有本地工具可在后续包装成 MCP，当前尚未实施包装。
+新增工具能力按根目录 AGENTS 的选型规则执行；本地工具不会自动成为已部署的 MCP 服务。
 
 ## 工具清单
 
@@ -26,7 +26,7 @@
 
 ## 可信宿主与隔离
 
-宿主先建立通过 Phase 4 校验的 AgentInput，再构造 ToolSession，显式授予 capabilities、documents、网络客户端及后端。模型只能获得所选工具的调用入口，不能自行创建 Session、修改 config、登记程序或更换 Context。
+宿主先建立通过岗位契约校验的 AgentInput，再构造 ToolSession，显式授予 capabilities、documents、网络客户端及后端。模型只能获得所选工具的调用入口，不能自行创建 Session、修改 config、登记程序或更换 Context。
 
 工具存储位于 `.axiom/local/tool-runs/<agent_run_id>/`，不会进入 Git。`context.json` 绑定完整输入的 SHA256 与工作区身份；相同 AgentRun ID 不可用于另一个问题、Snapshot 或阶段。`files/`、`drafts/`、`receipts/`、`jobs/` 分开，通用文件工具只能访问 files/，不能伪造来源回执。不同 AgentRun 不共享工作区。
 
@@ -48,7 +48,7 @@ PDF 保留所选页码，默认最多 20 页、每次最多 50 页；pypdf 不�
 
 ## 已审核 Python 脚本接口
 
-登记表为 `tools/python-scripts/manifest.json`，本轮为空。每个脚本条目包含 script_id、该目录内相对 .py 路径、SHA256、description。只有操作者审查源码及依赖后才能登记；SHA256 不匹配时拒绝执行，不能自动更新为新值。
+登记表为 `tools/python-scripts/manifest.json`，默认为空。每个脚本条目包含 script_id、该目录内相对 .py 路径、SHA256、description。只有操作者审查源码及依赖后才能登记；SHA256 不匹配时拒绝执行，不能自动更新为新值。
 
 脚本从 stdin 读取一个有限 JSON 对象，从 stdout 输出一个有限 JSON 对象；诊断放 stderr。业务参数来自 input，而不是在脚本里写死。示例调用形状：
 
@@ -56,7 +56,7 @@ PDF 保留所选页码，默认最多 20 页、每次最多 50 页；pypdf 不�
 {"script_id": "registered.model", "input": {"parameter": 123}}
 ```
 
-`registered.model` 只是名称示意，当前没有这个程序。缺登记时返回 needs_implementation；默认未启用时返回 unavailable。此接口可以承载完整 CalculationRequest，但本轮不会自动解析请求、选择算法、执行单位换算或生成 CalculationResult。
+`registered.model` 只是名称示意，当前没有这个程序。缺登记时返回 needs_implementation；默认未启用时返回 unavailable。此接口可以承载完整 CalculationRequest，但不会自动解析请求、选择算法、执行单位换算或生成 CalculationResult。
 
 可信本地宿主设置 `enable_trusted_python: true` 才可运行。采用当前 Python 的 `-I -B`、shell=False、私有 cwd、收敛环境变量、输出大小检查与最多 30 秒进程时限。记录 script_id、源码 SHA256、Python 版本、退出码；stderr 保存在私有 job，不回显原始异常。
 
@@ -73,7 +73,7 @@ ToolResult 的结构见 `schemas/tool_result.schema.json`：result_id/call_id、
 
 非对象、非有限 JSON 和超出输入大小的调用在 dispatch 前拒绝，不产生执行回执。有效调用的成功/失败回执存入当前 AgentRun 的 receipts/。静态 ToolResult Schema 检查结构与基本状态；Session 生成真实工具调用记录，后续持久化/Artifact 集成还需核验哈希、身份和来源。
 
-CanonChange 暂存检查 pending、业务上下文、所选 Snapshot 的 before 与 Integrator 身份；完整提案集仍须 Phase 4 输出/数据状态验证，然后通过独立宿主入口人工审批与 Apply。Evidence 暂存不更新 world/evidence，通用文件工具也无 world 写权限。
+CanonChange 暂存检查 pending、业务上下文、所选 Snapshot 的 before 与 Integrator 身份；完整提案集仍须 岗位输出／数据状态验证，然后通过独立宿主入口人工审批与 Apply。Evidence 暂存不更新 world/evidence，通用文件工具也无 world 写权限。
 
 ## 本地 CLI
 
@@ -95,7 +95,7 @@ session = ToolSession(world_workspace, validated_agent_input,
 result = session.call("papers.crossref.search", {"query": "electric propulsion", "limit": 5})
 ```
 
-抽象 SearchBackend 接口为 `search(query: str, limit: int) -> dict`，返回 items 与 source 读取记录。服务 Adapter 必须负责真实查询、错误脱敏、来源字段与限流；Session 不凭填写 source 就认证第三方 Adapter。本轮没有选定或实现通用 Web 搜索服务，CLI 返回 unavailable。
+抽象 SearchBackend 接口为 `search(query: str, limit: int) -> dict`，返回 items 与 source 读取记录。服务 Adapter 必须负责真实查询、错误脱敏、来源字段与限流；Session 不凭填写 source 就认证第三方 Adapter。没有选定或实现通用 Web 搜索服务，CLI 返回 unavailable。
 
 ## 接入依据
 
@@ -103,4 +103,4 @@ result = session.call("papers.crossref.search", {"query": "electric propulsion",
 - [arXiv 官方 API 手册](https://info.arxiv.org/help/api/user-manual.html)：Atom 返回、查询参数与请求间隔。
 - [pypdf 官方文本提取说明](https://pypdf.readthedocs.io/en/stable/user/extract-text.html)：PdfReader / extract_text 与 OCR/布局限制。
 
-Phase 5 的真实联调与离线测试记录见 `docs/phase-5.md`。Phase 6 通过受控 SDK Adapter 绑定宿主明确授权的 ToolSession，说明见 [Runtime](../runtimes/README.md)；工具存在仍不表示未配置的搜索服务或脚本已经可用。
+SDK 如何绑定可信宿主授权的 ToolSession 见 [Runtime](../runtimes/README.md)。未配置的搜索服务或脚本仍不可用。
