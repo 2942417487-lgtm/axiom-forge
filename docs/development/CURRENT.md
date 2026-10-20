@@ -2,12 +2,13 @@
 
 核对日期：2026-10-20。本文件是开发接续摘要；启动时仍须核对现场 Git 和用户消息，不把它当作自动执行授权。
 
-## 本轮起始基线与交付
+## 最新集成与当前接续
 
-- 本轮起始集成基线：PR #11，`5958e41ffd64c0d3c69b266e0061203df2fe25ac`；最新集成状态另核对现场 Git 第一父链与对应 PR。
-- 本轮交付：[工程技能与文档整理](tasks/2026-10-20-docs-and-skills.md)，分支 `codex/development-docs-and-skills`，本地整理及双轴独立审查完成。仅整理文档／目录导航，源码、Schema、Runtime 与功能布局保持。
-- 用户随后明确授权隐私检查、推送 PR、远端复核后合并，并确认本次按 PR 范围处理、保留既有历史作者信息，新提交使用 GitHub noreply。检查与发布记录见 [隐私及发布任务](tasks/2026-10-20-privacy-and-publish.md)；不把本文件中的授权摘要当作未来任务的自动授权。
-- 原 `codex/project-metadata-contract` 分支保留在 `75daed57caef3d2fea7e0a59f0a6096b64de6368`，旧 worktree 与被忽略接续缓存保留；不为对齐记录 reset／clean。
+- 最新集成为 [PR #12](https://github.com/2942417487-lgtm/axiom-forge/pull/12)，合并提交 `a50e0cee3c37db1250e114ba3c94e9e3e3d9f136`。2026-10-20 核对时，HEAD／main／本地 origin/main／远端 main 一致，原工作目录干净；GitHub API 确认已合并。该状态是新建本次工作分支前的实测，不代表后续窗口可免除现场核对。
+- [工程技能与文档整理](tasks/2026-10-20-docs-and-skills.md)及其[隐私检查与发布](tasks/2026-10-20-privacy-and-publish.md)均已完成并随 PR #12 集成。原内容提交为 `48ba3f0e7d7ceb71631f8ae0d2139379135035a4`；没有因文档整理修改源码、Schema、Runtime 或功能布局。
+- 用户授权的隐私检查、推送、远端复核和合并已经执行；新提交使用 noreply，历史作者 metadata 按用户选择保留。既有授权不自动延伸到新任务。
+- 当前接续任务为[开发日志接续核对](tasks/2026-10-20-handoff-audit.md)。补齐发布收尾与导航，保留旧阶段历史；用户已授权提交并推送至 `codex/development-handoff-audit`。具体提交与远端同步状态须现场核对，main／origin/main 的集成基线仍为 PR #12；本次未授权创建或合并 PR。
+- 原 `codex/project-metadata-contract` 分支保留在 `75daed57caef3d2fea7e0a59f0a6096b64de6368`，`codex/world-portability-contract` 保留在 `6221d552e37c74b8937e04db7752f3b7d50354c9`。旧 worktree 5723 为干净的 detached HEAD，位于 `d2604248ff5e97ec1f1e5e85407c279861fec6db`；忽略缓存保留，不 reset／clean。
 
 ## 功能结构与证据边界
 
@@ -22,7 +23,7 @@
 | 持久化／显式恢复 | checkpoint、事件、输入／Artifact 复验与预算预留；不恢复厂商会话 | [恢复](../guides/recovery.md) |
 | 外部世界工作区 | 系统／世界／宿主分离，显式 --world，本机私人状态及独立世界 Git | [工作区](../guides/world-workspaces.md)、[PR #9 任务](tasks/separate-world-workspaces.md) |
 | 项目元数据 | 四字段 Schema、PRJ 生成、严格文件检查及 world_id 只读关联；不登记或更新仓库 | [只读检查](../guides/project-metadata-check.md)、[PR #11 实施记录](tasks/project-metadata-implementation.md) |
-| 工程技能／开发接续 | 本轮接入项目专用 af-dev 技能与集中开发日志，不向研究 Runtime 注册 | [本轮任务](tasks/2026-10-20-docs-and-skills.md)、[技能用法](skills/README.md) |
+| 工程技能／开发接续 | PR #12 已接入项目专用 af-dev 技能与集中开发日志，不向研究 Runtime 注册 | [整理任务](tasks/2026-10-20-docs-and-skills.md)、[技能用法](skills/README.md) |
 
 模型真实合成接入测试与研究流程离线验收分别记录，均不等于完整真实科学研究已验收。手工 Claude 岗位加载不等于受控 SDK 工具授权。
 
@@ -38,10 +39,10 @@
 
 PR #11 的新增 20 项测试均已取得通过结果，其中真实符号链接用例在 2026-10-18 由 Windows 管理员进程单独补验，0 跳过。结合首轮全套与失败项修正复验，218 项中 217 项有通过记录，1 项旧符号链接测试仍保留该轮跳过记录；不是第二次完整 discovery 全通过。详见 [实施记录](tasks/project-metadata-implementation.md)。
 
-本轮文档／技能检查与独立审查结果写入 [当前任务](tasks/2026-10-20-docs-and-skills.md)，不能沿用上述测试次数当成本轮执行结果。研究工具、付费模型和正式世界操作均未因此新增授权。
+PR #12 文档／技能检查与独立审查结果见[整理任务](tasks/2026-10-20-docs-and-skills.md)，隐私及合并结果见[发布任务](tasks/2026-10-20-privacy-and-publish.md)。本次接续日志核对的检查另见[当前任务](tasks/2026-10-20-handoff-audit.md)，不沿用历史次数冒充本次测试。研究工具、付费模型和正式世界操作均未因此新增授权。
 
 ## 接续注意
 
 AGENTS、研究模块 README 或模式说明属于现行可信资源指纹范围。即使本轮只改说明和链接，也会改变相关字节哈希；旧 checkpoint 失配仍停止，不自动迁移或补签。本轮保持源码与校验协议不变。
 
-本轮交付后的下一候选仍为仓库宿主回执基础实现，须按后续授权开展。介绍规范保持 0 字节，缓存不会自动随 clone 或新 worktree 携带；开发日志与工程技能作为版本化文件随 Git 接续。
+下一候选仍为仓库宿主回执基础实现，须按后续授权开展。介绍规范保持 0 字节，缓存不会自动随 clone 或新 worktree 携带；已提交的开发日志与工程技能随 Git 接续。换机接续本次补记时须选择 `codex/development-handoff-audit` 并核对远端提交，默认 main 仍是 PR #12 的集成状态。

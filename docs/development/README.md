@@ -6,7 +6,7 @@
 
 1. 完整读取根目录 [AGENTS.md](../../AGENTS.md)，再读 [CURRENT.md](CURRENT.md)。
 2. 核对 cwd、分支、HEAD、main／origin/main、暂存／未提交／未跟踪文件及 worktree；保留实际差异。
-3. 读取 CURRENT 指向的当前 [任务](tasks/2026-10-20-docs-and-skills.md)，只执行用户授权范围。
+3. 读取 CURRENT 指向的当前接续任务，只执行用户授权范围；已完成任务的历史授权不自动延续。
 4. 需要追溯时读取 [变更索引](CHANGELOG.md)、相关任务及 [历史记录](history/README.md)，不必每次重读全部历史。
 5. 软件任务按 [工程技能说明](skills/README.md) 选择技能；产品用法从 [文档导航](../README.md) 进入。
 

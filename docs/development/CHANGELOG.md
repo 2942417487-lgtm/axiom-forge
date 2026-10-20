@@ -2,14 +2,15 @@
 
 集成记录由本地 Git 第一父链核对，日期沿用提交中的 +08:00 时间；验收细节按对应任务／历史记录读取，不能用合并状态代替功能或科学验收。
 
-## 本轮交付
+## 本地接续补记
 
-2026-10-20：[工程技能与文档整理](tasks/2026-10-20-docs-and-skills.md)，加入项目专用工程技能，集中开发日志，分离使用指南与历史说明；源码和功能布局保持。后续用户授权隐私检查、发布及合并，结果见 [隐私及发布任务](tasks/2026-10-20-privacy-and-publish.md) 与对应 Git／PR。下表为本轮之前的集成索引，不用于断言本轮合并状态。
+2026-10-20：[开发日志接续核对](tasks/2026-10-20-handoff-audit.md)，补齐 PR #10–#12 的收尾状态与当前导航。交付分支为 `codex/development-handoff-audit`，用户已授权提交并推送；尚未合入 main，不列为已集成变更，提交及同步状态以现场 Git 为准。
 
-## 本轮之前的集成索引
+## 已集成索引
 
 | 日期 | PR | 内容与记录 | 合并提交 |
 | --- | --- | --- | --- |
+| 2026-10-20 | [#12](https://github.com/2942417487-lgtm/axiom-forge/pull/12) | [工程技能、集中开发日志与文档导航](tasks/2026-10-20-docs-and-skills.md)；[隐私复核与发布](tasks/2026-10-20-privacy-and-publish.md) | `a50e0cee3c37db1250e114ba3c94e9e3e3d9f136` |
 | 2026-10-20 | [#11](https://github.com/2942417487-lgtm/axiom-forge/pull/11) | [项目元数据最小实现与宿主回执契约草案](tasks/project-metadata-implementation.md) | `5958e41ffd64c0d3c69b266e0061203df2fe25ac` |
 | 2026-10-09 | [#10](https://github.com/2942417487-lgtm/axiom-forge/pull/10) | [标准世界 Git 主载体、目录与接续契约](tasks/world-portability-contract.md) | `ab4fe75728d2ea48a75cc227edf432fe0ff28563` |
 | 2026-10-07 | [#9](https://github.com/2942417487-lgtm/axiom-forge/pull/9) | [系统／外部世界／宿主基础分离](tasks/separate-world-workspaces.md) | `61a0c87e503e46a47d4376f3241caaa4690747a2` |
