@@ -4,7 +4,7 @@ description: Axiom Forge system software development only. Implement the result 
 disable-model-invocation: true
 ---
 
-> Project scope: use only for Axiom Forge system software development in this repository. Read [engineering workflow](../../../docs/development/skills/README.md) before acting. This skill is not a worldbuilding research role, Evidence source, tool grant, approval or permission to publish.
+> Project scope: use only for Axiom Forge system software development in this repository. Read [engineering workflow](../../../development/records/skills/README.md) before acting. This skill is not a worldbuilding research role, Evidence source, tool grant, approval or permission to publish.
 
 
 You have been provided a spec. This spec should have tickets associated with it, describing how to implement the spec.
@@ -23,7 +23,7 @@ Communication to and from subagents should be sparse. Communicate primarily thro
 
 1. Read the spec and tickets to understand the task graph.
 
-2. (optional) Use an **exploration subagent** to conduct any exploration required by the tickets - relevant codebase files or external documentation. Ensure the exploration subagent can save files - it should save safe markdown findings under the current task's `docs/development/tasks/<feature>/` directory, accessible to later engineering agents. Sensitive or raw temporary material stays in ignored `.cache/` and is not copied into shared notes. This lets **implementer subagents** focus on implementation rather than exploration.
+2. (optional) Use an **exploration subagent** to conduct any exploration required by the tickets - relevant codebase files or external documentation. Ensure the exploration subagent can save files - it should save safe markdown findings under the current task's `development/records/tasks/<feature>/` directory, accessible to later engineering agents. Sensitive or raw temporary material stays in ignored `.cache/` and is not copied into shared notes. This lets **implementer subagents** focus on implementation rather than exploration.
 
 3. Create the integration branch. If the issue tracker closes work through PRs, or the user asks for one, open a draft PR after the first merge in step 5 (a branch with no commits ahead of main can't open one), marked as closing the spec and tickets.
 

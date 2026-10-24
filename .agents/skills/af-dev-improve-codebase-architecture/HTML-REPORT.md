@@ -1,6 +1,6 @@
 # HTML Report Format
 
-The architectural review preview is rendered as a single self-contained HTML file in ignored `.cache/`; durable findings and decisions belong to the current task under `docs/development/tasks/`. Tailwind and Mermaid both come from CDNs. Mermaid handles graph-shaped diagrams reliably; hand-built divs and inline SVG handle the more editorial visuals (mass diagrams, cross-sections). Mix the two: don't lean on Mermaid for everything, it'll start to look generic.
+The architectural review preview is rendered as a single self-contained HTML file in ignored `.cache/`; durable findings and decisions belong to the current task under `development/records/tasks/`. Tailwind and Mermaid both come from CDNs. Mermaid handles graph-shaped diagrams reliably; hand-built divs and inline SVG handle the more editorial visuals (mass diagrams, cross-sections). Mix the two: don't lean on Mermaid for everything, it'll start to look generic.
 
 ## Scaffold
 

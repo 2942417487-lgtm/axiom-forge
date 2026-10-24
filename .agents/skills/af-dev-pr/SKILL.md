@@ -9,7 +9,7 @@ metadata:
     url: https://github.com/humanlayer/skills/blob/main/plugins/show-me/skills/show-me/SKILL.md
 ---
 
-> Project scope: use only for Axiom Forge system software development in this repository. Read [engineering workflow](../../../docs/development/skills/README.md) before acting. This skill is not a worldbuilding research role, Evidence source, tool grant, approval or permission to publish.
+> Project scope: use only for Axiom Forge system software development in this repository. Read [engineering workflow](../../../development/records/skills/README.md) before acting. This skill is not a worldbuilding research role, Evidence source, tool grant, approval or permission to publish.
 
 
 Use this template for writing the PR body:
@@ -37,7 +37,7 @@ Use this template for writing the PR body:
 
 ## Sections
 
-Skip all preambles and keep prose brief. Use the user's domain language from `docs/development/GLOSSARY.md`.
+Skip all preambles and keep prose brief. Use the user's domain language from `development/records/GLOSSARY.md`.
 
 ### Summary
 

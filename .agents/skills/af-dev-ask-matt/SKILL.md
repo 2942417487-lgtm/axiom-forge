@@ -4,7 +4,7 @@ description: Axiom Forge system software development only. Ask which skill or fl
 disable-model-invocation: true
 ---
 
-> Project scope: use only for Axiom Forge system software development in this repository. Read [engineering workflow](../../../docs/development/skills/README.md) before acting. This skill is not a worldbuilding research role, Evidence source, tool grant, approval or permission to publish.
+> Project scope: use only for Axiom Forge system software development in this repository. Read [engineering workflow](../../../development/records/skills/README.md) before acting. This skill is not a worldbuilding research role, Evidence source, tool grant, approval or permission to publish.
 
 
 # Ask Matt
@@ -19,14 +19,14 @@ A **flow** is a path through the skills. Most paths run along one **main flow**,
 
 The route most work travels. You have an idea and want it built.
 
-1. **`/af-dev-grill-with-docs`** sharpens the idea by interview. Start here whenever you are **working in a working directory**: it's stateful, retaining what it learns in `docs/development/GLOSSARY.md` and ADRs. (No working directory? Use `/af-dev-grill-me` instead, covered under Standalone. Both run the same `/af-dev-grilling` primitive; `grill-with-docs` is the one that leaves a paper trail, which makes it the better of the two whenever a repo is there to leave it in.)
+1. **`/af-dev-grill-with-docs`** sharpens the idea by interview. Start here whenever you are **working in a working directory**: it's stateful, retaining what it learns in `development/records/GLOSSARY.md` and ADRs. (No working directory? Use `/af-dev-grill-me` instead, covered under Standalone. Both run the same `/af-dev-grilling` primitive; `grill-with-docs` is the one that leaves a paper trail, which makes it the better of the two whenever a repo is there to leave it in.)
 2. **Branch: can you settle every question in conversation?** If a question needs a runnable answer (state, business logic, a UI you have to see), detour through a prototype, bridged by **`/af-dev-handoff`** in both directions (a prototype lives in its own directory, which is exactly what `/af-dev-handoff` is for; see Phase boundaries):
    - **`/af-dev-handoff`** out, then open a fresh session against that file,
    - **`/af-dev-prototype`** to answer the question with throwaway code,
    - **`/af-dev-handoff`** back what you learned, and reference it from the original idea thread.
 3. **Branch: is this a multi-session build?**
    - **Yes** → **`/af-dev-to-spec`** (turn the thread into a spec), then **`/af-dev-to-tickets`** to split it into tracer-bullet tickets, each declaring its **blocking edges**. Then work the tickets one of two ways:
-     - **`/af-dev-implement`** per ticket, **`/clear`ing context between each one**. On a local tracker that's one file per ticket under `docs/development/tasks/<feature>/issues/`, worked blockers-first by hand; on a real tracker the edges become native blocking links, so any ticket whose blockers are done can be grabbed. Each ticket is self-contained, so the last one's context is disposable.
+     - **`/af-dev-implement`** per ticket, **`/clear`ing context between each one**. On a local tracker that's one file per ticket under `development/records/tasks/<feature>/issues/`, worked blockers-first by hand; on a real tracker the edges become native blocking links, so any ticket whose blockers are done can be grabbed. Each ticket is self-contained, so the last one's context is disposable.
      - **`/af-dev-implement-spec`** for the whole spec in one run. It reads the tickets as a **task graph**, runs implementer subagents across the ready **frontier** in parallel, and lands everything on one **integration branch**. Reach for it when you'd rather orchestrate the build than drive each ticket yourself.
    - **No** → **`/af-dev-implement`** right here, in the same context window.
 
@@ -66,7 +66,7 @@ Not feature work, just upkeep.
 
 Two model-invoked references that run *beneath* the other skills, each the single source of truth for its vocabulary. Reach for them directly when the **words**, not the process, are the problem; or let the skills above pull them in.
 
-- **`/af-dev-domain-modeling`**: sharpen the project's *domain* language: challenge a fuzzy term, resolve an overloaded word ("account" doing three jobs), record a hard-to-reverse decision as an ADR. It's the active discipline `/af-dev-grill-with-docs` drives to keep `docs/development/GLOSSARY.md` a clean glossary.
+- **`/af-dev-domain-modeling`**: sharpen the project's *domain* language: challenge a fuzzy term, resolve an overloaded word ("account" doing three jobs), record a hard-to-reverse decision as an ADR. It's the active discipline `/af-dev-grill-with-docs` drives to keep `development/records/GLOSSARY.md` a clean glossary.
 - **`/af-dev-codebase-design`** is the deep-module vocabulary (module, interface, depth, seam, adapter, leverage, locality) for designing a module's *shape*: a lot of behaviour behind a small interface at a clean seam. `/af-dev-tdd` and `/af-dev-improve-codebase-architecture` both speak it.
 
 ## Phase boundaries
@@ -85,13 +85,13 @@ Read [PHASE-BOUNDARIES.md](PHASE-BOUNDARIES.md) for the ordered tree: the five q
 
 Off the main flow entirely.
 
-- **`/af-dev-grill-me`**: the same relentless interview as `/af-dev-grill-with-docs`, but **stateless**: it saves nothing locally and builds no `docs/development/GLOSSARY.md`. Reach for it when you are **not working in a working directory** (sharpening a plan, a design, a piece of writing, anything with no repo under it). If you are in a working directory, use `/af-dev-grill-with-docs` instead: it runs the same interview and leaves a paper trail, so it is strictly the better one.
+- **`/af-dev-grill-me`**: the same relentless interview as `/af-dev-grill-with-docs`, but **stateless**: it saves nothing locally and builds no `development/records/GLOSSARY.md`. Reach for it when you are **not working in a working directory** (sharpening a plan, a design, a piece of writing, anything with no repo under it). If you are in a working directory, use `/af-dev-grill-with-docs` instead: it runs the same interview and leaves a paper trail, so it is strictly the better one.
 - **`/af-dev-grilling`** is the interview primitive itself: rounds, the frontier, facts are the agent's job and decisions are yours. `/af-dev-grill-me` and `/af-dev-grill-with-docs` are the two named ways in, and `/af-dev-triage`, `/af-dev-wayfinder` and `/af-dev-improve-codebase-architecture` all run it internally. Reach for it directly only when you want the interview with no wrapper around it.
 - **`/af-dev-prototype`** is a small, throwaway program that answers one design question: does this state model feel right, or what should this UI look like. Throwaway is a constraint on how the code is written, not a promise to destroy it: the answer folds into the real code, and the prototype itself is kept as a **primary source** on a `prototype/<name>` branch out of main, pointed at from the implementation issue. It's the detour in step 2 of the main flow, but reach for it any time a design question is hard to settle on paper.
 - **`/af-dev-research`**: delegate reading legwork to a **background agent**: it investigates a question against **primary sources**, then leaves a cited Markdown file in the repo. Keep working while it reads. The file it produces is something to take *into* the main flow at `/af-dev-grill-with-docs`, since research feeds the thinking rather than replacing it.
 - **`/af-dev-to-questionnaire`** comes in when the thing blocking you isn't in your head or the codebase but in **someone else's**, and it writes them a questionnaire to fill in. It's the inverse of `/af-dev-grill-me`: instead of interviewing you about the subject, it interviews you about the **send** (who it's going to, what you need back) and aims the questions at the gap. What comes back is material for `/af-dev-grill-with-docs` or `/af-dev-to-spec`.
 - **`/af-dev-wizard`** is for the steps only a **human** can take: provisioning infrastructure, setting up credentials or CI secrets, clicking through an unfamiliar third-party dashboard, running a one-off migration or cutover. It generates an interactive bash script that opens each URL, captures each value, and writes it into `.env` and GitHub secrets, so the procedure stops being something you re-explain to an agent every time. Model-invoked, so the agent reaches for it the moment it hits a wall only you can pass. If the agent could just do it itself, it should; this is for where a human is genuinely in the loop.
-- **`/af-dev-wait-what`** is the corrective for a message that didn't land. Use it mid-conversation, inside any other skill, and the agent re-pitches what it just said with the context you were missing, in plain English, using the `docs/development/GLOSSARY.md` vocabulary. It works after the fact; `/af-dev-grill-with-docs` is the upfront cure, because a shared language agreed early is what stops the jargon arriving at all.
+- **`/af-dev-wait-what`** is the corrective for a message that didn't land. Use it mid-conversation, inside any other skill, and the agent re-pitches what it just said with the context you were missing, in plain English, using the `development/records/GLOSSARY.md` vocabulary. It works after the fact; `/af-dev-grill-with-docs` is the upfront cure, because a shared language agreed early is what stops the jargon arriving at all.
 - **`/af-dev-teach`**: learn a concept over multiple sessions, using the current directory as a stateful workspace.
 - **`/af-dev-writing-for-agents`** is the reference for writing documents agents consume: skills, AGENTS.md, pointed-at docs.
 

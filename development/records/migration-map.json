@@ -1,0 +1,165 @@
+{
+  "baseline": "5958e41ffd64c0d3c69b266e0061203df2fe25ac",
+  "migrations": [
+    {
+      "from": "docs/evidence.md",
+      "to": "product/docs/contracts/evidence.md",
+      "before_sha256": "f9e57d50cf7c05445ea2e3b05beac20f565aeb8b9311d87120f411969e82f23d"
+    },
+    {
+      "from": "docs/phase-0.md",
+      "to": "development/records/history/phases/phase-0.md",
+      "before_sha256": "2cb99feaecdb62dd8fb77a4fb794326d5766c66fcc9bbd791b3cb20e6ad3e12c"
+    },
+    {
+      "from": "docs/phase-1-3.md",
+      "to": "development/records/history/phases/phase-1-3.md",
+      "before_sha256": "46c51e668eb1f5986be85454c4172ea8e6c942c348866b6dbd5d92f94ff6721f"
+    },
+    {
+      "from": "docs/phase-10.md",
+      "to": "development/records/history/phases/phase-10.md",
+      "before_sha256": "f39bd4b2298e4625e16a157e0c13332e0d67a3b78bbdcdaf9f14c99692944e0e"
+    },
+    {
+      "from": "docs/phase-11.md",
+      "to": "development/records/history/phases/phase-11.md",
+      "before_sha256": "3ba15854cd0282894d66ce67f5f4f9e93472f17b61c99a2cfc155b6fc9ce29dd"
+    },
+    {
+      "from": "docs/phase-4.md",
+      "to": "development/records/history/phases/phase-4.md",
+      "before_sha256": "b52d16ec82fe7100d505fbbacba86c1ce99f7f99fd2fe62b13c8cb3aa8136385"
+    },
+    {
+      "from": "docs/phase-5.md",
+      "to": "development/records/history/phases/phase-5.md",
+      "before_sha256": "32b4044655454d7e2fa4e33b2a9c414f97d54b3da157f0509ad9502006f5623a"
+    },
+    {
+      "from": "docs/phase-6.md",
+      "to": "development/records/history/phases/phase-6.md",
+      "before_sha256": "84ff01fbb14a63b31b9e2a747ab027e7e1d4a5ed9af47ae6f05d4cd4dc0d1219"
+    },
+    {
+      "from": "docs/phase-7-9.md",
+      "to": "development/records/history/phases/phase-7-9.md",
+      "before_sha256": "2d0f82df36a7aba9dfcd2e5225e656f94e274bae5fc1f752bbf488e19285bcbe"
+    },
+    {
+      "from": "docs/project-metadata-check.md",
+      "to": "product/docs/guides/project-metadata-check.md",
+      "before_sha256": "aaeaa302ff0880ab958b19d3e3f8a5abe95f6553ca5368eaafbd74d69f4887d8"
+    },
+    {
+      "from": "docs/project-metadata-contract.md",
+      "to": "product/docs/contracts/project-metadata-contract.md",
+      "before_sha256": "925b9663d6541f495bf0e4a14005c733c0ce5e66077e81820011facd7bd95eb0"
+    },
+    {
+      "from": "docs/repository-host-receipts.md",
+      "to": "product/docs/contracts/repository-host-receipts.md",
+      "before_sha256": "0272a3fd82ef99a763e0db7a1013133586991e2f7837679322187456ee00f443"
+    },
+    {
+      "from": "docs/tasks/phase-1-3.md",
+      "to": "development/records/tasks/phase-1-3.md",
+      "before_sha256": "08e1b9f5b1565cd95e6509db0910fb36dd03b1ec0a30dda92381d9ea8e37e5f1"
+    },
+    {
+      "from": "docs/tasks/phase-10.md",
+      "to": "development/records/tasks/phase-10.md",
+      "before_sha256": "e0acb9bd884862250e9074a40db1516dd8466b43aa6512c8234d8c793d91395d"
+    },
+    {
+      "from": "docs/tasks/phase-11.md",
+      "to": "development/records/tasks/phase-11.md",
+      "before_sha256": "821ca3ecf0f96e0d64481b693587d9500d5a21b588cf90e2f64292fe2880ff61"
+    },
+    {
+      "from": "docs/tasks/phase-4.md",
+      "to": "development/records/tasks/phase-4.md",
+      "before_sha256": "b84692476808da564624c0310324457268c9166103d0d74aee8d7d040ec17ce3"
+    },
+    {
+      "from": "docs/tasks/phase-5.md",
+      "to": "development/records/tasks/phase-5.md",
+      "before_sha256": "a5b52968412df81b7fd93e2157825410d31a4af9a8eec8f30383feb42db7dd82"
+    },
+    {
+      "from": "docs/tasks/phase-6.md",
+      "to": "development/records/tasks/phase-6.md",
+      "before_sha256": "fa256ef55da0bf4adc841db9f4fea96b534f33bdcd96d6740b02d2364e160d16"
+    },
+    {
+      "from": "docs/tasks/phase-7-9.md",
+      "to": "development/records/tasks/phase-7-9.md",
+      "before_sha256": "f0ccea7ea61fe7b35a3a17c5ddc509b45b79501d24ab6dbaeaf2295be6268ecb"
+    },
+    {
+      "from": "docs/tasks/project-metadata-contract.md",
+      "to": "development/records/tasks/project-metadata-contract.md",
+      "before_sha256": "9b2b12c22a031dc3200ba427e16f98aa724ae130863c1bcb331ea11e39acecfb"
+    },
+    {
+      "from": "docs/tasks/project-metadata-implementation.md",
+      "to": "development/records/tasks/project-metadata-implementation.md",
+      "before_sha256": "ca65d598523a1fd3a225188f92f7941fa5199b6f4e3850733f6e759face90100"
+    },
+    {
+      "from": "docs/tasks/repository-host-receipts.md",
+      "to": "development/records/tasks/repository-host-receipts.md",
+      "before_sha256": "874aa92521a953dc78979416b7aca7fdc9d641aedce8a6ef5cd35e5ecacf3dc7"
+    },
+    {
+      "from": "docs/tasks/reusable-calculations.md",
+      "to": "development/records/tasks/reusable-calculations.md",
+      "before_sha256": "b4397bee5f945820367780df46cf5b20948ec4841dbbb10a768f2d4815624037"
+    },
+    {
+      "from": "docs/tasks/rule-scope-separation.md",
+      "to": "development/records/tasks/rule-scope-separation.md",
+      "before_sha256": "c494af6e293cd47b01e48202af674c63445b4080ce871d54cfe2b1898aea5878"
+    },
+    {
+      "from": "docs/tasks/separate-world-workspaces.md",
+      "to": "development/records/tasks/separate-world-workspaces.md",
+      "before_sha256": "d5465a9d99068aa36aca6b4c511803cff0866d2c2c9c9ad90b9d9785ebde67fe"
+    },
+    {
+      "from": "docs/tasks/world-portability-contract.md",
+      "to": "development/records/tasks/world-portability-contract.md",
+      "before_sha256": "284bf60f8777e9bd275f7d20e72dc8e15289c3c4e79d7824297c1f6d4043b66f"
+    },
+    {
+      "from": "docs/world-git-sync.md",
+      "to": "product/docs/contracts/world-git-sync.md",
+      "before_sha256": "b59afaf8eb662d24aca734f1ae4be94ff749fcc1e21b4f815decb89597ea1a25"
+    },
+    {
+      "from": "docs/world-introduction-export.md",
+      "to": "product/docs/contracts/world-introduction-export.md",
+      "before_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "from": "docs/world-portability-contract.md",
+      "to": "product/docs/contracts/world-portability-contract.md",
+      "before_sha256": "85f95bbef0051634bfe158ede31b4aee226c4c816b9a82680f25adb89655cd9f"
+    },
+    {
+      "from": "docs/world-project-structure.md",
+      "to": "product/docs/contracts/world-project-structure.md",
+      "before_sha256": "a15040bb6c9bdb0e3d6316d4b2772ab66780a6712d2ec6f274033f389ad9f4dc"
+    },
+    {
+      "from": "docs/world-workspaces.md",
+      "to": "product/docs/guides/world-workspaces.md",
+      "before_sha256": "f80834fc1895c57e138bd24a16eac9612a48323eebc94f1595c935bf25a99588"
+    }
+  ],
+  "active_guides_extracted_from": {
+    "docs/guides/task-management.md": "docs/phase-10.md",
+    "docs/guides/recovery.md": "docs/phase-11.md"
+  },
+  "history_rule": "Phase records and tasks preserve historical execution claims; only relative navigation changes. Full original bytes are addressable at baseline:path."
+}

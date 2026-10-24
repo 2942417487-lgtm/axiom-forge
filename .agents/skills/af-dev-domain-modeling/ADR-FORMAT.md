@@ -1,8 +1,8 @@
 # ADR Format
 
-ADRs live in `docs/development/decisions/` and use sequential numbering: `0001-slug.md`, `0002-slug.md`, etc.
+ADRs live in `development/records/decisions/` and use sequential numbering: `0001-slug.md`, `0002-slug.md`, etc.
 
-Create the `docs/development/decisions/` directory lazily: only when the first ADR is needed.
+Create the `development/records/decisions/` directory lazily: only when the first ADR is needed.
 
 ## Template
 
@@ -24,7 +24,7 @@ Only include these when they add genuine value. Most ADRs won't need them.
 
 ## Numbering
 
-Scan `docs/development/decisions/` for the highest existing number and increment by one.
+Scan `development/records/decisions/` for the highest existing number and increment by one.
 
 ## When to offer an ADR
 
