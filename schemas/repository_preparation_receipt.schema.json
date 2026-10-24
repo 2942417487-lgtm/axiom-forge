@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://axiom-forge.invalid/schemas/repository_preparation_receipt.schema.json",
+  "title": "repository_preparation_receipt",
+  "allOf": [
+    {
+      "$ref": "https://axiom-forge.invalid/schemas/repository_receipt_common.schema.json#/$defs/envelope"
+    },
+    {
+      "properties": {
+        "receipt_kind": {
+          "const": "preparation"
+        },
+        "sequence": {
+          "const": 1
+        },
+        "predecessor": {
+          "type": "null"
+        },
+        "payload": {
+          "type": "object",
+          "properties": {
+            "requested_action": {
+              "enum": [
+                "inspect",
+                "register",
+                "update"
+              ]
+            },
+            "source_selection_ref": {
+              "$ref": "https://axiom-forge.invalid/schemas/repository_receipt_common.schema.json#/$defs/content_ref"
+            },
+            "target_selection_ref": {
+              "$ref": "https://axiom-forge.invalid/schemas/repository_receipt_common.schema.json#/$defs/content_ref"
+            },
+            "host_context_ref": {
+              "$ref": "https://axiom-forge.invalid/schemas/repository_receipt_common.schema.json#/$defs/content_ref"
+            },
+            "policy_ref": {
+              "$ref": "https://axiom-forge.invalid/schemas/repository_receipt_common.schema.json#/$defs/content_ref"
+            },
+            "engine_resources_ref": {
+              "$ref": "https://axiom-forge.invalid/schemas/repository_receipt_common.schema.json#/$defs/content_ref"
+            },
+            "limits_ref": {
+              "$ref": "https://axiom-forge.invalid/schemas/repository_receipt_common.schema.json#/$defs/content_ref"
+            },
+            "sensitive_preflight_ref": {
+              "anyOf": [
+                {
+                  "$ref": "https://axiom-forge.invalid/schemas/repository_receipt_common.schema.json#/$defs/content_ref"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "retry_of_operation_id": {
+              "anyOf": [
+                {
+                  "$ref": "https://axiom-forge.invalid/schemas/repository_receipt_common.schema.json#/$defs/operation_id"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "requested_action",
+            "source_selection_ref",
+            "target_selection_ref",
+            "host_context_ref",
+            "policy_ref",
+            "engine_resources_ref",
+            "limits_ref",
+            "sensitive_preflight_ref",
+            "retry_of_operation_id"
+          ],
+          "additionalProperties": false
+        }
+      }
+    }
+  ]
+}

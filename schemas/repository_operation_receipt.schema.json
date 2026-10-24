@@ -1,0 +1,141 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://axiom-forge.invalid/schemas/repository_operation_receipt.schema.json",
+  "title": "repository_operation_receipt",
+  "allOf": [
+    {
+      "$ref": "https://axiom-forge.invalid/schemas/repository_receipt_common.schema.json#/$defs/envelope"
+    },
+    {
+      "properties": {
+        "receipt_kind": {
+          "const": "operation_result"
+        },
+        "sequence": {
+          "minimum": 2,
+          "maximum": 4
+        },
+        "predecessor": {
+          "$ref": "https://axiom-forge.invalid/schemas/repository_receipt_common.schema.json#/$defs/receipt_ref"
+        },
+        "payload": {
+          "type": "object",
+          "properties": {
+            "requested_action": {
+              "enum": [
+                "inspect",
+                "register",
+                "update"
+              ]
+            },
+            "inspection_ref": {
+              "anyOf": [
+                {
+                  "$ref": "https://axiom-forge.invalid/schemas/repository_receipt_common.schema.json#/$defs/receipt_ref"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "acceptance_ref": {
+              "anyOf": [
+                {
+                  "$ref": "https://axiom-forge.invalid/schemas/repository_receipt_common.schema.json#/$defs/receipt_ref"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "execution_intent_ref": {
+              "anyOf": [
+                {
+                  "$ref": "https://axiom-forge.invalid/schemas/repository_receipt_common.schema.json#/$defs/content_ref"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "before_ref": {
+              "anyOf": [
+                {
+                  "$ref": "https://axiom-forge.invalid/schemas/repository_receipt_common.schema.json#/$defs/content_ref"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "after_ref": {
+              "anyOf": [
+                {
+                  "$ref": "https://axiom-forge.invalid/schemas/repository_receipt_common.schema.json#/$defs/content_ref"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "effects_ref": {
+              "$ref": "https://axiom-forge.invalid/schemas/repository_receipt_common.schema.json#/$defs/content_ref"
+            },
+            "preservation_ref": {
+              "$ref": "https://axiom-forge.invalid/schemas/repository_receipt_common.schema.json#/$defs/content_ref"
+            },
+            "saved_records_ref": {
+              "$ref": "https://axiom-forge.invalid/schemas/repository_receipt_common.schema.json#/$defs/content_ref"
+            },
+            "outcome": {
+              "enum": [
+                "inspected",
+                "registered",
+                "updated",
+                "already_current",
+                "rejected",
+                "blocked",
+                "cancelled",
+                "failed",
+                "interrupted_unknown"
+              ]
+            },
+            "diagnostics_ref": {
+              "anyOf": [
+                {
+                  "$ref": "https://axiom-forge.invalid/schemas/repository_receipt_common.schema.json#/$defs/content_ref"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "followup": {
+              "enum": [
+                "none",
+                "needs_input",
+                "new_inspection",
+                "manual_reconcile"
+              ]
+            }
+          },
+          "required": [
+            "requested_action",
+            "inspection_ref",
+            "acceptance_ref",
+            "execution_intent_ref",
+            "before_ref",
+            "after_ref",
+            "effects_ref",
+            "preservation_ref",
+            "saved_records_ref",
+            "outcome",
+            "diagnostics_ref",
+            "followup"
+          ],
+          "additionalProperties": false
+        }
+      }
+    }
+  ]
+}

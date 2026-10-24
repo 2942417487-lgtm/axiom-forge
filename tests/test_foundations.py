@@ -62,7 +62,7 @@ class FoundationTests(unittest.TestCase):
             self.schemas.validate("mode_analysis", fixture_analysis(mode))
         aliases = {"mode-host": "mode_host", "routing-request": "routing_request"}
         covered = {aliases.get(path.stem, path.stem) for path in examples} | policy_names | {"mode_analysis", "agent_contract"}
-        self.assertEqual(covered, set(self.schemas.schemas) - {"common"})
+        self.assertEqual(covered, set(self.schemas.schemas) - {"common", "repository_receipt_common"})
         for path in examples:
             with self.subTest(schema=path.stem):
                 self.schemas.validate(aliases.get(path.stem, path.stem), read_json(path))

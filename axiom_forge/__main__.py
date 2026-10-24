@@ -122,6 +122,10 @@ def main(argv=None) -> int:
         if args.command == "validate" and args.schema == "project_metadata":
             print(json.dumps(check_project_file(args.file, schemas), ensure_ascii=True, indent=2))
             return 0
+        if args.command == "validate" and args.schema.startswith("repository_"):
+            from .repository_receipts import check_receipt_file
+            print(json.dumps(check_receipt_file(args.file, args.schema, schemas), ensure_ascii=True, indent=2))
+            return 0
         if args.command == "world" and args.world_action == "create":
             receipt = create_world(args.path, args.name, engine=args.engine, host_root=args.host_root,
                                    author_name=args.author_name, author_email=args.author_email)

@@ -4,6 +4,12 @@
 
 ## 本地接续补记
 
+2026-10-24：[回执与存储提交 PR](tasks/2026-10-24-receipts-storage-pr.md)，用户授权提交、推送和创建 PR；不合并。具体检查与远端状态在发布任务记录。
+
+2026-10-23：[宿主内容存储基础](tasks/2026-10-23-repository-content-store.md)，在未提交的回执基础之上完成类型／操作绑定、事务保存与复读及双轴审查；联合回归 96 项、审查修正后存储 27 项均通过。现成方案见[选型记录](tasks/2026-10-23-repository-content-store-research.md)。仍在原工作分支，未提交、未集成。
+
+2026-10-23：[仓库宿主回执数据基础](tasks/2026-10-23-repository-receipt-foundations.md)，用户确认四类 Schema、标识、引用与链验证、测试及独立审查。工作分支 `codex/repository-receipt-foundations`，基线 `401aa51`；未提交、未集成，验收以任务实录为准。
+
 2026-10-20：[开发日志接续核对](tasks/2026-10-20-handoff-audit.md)，补齐 PR #10–#12 的收尾状态与当前导航。交付分支为 `codex/development-handoff-audit`，用户已授权提交并推送；尚未合入 main，不列为已集成变更，提交及同步状态以现场 Git 为准。
 
 ## 已集成索引

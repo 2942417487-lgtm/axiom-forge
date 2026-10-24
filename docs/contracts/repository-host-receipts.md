@@ -17,7 +17,7 @@
 
 特别缺口：CanonHost 在提交说明中写入完整批准 JSON，其中包含 mac_sha256。因此审批 metadata 可能进入 Git commit 对象，即使 .axiom/local 和审批文件被忽略。没有检查任何个人正式世界，不能据此宣称实际泄露；未来取得／共享检查必须覆盖这种对象，发现禁止共享的 MAC／批准状态即停止，不自动重写历史。本阶段不修改 CanonHost 或其恢复验证。
 
-未来实施前还须确定受限取得／对象读取、敏感预检、宿主人工入口及验证、可靠存储／并发控制后端。本文不声称已完成 MCP／skills 检索；选型按 AGENTS.md 另行真实检索并记录来源、采用方案和缺口。
+内容引用的小记录存储已选用 SQLite，见[本次真实检索与选型](../development/tasks/2026-10-23-repository-content-store-research.md)及[宿主存储接口](../guides/repository-content-store.md)。受限取得／对象读取、敏感预检、宿主人工验证、完整回执保存与跨资源并发控制仍须分别确定后端；内容存储的选型不替代这些后续检索与验收。
 
 ## 2. 操作、阶段与权限
 
@@ -55,7 +55,7 @@ source 可以是用户选择的已有本地仓库，或宿主明确获准取得�
 
 同一 operation_id 只对应一次固定捕获和决定：第一份必须是 sequence=1 的 preparation；inspection、acceptance、operation_result 各至多一份，按阶段顺序保存，operation_result 为终态，后面不得追加回执。合法链为 preparation → operation_result（早期停止）、preparation → inspection → operation_result，或 preparation → inspection → acceptance → operation_result（仅 register／update）。acceptance 必须引用本操作 eligible 的 inspection。重新捕获、比较或接受需新建 operation_id，并以 retry_of_operation_id 关联旧操作；不能在旧链中追加新决定来覆盖旧结果。
 
-RPO／RRC 的拟议格式分别为对应前缀加标准小写 UUID v4：8-4-4-4-12 个十六进制字符，版本位置为 4，variant 首字符为 8／9／a／b。不自动转换大小写、改名或复用 ID；现行 ids.py 尚未支持。
+RPO／RRC 的格式分别为对应前缀加标准小写 UUID v4：8-4-4-4-12 个十六进制字符，版本位置为 4，variant 首字符为 8／9／a／b。不自动转换大小写、改名或复用 ID；数据基础接口支持 `new-id repository_operation`／`new-id repository_receipt`，见[校验用法](../guides/repository-receipt-validation.md)。
 
 - ReceiptRef 恰为 receipt_id、sha256；前者为 RRC，后者是实际已保存回执字节的 64 位小写十六进制 SHA-256。读入还须核对原封套、操作和阶段，不能只看哈希。
 - ContentRef 恰为 record_id、sha256；record_id 为无前缀小写 UUID v4，定位宿主私人内容记录，sha256 校验实际保存字节。其登记类型、operation_id、完整分块清单和可读权限由可信宿主核对，不从来源路径解析。
@@ -63,6 +63,8 @@ RPO／RRC 的拟议格式分别为对应前缀加标准小写 UUID v4：8-4-4-4-
 - 回执不存自身哈希；引用或宿主私人清单记录原字节哈希。不得先用另一语言重新序列化再称与原回执相同。这里不新定义 Canon 哈希或 RFC 8785 profile。
 
 拟议操作记录保存在外部可信宿主私人目录，例如 `<host>/repository-operations/<RPO>/`；绝对路径和认证映射仅由宿主掌握，不上传到项目 Git。世界 .axiom/local 及旧记录保留，回执链不是共享研究档案或可移植恢复包。
+
+当前 ContentRef 存储在该操作目录的 `content.sqlite3`，原字节与类型／操作元数据同事务保存、独立连接复读。接口只保存单份不超过 2 MiB 的内容记录；回执链本身的持久发布、控制面、防重放及下述分块清单另行实现。
 
 回执、比较、清单和诊断可能分块保存：ContentRef 指向完整分块根清单，根清单列出有序片段、字节校验、类型、总项数与读取范围。缺块、超限、损坏或未检查范围不能报完整；不把大型对象塞入单个 2 MiB 文件。限额及分块实现须由未来可信宿主策略明确启用。
 
@@ -285,4 +287,4 @@ register 的新 workspace.json 仅可作为经审查投影的新本机绑定创�
 
 ## 10. 实现与权限边界
 
-本设计约束宿主取得、检查、人工接受和完成判定，不产生真实回执或执行权限。格式／标识、验证器、可靠保存、执行后端和 H01–H26 验收需真实实现；准确进展见 [CURRENT](../development/CURRENT.md)。安全研究档案应承接实际覆盖、来源引用与回执去执行化；宿主后端、工具选型和保护／事务能力按独立工程范围推进，不因文档合入自动启动。
+本设计约束宿主取得、检查、人工接受和完成判定，不产生真实回执或执行权限。四类 Schema、标识及离线数据／链校验用法见[回执数据校验](../guides/repository-receipt-validation.md)，单份内容记录接口见[宿主内容存储](../guides/repository-content-store.md)。宿主验证器、完整回执／控制面可靠保存、分块、执行后端和 H01–H26 产品验收仍待实现，准确进展见 [CURRENT](../development/CURRENT.md)。安全研究档案应承接实际覆盖、来源引用与回执去执行化；宿主后端、工具选型和保护／事务能力按独立工程范围推进，不因文档合入自动启动。

@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://axiom-forge.invalid/schemas/repository_acceptance_receipt.schema.json",
+  "title": "repository_acceptance_receipt",
+  "allOf": [
+    {
+      "$ref": "https://axiom-forge.invalid/schemas/repository_receipt_common.schema.json#/$defs/envelope"
+    },
+    {
+      "properties": {
+        "receipt_kind": {
+          "const": "acceptance"
+        },
+        "sequence": {
+          "const": 3
+        },
+        "predecessor": {
+          "$ref": "https://axiom-forge.invalid/schemas/repository_receipt_common.schema.json#/$defs/receipt_ref"
+        },
+        "payload": {
+          "type": "object",
+          "properties": {
+            "inspection_ref": {
+              "$ref": "https://axiom-forge.invalid/schemas/repository_receipt_common.schema.json#/$defs/receipt_ref"
+            },
+            "acceptance_scope": {
+              "enum": [
+                "register_baseline",
+                "sync_baseline"
+              ]
+            },
+            "decision": {
+              "enum": [
+                "accepted",
+                "rejected"
+              ]
+            },
+            "review_view_ref": {
+              "$ref": "https://axiom-forge.invalid/schemas/repository_receipt_common.schema.json#/$defs/content_ref"
+            },
+            "source_capture_ref": {
+              "$ref": "https://axiom-forge.invalid/schemas/repository_receipt_common.schema.json#/$defs/content_ref"
+            },
+            "target_before_ref": {
+              "$ref": "https://axiom-forge.invalid/schemas/repository_receipt_common.schema.json#/$defs/content_ref"
+            },
+            "coverage_ref": {
+              "$ref": "https://axiom-forge.invalid/schemas/repository_receipt_common.schema.json#/$defs/content_ref"
+            },
+            "write_projection_ref": {
+              "$ref": "https://axiom-forge.invalid/schemas/repository_receipt_common.schema.json#/$defs/content_ref"
+            },
+            "policy_ref": {
+              "$ref": "https://axiom-forge.invalid/schemas/repository_receipt_common.schema.json#/$defs/content_ref"
+            },
+            "actor_ref": {
+              "$ref": "https://axiom-forge.invalid/schemas/repository_receipt_common.schema.json#/$defs/content_ref"
+            },
+            "host_verification_ref": {
+              "$ref": "https://axiom-forge.invalid/schemas/repository_receipt_common.schema.json#/$defs/content_ref"
+            }
+          },
+          "required": [
+            "inspection_ref",
+            "acceptance_scope",
+            "decision",
+            "review_view_ref",
+            "source_capture_ref",
+            "target_before_ref",
+            "coverage_ref",
+            "write_projection_ref",
+            "policy_ref",
+            "actor_ref",
+            "host_verification_ref"
+          ],
+          "additionalProperties": false
+        }
+      }
+    }
+  ]
+}

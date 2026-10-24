@@ -1,0 +1,50 @@
+{
+  "receipt_format_version": "1.0",
+  "receipt_kind": "operation_result",
+  "operation_id": "RPO-00000001-0000-4000-8000-000000000000",
+  "receipt_id": "RRC-00000004-0000-4000-8000-000000000000",
+  "sequence": 4,
+  "recorded_at": "2026-10-23T00:00:00Z",
+  "predecessor": {
+    "receipt_id": "RRC-00000003-0000-4000-8000-000000000000",
+    "sha256": "5c9c5863da507ddb291a165cc5e3d120780f05ba9a06a5d3f0aa84b645b2e5b0"
+  },
+  "payload": {
+    "requested_action": "update",
+    "inspection_ref": {
+      "receipt_id": "RRC-00000002-0000-4000-8000-000000000000",
+      "sha256": "b5b192d7af0f8e21d1895cc5b9ce07d0aa241b0dc8d28fe327727ff80b750e9a"
+    },
+    "acceptance_ref": {
+      "receipt_id": "RRC-00000003-0000-4000-8000-000000000000",
+      "sha256": "5c9c5863da507ddb291a165cc5e3d120780f05ba9a06a5d3f0aa84b645b2e5b0"
+    },
+    "execution_intent_ref": {
+      "record_id": "00000028-0000-4000-8000-000000000000",
+      "sha256": "4db8bd251dc52e07551745c53b2942765df905d60a50e332ebee928ebfdbb340"
+    },
+    "before_ref": {
+      "record_id": "00000015-0000-4000-8000-000000000000",
+      "sha256": "a2b0c5e8a7374133820a04220c8497d28a47f4cf574dd382b80e806e211f27d3"
+    },
+    "after_ref": {
+      "record_id": "00000029-0000-4000-8000-000000000000",
+      "sha256": "b429ae8cb6f8e8c662ed50a9da9c9669537877fdabbc8008fdb49324043ca66a"
+    },
+    "effects_ref": {
+      "record_id": "0000002a-0000-4000-8000-000000000000",
+      "sha256": "1af70ec3c6dbd34611a8e96649444ac00110aa1d0a2c2452abf76fa3e3217f63"
+    },
+    "preservation_ref": {
+      "record_id": "0000002b-0000-4000-8000-000000000000",
+      "sha256": "3f971e0c341fe041f85937b1bdd4e030b464a3630070fb5b3d72ba0057a6221c"
+    },
+    "saved_records_ref": {
+      "record_id": "0000002c-0000-4000-8000-000000000000",
+      "sha256": "4799494f2bab245641a5b66fbccd1e0f4c329c15546723ba7b590b0d24f32b37"
+    },
+    "outcome": "updated",
+    "diagnostics_ref": null,
+    "followup": "none"
+  }
+}
