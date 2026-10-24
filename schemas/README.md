@@ -25,6 +25,8 @@ ToolResult 记录工具调用身份、状态、输出或错误、开始/结束�
 | Canon Change | CHG-UUIDv4 | 变更提案 |
 | Checkpoint | CKP-UUIDv4 | 原子阶段记录 |
 | Event | EVT-UUIDv4 | 关联 checkpoint 的业务事件 |
+| Repository Operation | RPO-UUIDv4 | 一次固定仓库捕获与决定的数据身份 |
+| Repository Receipt | RRC-UUIDv4 | 一份不可变仓库回执的数据身份 |
 
 使用 `python -m axiom_forge new-id task` 等命令生成。厂商 Session/Thread ID 放在 metadata 中，不能替代这些业务 ID。角色只使用稳定业务名，当前没有模型绑定。
 
@@ -44,7 +46,9 @@ approval 默认为显式 pending，不能携带伪装的批准回执。approved/
 
 ## 验证层级
 
-`validate project_metadata <文件>` 使用严格有界 UTF-8 JSON 读取，只验证四字段及其精确约束，安全诊断不回显来源值。`--world <外部目录> project check` 再检查 world/world.json 元数据和世界身份一致；不会创建本机绑定，不检查 Git／完整 Canon／秘密或授予登记／接受权。命令与局限见 [项目元数据只读检查](../docs/guides/project-metadata-check.md)。CNV 对话标识与仓库操作回执 Schema 尚未登记；相关草案不等于可运行接口。
+`validate project_metadata <文件>` 使用严格有界 UTF-8 JSON 读取，只验证四字段及其精确约束，安全诊断不回显来源值。`--world <外部目录> project check` 再检查 world/world.json 元数据和世界身份一致；不会创建本机绑定，不检查 Git／完整 Canon／秘密或授予登记／接受权。命令与局限见 [项目元数据只读检查](../docs/guides/project-metadata-check.md)。CNV 对话标识尚未登记。
+
+四类 `repository_*_receipt` Schema 检查回执封套／payload；`repository_receipt_common` 定义 ReceiptRef、ContentRef 与 GitCommitRef。`validate` 对这些文件使用严格有界 UTF-8 读取和安全诊断，`SchemaStore.validate` 另检查严格整数序号等单份语义。链 API 检查原字节引用和跨阶段绑定，成功固定包含 `execution_authorized=false`；外部宿主记录／权限及实际效果另由宿主验证。见[回执数据校验](../docs/guides/repository-receipt-validation.md)。
 
 `check-schemas` 校验 Schema 与引用；`validate <schema> <file>` 校验单文件结构，对 TaskState、CanonSnapshot 与 AgentInput 额外校验语义；`validate-world` 校验整个 Ledger/实体引用网络。`check-contracts` 校验七个岗位登记与规则文件；`validate-agent-output <输入> <输出>` 绑定岗位、输入与输出身份，检查阶段、证据引用和 pending 提案。单条 Canon/Evidence 的结构验证不能替代 world/task 的跨记录检查。
 

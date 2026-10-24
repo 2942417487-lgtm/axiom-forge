@@ -29,6 +29,8 @@ python -m pip --python .venv install -r requirements-lock.txt
 | --- | --- |
 | 创建／校验世界与固定快照 | [世界工作区](docs/guides/world-workspaces.md) |
 | 检查项目元数据 | [只读检查](docs/guides/project-metadata-check.md) |
+| 校验仓库回执格式与数据链 | [回执数据校验](docs/guides/repository-receipt-validation.md) |
+| 保存宿主操作的内容引用 | [宿主内容存储](docs/guides/repository-content-store.md) |
 | 运行研究任务与人工 Canon 审批 | [任务管理](docs/guides/task-management.md) |
 | 检查日志并显式恢复 | [恢复指南](docs/guides/recovery.md) |
 | 岗位输入输出、工具、SDK、路由与模式 | [文档导航](docs/README.md) |

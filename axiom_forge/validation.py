@@ -118,12 +118,21 @@ class SchemaStore:
     def validate(self, name: str, data: dict):
         if name not in self.schemas:
             raise DataError(f"Unknown schema: {name}")
-        canonical_bytes(data)
+        repository_data = name.startswith("repository_")
+        try:
+            canonical_bytes(data)
+        except (DataError, ValueError, TypeError, RecursionError):
+            if repository_data:
+                raise DataError("Invalid repository receipt JSON data") from None
+            raise
         validator = Draft202012Validator(self.schemas[name], registry=self.registry,
                                         format_checker=contract_formats())
         errors = sorted(validator.iter_errors(data), key=lambda err: str(list(err.path)))
         if errors:
             error = errors[0]
+            if repository_data:
+                # Unknown keys and invalid source values can contain secrets.
+                raise DataError("Invalid repository receipt or reference fields") from None
             location = "/".join(str(part) for part in error.path) or "<root>"
             if name == "project_metadata":
                 # Labels and even unknown field names can contain secrets.
@@ -132,6 +141,9 @@ class SchemaStore:
             raise DataError(f"{name}:{location}: {error.message}")
         if name == "canon_change":
             validate_change(data)
+        if repository_data and name != "repository_receipt_common":
+            from .repository_receipts import _validate_receipt_semantics
+            _validate_receipt_semantics(data)
 
 
 KNOWLEDGE_DIRECTORIES = {

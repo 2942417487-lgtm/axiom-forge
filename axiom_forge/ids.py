@@ -15,6 +15,7 @@ ID_PREFIXES = {
     "artifact": "ART", "snapshot": "SNP", "proposal": "CHG",
     "claim": "CLM", "evidence": "EVD",
     "checkpoint": "CKP", "event": "EVT",
+    "repository_operation": "RPO", "repository_receipt": "RRC",
 }
 
 
