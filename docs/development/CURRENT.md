@@ -8,7 +8,7 @@
 - [工程技能与文档整理](tasks/2026-10-20-docs-and-skills.md)及其[隐私检查与发布](tasks/2026-10-20-privacy-and-publish.md)均已完成并随 PR #12 集成。原内容提交为 `48ba3f0e7d7ceb71631f8ae0d2139379135035a4`；没有因文档整理修改源码、Schema、Runtime 或功能布局。
 - 用户授权的隐私检查、推送、远端复核和合并已经执行；新提交使用 noreply，历史作者 metadata 按用户选择保留。既有授权不自动延伸到新任务。
 - [开发日志接续核对](tasks/2026-10-20-handoff-audit.md)已提交至 `401aa51b3e797e4c3c2f228379ee141cb6095bdc`；2026-10-23 现场确认原分支与本地远端跟踪引用一致、工作目录干净，本轮未查询远端。
-- [仓库宿主回执数据基础](tasks/2026-10-23-repository-receipt-foundations.md)和[宿主内容存储基础](tasks/2026-10-23-repository-content-store.md)已完成实现、测试及独立审查。用户于 2026-10-24 授权[提交、推送并创建 PR](tasks/2026-10-24-receipts-storage-pr.md)；当前正在 `codex/repository-receipt-foundations` 准备发布，起点 HEAD 为 `401aa51`，包含两阶段累计工作集及此前日志接续提交。main 尚未集成这些变化，本次不合并 PR。
+- [仓库宿主回执数据基础](tasks/2026-10-23-repository-receipt-foundations.md)和[宿主内容存储基础](tasks/2026-10-23-repository-content-store.md)已完成实现、测试及独立审查。用户于 2026-10-24 授权发布，功能提交 `f287f3b` 已推送至 `codex/repository-receipt-foundations`，[PR #13](https://github.com/2942417487-lgtm/axiom-forge/pull/13) 已创建，包含两阶段实现及此前日志接续提交；远端初次核对的 head／base、描述和 35 文件清单一致。当前等待用户审阅，main 尚未集成，本次不合并。发布检查及文档收尾见[当前任务](tasks/2026-10-24-receipts-storage-pr.md)。
 - 原 `codex/project-metadata-contract` 分支保留在 `75daed57caef3d2fea7e0a59f0a6096b64de6368`，`codex/world-portability-contract` 保留在 `6221d552e37c74b8937e04db7752f3b7d50354c9`。旧 worktree 5723 为干净的 detached HEAD，位于 `d2604248ff5e97ec1f1e5e85407c279861fec6db`；忽略缓存保留，不 reset／clean。
 
 ## 功能结构与证据边界
@@ -45,6 +45,8 @@ PR #11 的新增 20 项测试均已取得通过结果，其中真实符号链接
 PR #12 文档／技能检查与独立审查结果见[整理任务](tasks/2026-10-20-docs-and-skills.md)，隐私及合并结果见[发布任务](tasks/2026-10-20-privacy-and-publish.md)。开发日志核对见[原接续任务](tasks/2026-10-20-handoff-audit.md)。回执基础阶段完整回归运行 248 项，无失败，2 项既有符号链接测试因 OS 权限跳过；审查修正后 31 项回执测试另行通过。该阶段双轴各 1 项发现均已关闭，见[实施记录](tasks/2026-10-23-repository-receipt-foundations.md)。
 
 本轮内容存储、回执与基础校验联合回归 96 项全部通过，0 跳过；Spec 指出的裸库路径缺口修正后，27 项存储测试另行通过。Standards 无发现，Spec 1 项 P2 已复核关闭。本轮未重跑全套 discovery；验证顺序与范围见[当前任务](tasks/2026-10-23-repository-content-store.md)。
+
+2026-10-24 发布准备版本重新联跑 97 项相关测试，全部通过、0 跳过；功能提交后源码未再变化。候选树与实际功能提交对象的脱敏扫描通过，详见[发布记录](tasks/2026-10-24-receipts-storage-pr.md)。
 
 ## 接续注意
 
