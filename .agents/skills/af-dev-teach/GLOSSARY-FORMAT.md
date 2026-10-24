@@ -1,6 +1,6 @@
-# docs/development/GLOSSARY.md Format
+# development/records/GLOSSARY.md Format
 
-`docs/development/GLOSSARY.md` is the canonical language for this teaching workspace. All explainers, exercises, and learning records should adhere to its terminology. Building it is itself part of learning: compressing a concept into a tight definition is evidence the user understands it.
+`development/records/GLOSSARY.md` is the canonical language for this teaching workspace. All explainers, exercises, and learning records should adhere to its terminology. Building it is itself part of learning: compressing a concept into a tight definition is evidence the user understands it.
 
 ## Structure
 

@@ -1,6 +1,6 @@
 # 项目工程技能
 
-本目录是 [mattpocock/skills](https://github.com/mattpocock/skills) 的项目内适配副本，使用 af-dev 前缀，与全局同名插件区分。仅处理 Axiom Forge 系统软件开发；适用范围、调用方式及任务跟踪见 [工程技能用法](../../docs/development/skills/README.md)。
+本目录是 [mattpocock/skills](https://github.com/mattpocock/skills) 的项目内适配副本，使用 af-dev 前缀，与全局同名插件区分。仅处理 Axiom Forge 系统软件开发；适用范围、调用方式及任务跟踪见 [工程技能用法](../../development/records/skills/README.md)。
 
 ## 调用
 

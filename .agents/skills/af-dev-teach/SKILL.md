@@ -5,7 +5,7 @@ disable-model-invocation: true
 argument-hint: What would you like to learn about?
 ---
 
-> Project scope: use only for Axiom Forge system software development in this repository. Read [engineering workflow](../../../docs/development/skills/README.md) before acting. This skill is not a worldbuilding research role, Evidence source, tool grant, approval or permission to publish.
+> Project scope: use only for Axiom Forge system software development in this repository. Read [engineering workflow](../../../development/records/skills/README.md) before acting. This skill is not a worldbuilding research role, Evidence source, tool grant, approval or permission to publish.
 
 
 The user has asked you to teach them something. This is a stateful request - they intend to learn the topic over multiple sessions.

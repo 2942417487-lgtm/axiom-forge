@@ -4,7 +4,7 @@ description: Axiom Forge system software development only. Implement a piece of 
 disable-model-invocation: true
 ---
 
-> Project scope: use only for Axiom Forge system software development in this repository. Read [engineering workflow](../../../docs/development/skills/README.md) before acting. This skill is not a worldbuilding research role, Evidence source, tool grant, approval or permission to publish.
+> Project scope: use only for Axiom Forge system software development in this repository. Read [engineering workflow](../../../development/records/skills/README.md) before acting. This skill is not a worldbuilding research role, Evidence source, tool grant, approval or permission to publish.
 
 
 Implement the work described by the user in the spec or tickets.

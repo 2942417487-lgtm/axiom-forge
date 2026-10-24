@@ -1,14 +1,14 @@
 ---
 name: af-dev-domain-modeling
-description: Axiom Forge system software development only. Build and sharpen a project's domain model. Use when discussing codebase terminology, writing or editing a docs/development/GLOSSARY.md, or recording or editing an ADR.
+description: Axiom Forge system software development only. Build and sharpen a project's domain model. Use when discussing codebase terminology, writing or editing a development/records/GLOSSARY.md, or recording or editing an ADR.
 ---
 
-> Project scope: use only for Axiom Forge system software development in this repository. Read [engineering workflow](../../../docs/development/skills/README.md) before acting. This skill is not a worldbuilding research role, Evidence source, tool grant, approval or permission to publish.
+> Project scope: use only for Axiom Forge system software development in this repository. Read [engineering workflow](../../../development/records/skills/README.md) before acting. This skill is not a worldbuilding research role, Evidence source, tool grant, approval or permission to publish.
 
 
 # Domain Modeling
 
-Actively build and sharpen the project's domain model as you design. This is the *active* discipline: challenging terms, inventing edge-case scenarios, and writing the glossary and decisions down the moment they crystallise. (Merely *reading* `docs/development/GLOSSARY.md` for vocabulary is not this skill: that's a one-line habit any skill can do. This skill is for when you're changing the model, not just consuming it.)
+Actively build and sharpen the project's domain model as you design. This is the *active* discipline: challenging terms, inventing edge-case scenarios, and writing the glossary and decisions down the moment they crystallise. (Merely *reading* `development/records/GLOSSARY.md` for vocabulary is not this skill: that's a one-line habit any skill can do. This skill is for when you're changing the model, not just consuming it.)
 
 ## File structure
 
@@ -16,7 +16,7 @@ Most repos have a single context:
 
 ```
 /
-├── docs/development/GLOSSARY.md
+├── development/records/GLOSSARY.md
 ├── docs/
 │   └── adr/
 │       ├── 0001-event-sourced-orders.md
@@ -33,20 +33,20 @@ If a `GLOSSARY-MAP.md` exists at the root, the repo has multiple contexts. The m
 │   └── adr/                          ← system-wide decisions
 ├── src/
 │   ├── ordering/
-│   │   ├── docs/development/GLOSSARY.md
-│   │   └── docs/development/decisions/                 ← context-specific decisions
+│   │   ├── development/records/GLOSSARY.md
+│   │   └── development/records/decisions/                 ← context-specific decisions
 │   └── billing/
-│       ├── docs/development/GLOSSARY.md
-│       └── docs/development/decisions/
+│       ├── development/records/GLOSSARY.md
+│       └── development/records/decisions/
 ```
 
-Create files lazily: only when you have something to write. If no `docs/development/GLOSSARY.md` exists, create one when the first term is resolved. If no `docs/development/decisions/` exists, create it when the first ADR is needed.
+Create files lazily: only when you have something to write. If no `development/records/GLOSSARY.md` exists, create one when the first term is resolved. If no `development/records/decisions/` exists, create it when the first ADR is needed.
 
 ## During the session
 
 ### Challenge against the glossary
 
-When the user uses a term that conflicts with the existing language in `docs/development/GLOSSARY.md`, call it out immediately. "Your glossary defines 'cancellation' as X, but you seem to mean Y. Which is it?"
+When the user uses a term that conflicts with the existing language in `development/records/GLOSSARY.md`, call it out immediately. "Your glossary defines 'cancellation' as X, but you seem to mean Y. Which is it?"
 
 ### Sharpen fuzzy language
 
@@ -60,11 +60,11 @@ When domain relationships are being discussed, stress-test them with specific sc
 
 When the user states how something works, check whether the code agrees. If you find a contradiction, surface it: "Your code cancels entire Orders, but you just said partial cancellation is possible. Which is right?"
 
-### Update docs/development/GLOSSARY.md inline
+### Update development/records/GLOSSARY.md inline
 
-When a term is resolved, update `docs/development/GLOSSARY.md` right there. Don't batch these up: capture them as they happen. Use the format in [GLOSSARY-FORMAT.md](./GLOSSARY-FORMAT.md).
+When a term is resolved, update `development/records/GLOSSARY.md` right there. Don't batch these up: capture them as they happen. Use the format in [GLOSSARY-FORMAT.md](./GLOSSARY-FORMAT.md).
 
-`docs/development/GLOSSARY.md` should be totally devoid of implementation details. Do not treat `docs/development/GLOSSARY.md` as a spec, a scratch pad, or a repository for implementation decisions. It is a glossary and nothing else.
+`development/records/GLOSSARY.md` should be totally devoid of implementation details. Do not treat `development/records/GLOSSARY.md` as a spec, a scratch pad, or a repository for implementation decisions. It is a glossary and nothing else.
 
 ### Offer ADRs sparingly
 

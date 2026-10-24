@@ -3,7 +3,7 @@ name: af-dev-codebase-design
 description: Axiom Forge system software development only. Shared vocabulary for designing deep modules. Use when the user wants to design or improve a module's interface, find deepening opportunities, decide where a seam goes, make code more testable or AI-navigable, or when another skill needs the deep-module vocabulary.
 ---
 
-> Project scope: use only for Axiom Forge system software development in this repository. Read [engineering workflow](../../../docs/development/skills/README.md) before acting. This skill is not a worldbuilding research role, Evidence source, tool grant, approval or permission to publish.
+> Project scope: use only for Axiom Forge system software development in this repository. Read [engineering workflow](../../../development/records/skills/README.md) before acting. This skill is not a worldbuilding research role, Evidence source, tool grant, approval or permission to publish.
 
 
 # Codebase Design

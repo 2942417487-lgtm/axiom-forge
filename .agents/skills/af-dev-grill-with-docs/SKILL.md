@@ -4,7 +4,7 @@ description: Axiom Forge system software development only. A relentless intervie
 disable-model-invocation: true
 ---
 
-> Project scope: use only for Axiom Forge system software development in this repository. Read [engineering workflow](../../../docs/development/skills/README.md) before acting. This skill is not a worldbuilding research role, Evidence source, tool grant, approval or permission to publish.
+> Project scope: use only for Axiom Forge system software development in this repository. Read [engineering workflow](../../../development/records/skills/README.md) before acting. This skill is not a worldbuilding research role, Evidence source, tool grant, approval or permission to publish.
 
 
 Call the Skill tool twice, for "af-dev-grilling" and "af-dev-domain-modeling".

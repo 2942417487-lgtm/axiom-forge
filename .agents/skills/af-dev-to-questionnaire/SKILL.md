@@ -4,7 +4,7 @@ description: Axiom Forge system software development only. Turn a decision you c
 disable-model-invocation: true
 ---
 
-> Project scope: use only for Axiom Forge system software development in this repository. Read [engineering workflow](../../../docs/development/skills/README.md) before acting. This skill is not a worldbuilding research role, Evidence source, tool grant, approval or permission to publish.
+> Project scope: use only for Axiom Forge system software development in this repository. Read [engineering workflow](../../../development/records/skills/README.md) before acting. This skill is not a worldbuilding research role, Evidence source, tool grant, approval or permission to publish.
 
 
 Turn something the user can't answer alone into a **questionnaire**: a Markdown document they hand to one person to fill in async, or fill out together over a meeting. The recipient holds knowledge the user lacks; the questionnaire pulls it out of them.
@@ -16,7 +16,7 @@ Turn something the user can't answer alone into a **questionnaire**: a Markdown 
 
 2. **What do you need back?** Ask, in one exchange, the specific decisions or facts the user can't resolve alone and needs from this person. Done when you have a concrete list of what the user must walk away able to do or decide.
 
-3. **Write the questionnaire.** Draft questions aimed at the gap from steps 1–2, following the Document structure below. Write it beside the current task as `docs/development/tasks/<feature>/questionnaire-<slug>.md` (slug from the topic) and report the path. Done when the file exists and every item the user named in step 2 is covered by a question.
+3. **Write the questionnaire.** Draft questions aimed at the gap from steps 1–2, following the Document structure below. Write it beside the current task as `development/records/tasks/<feature>/questionnaire-<slug>.md` (slug from the topic) and report the path. Done when the file exists and every item the user named in step 2 is covered by a question.
 
 ## Document structure
 
